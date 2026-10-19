@@ -15,6 +15,8 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { motion } from 'motion/react';
+import { SLIDE } from '../../utils/animations';
 import { Dices } from 'lucide-react';
 
 interface LudoGameProps {
@@ -388,11 +390,13 @@ export const LudoGame: React.FC<LudoGameProps> = ({
           {renderedTokens.map((t) => {
             const fill = t.player === 0 ? C.token0 : token1;
             return (
-              <g
+              <motion.g
                 key={`${t.player}-${t.tokenIndex}`}
                 onClick={() => handleTokenClick(t.player, t.tokenIndex)}
                 style={{ cursor: t.movable ? 'pointer' : 'default' }}
-                transform={`translate(${t.x} ${t.y})`}
+                initial={false}
+                animate={{ x: t.x, y: t.y }}
+                transition={SLIDE}
               >
                 {/* ground shadow */}
                 <ellipse cx="0.04" cy="0.3" rx="0.32" ry="0.1" fill="rgba(0,0,0,0.25)" />
@@ -416,7 +420,7 @@ export const LudoGame: React.FC<LudoGameProps> = ({
                     className="animate-pulse"
                   />
                 )}
-              </g>
+              </motion.g>
             );
           })}
         </svg>

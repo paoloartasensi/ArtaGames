@@ -5,6 +5,7 @@ import {
   createInitialAbaloneState,
   getAllAbaCells,
   abaKey,
+  parseAbaKey,
   extendAbaSelection,
   tryAbaMove,
   applyAbaMove,
@@ -14,6 +15,8 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { motion } from 'motion/react';
+import { SLIDE, FADE, useMoveKey } from '../../utils/animations';
 
 interface AbaloneGameProps {
   playMode: PlayMode;
@@ -26,6 +29,27 @@ interface AbaloneGameProps {
 const S = 44; // spacing between cell centres
 const R = 19; // marble radius
 const P_COLORS = ['#1f2937', '#f8fafc']; // black, white marbles
+
+// Given a marble's current cell `key`, returns the cell it slid from in `lm` (or null).
+function abaSlideSource(key: string, lm: AbaloneState['lastMove']): string | null {
+  if (!lm || lm.from.length === 0) return null;
+  const i = lm.to.indexOf(key);
+  if (i >= 0) return lm.from[i]; // part of the moving group
+
+  const a = parseAbaKey(lm.from[0]);
+  const b = parseAbaKey(lm.to[0]);
+  const dq = b.q - a.q;
+  const dr = b.r - a.r;
+  const front = parseAbaKey(lm.from[lm.from.length - 1]);
+  const k = parseAbaKey(key);
+  // Pushed opponents land at front + d*j (j >= 2); they came from front + d*(j-1).
+  for (let j = 2; j <= 4; j++) {
+    if (k.q === front.q + dq * j && k.r === front.r + dr * j) {
+      return abaKey(front.q + dq * (j - 1), front.r + dr * (j - 1));
+    }
+  }
+  return null;
+}
 
 export const AbaloneGame: React.FC<AbaloneGameProps> = ({
   playMode,
@@ -110,6 +134,7 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
 
   const humanOut = gameState.knockedOut[0];
   const botOut = gameState.knockedOut[1];
+  const moveKey = useMoveKey(gameState.lastMove);
 
   return (
     <div className="flex flex-col items-center w-full max-w-md mx-auto px-2">
@@ -174,6 +199,8 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
             const x = px(c.q, c.r);
             const y = py(c.q, c.r);
             const isSelected = selected.includes(key);
+            const srcKey = abaSlideSource(key, gameState.lastMove);
+            const src = srcKey ? parseAbaKey(srcKey) : null;
 
             if (owner === undefined) {
               return (
@@ -184,9 +211,8 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
               );
             }
 
-            return (
-              <g key={key} onClick={() => handleCellClick(key)} className={canAct ? 'cursor-pointer' : ''}>
-                {isSelected && <circle cx={x} cy={y} r={R + 5} fill="none" stroke="#f59e0b" strokeWidth={3} />}
+            const marble = (
+              <>
                 <circle
                   cx={x}
                   cy={y}
@@ -196,9 +222,48 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
                   strokeWidth={2}
                 />
                 <circle cx={x - 6} cy={y - 7} r={R * 0.32} fill="#ffffff" opacity={owner === 0 ? 0.3 : 0.65} />
+              </>
+            );
+
+            return (
+              <g key={key} onClick={() => handleCellClick(key)} className={canAct ? 'cursor-pointer' : ''}>
+                {isSelected && <circle cx={x} cy={y} r={R + 5} fill="none" stroke="#f59e0b" strokeWidth={3} />}
+                {src ? (
+                  <motion.g
+                    initial={{ x: px(src.q, src.r) - x, y: py(src.q, src.r) - y }}
+                    animate={{ x: 0, y: 0 }}
+                    transition={SLIDE}
+                  >
+                    {marble}
+                  </motion.g>
+                ) : (
+                  marble
+                )}
               </g>
             );
           })}
+
+          {/* Knocked-off ghost: fades the marble that fell off the board */}
+          {gameState.lastMove?.knockedOff?.length ? (
+            (() => {
+              const ko = parseAbaKey(gameState.lastMove.knockedOff[0]);
+              return (
+                <motion.circle
+                  key={moveKey}
+                  cx={px(ko.q, ko.r)}
+                  cy={py(ko.q, ko.r)}
+                  r={R}
+                  fill={P_COLORS[gameState.turn]}
+                  stroke={gameState.turn === 0 ? '#e5e7eb' : '#475569'}
+                  strokeWidth={2}
+                  initial={{ opacity: 0.9, scale: 1 }}
+                  animate={{ opacity: 0, scale: 0.5 }}
+                  transition={FADE}
+                  pointerEvents="none"
+                />
+              );
+            })()
+          ) : null}
         </svg>
       </div>
 
