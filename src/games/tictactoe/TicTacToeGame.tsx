@@ -11,6 +11,8 @@ import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
+
 interface TicTacToeGameProps {
   playMode: PlayMode;
   difficulty: Difficulty;
@@ -65,34 +67,19 @@ export const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
     return gameState.winningLine?.includes(idx);
   };
 
+  const p1Name = 'Giocatore X';
+  const p2Name = playMode === 'bot' ? 'BOT O' : 'Giocatore O';
+
   return (
     <div className="flex flex-col items-center w-full max-w-sm mx-auto px-2">
-      {/* Player turn bar */}
-      <div className="flex items-center justify-between w-full mb-3 px-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 'X' && !gameState.gameOver
-              ? 'ring-2 ring-blue-500 bg-blue-500/10'
-              : 'opacity-70'
-          }`}
-        >
-          <span className="font-bold text-blue-500 text-base">X</span>
-          <span className="text-xs font-semibold">Giocatore X</span>
-        </div>
-
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 'O' && !gameState.gameOver
-              ? 'ring-2 ring-amber-500 bg-amber-500/10'
-              : 'opacity-70'
-          }`}
-        >
-          <span className="text-xs font-semibold">
-            {playMode === 'bot' ? 'BOT O' : 'Giocatore O'}
-          </span>
-          <span className="font-bold text-amber-500 text-base">O</span>
-        </div>
-      </div>
+      {/* Top Player Indicator (Player 2: rotated 180 in local 1v1 tabletop) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={p2Name}
+        color="#f59e0b"
+        isCurrentTurn={gameState.turn === 'O' && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+      />
 
       {/* 3x3 Arena */}
       <div
@@ -139,6 +126,15 @@ export const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
           })}
         </div>
       </div>
+
+      {/* Bottom Player Indicator (Player 1: normal orientation) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName={p1Name}
+        color="#3b82f6"
+        isCurrentTurn={gameState.turn === 'X' && !gameState.gameOver}
+        isFlipped={false}
+      />
 
       {/* Bot thinking */}
       {isBotThinking && (

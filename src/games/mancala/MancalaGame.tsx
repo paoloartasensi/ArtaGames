@@ -10,6 +10,7 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 
 interface MancalaGameProps {
   playMode: PlayMode;
@@ -66,8 +67,9 @@ export const MancalaGame: React.FC<MancalaGameProps> = ({
   const clickableP1 = !gameState.gameOver && isP1Turn && !isBotThinking;
   const clickableP2 = !gameState.gameOver && !isP1Turn && playMode === 'local_pvp' && !isBotThinking;
 
-  const renderPit = (pit: number, clickable: boolean) => {
+  const renderPit = (pit: number, clickable: boolean, isP2Pit: boolean = false) => {
     const count = gameState.pits[pit];
+    const shouldFlip = isP2Pit && playMode === 'local_pvp';
     return (
       <button
         key={pit}
@@ -79,7 +81,9 @@ export const MancalaGame: React.FC<MancalaGameProps> = ({
             : 'bg-gradient-to-b from-[#7a4a20] to-[#3a2410] text-[#d9b98a]'
         }`}
       >
-        {count > 0 ? count : ''}
+        <span className={shouldFlip ? 'rotate-180 transition-transform' : ''}>
+          {count > 0 ? count : ''}
+        </span>
       </button>
     );
   };
@@ -89,25 +93,15 @@ export const MancalaGame: React.FC<MancalaGameProps> = ({
 
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto px-2">
-      {/* Turn indicator */}
-      <div className="flex items-center justify-between w-full mb-3 px-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            isP1Turn && !gameState.gameOver ? 'ring-2 ring-blue-500 bg-blue-500/10' : 'opacity-70'
-          }`}
-        >
-          <div className="w-4 h-4 rounded-full bg-blue-500 shadow-sm" />
-          <span className="text-xs font-semibold">{p1Name}</span>
-        </div>
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            !isP1Turn && !gameState.gameOver ? 'ring-2 ring-rose-500 bg-rose-500/10' : 'opacity-70'
-          }`}
-        >
-          <span className="text-xs font-semibold">{p2Name}</span>
-          <div className="w-4 h-4 rounded-full bg-rose-500 shadow-sm" />
-        </div>
-      </div>
+      {/* Top Player Indicator (Rosso / P2: rotated 180 in local 1v1 tabletop) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={p2Name}
+        color="#f43f5e"
+        isCurrentTurn={!isP1Turn && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+        score={`Riserva: ${gameState.pits[13]}`}
+      />
 
       {/* Board */}
       <div
@@ -124,11 +118,11 @@ export const MancalaGame: React.FC<MancalaGameProps> = ({
           <div className="flex-1 grid gap-2">
             {/* Top row (P2 pits 7..12) */}
             <div className="grid grid-cols-6 gap-2">
-              {P2_PITS.map((p) => renderPit(p, clickableP2))}
+              {P2_PITS.map((p) => renderPit(p, clickableP2, true))}
             </div>
             {/* Bottom row (P1 pits 0..5) */}
             <div className="grid grid-cols-6 gap-2">
-              {P1_PITS.map((p) => renderPit(p, clickableP1))}
+              {P1_PITS.map((p) => renderPit(p, clickableP1, false))}
             </div>
           </div>
 
@@ -140,7 +134,17 @@ export const MancalaGame: React.FC<MancalaGameProps> = ({
         </div>
       </div>
 
-      <p className="mt-3 text-[11px] text-center font-medium text-stone-500 dark:text-stone-400 max-w-xs">
+      {/* Bottom Player Indicator (Blu / P1: normal orientation) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName={p1Name}
+        color="#3b82f6"
+        isCurrentTurn={isP1Turn && !gameState.gameOver}
+        isFlipped={false}
+        score={`Riserva: ${gameState.pits[6]}`}
+      />
+
+      <p className="mt-2 text-[11px] text-center font-medium text-stone-500 dark:text-stone-400 max-w-xs">
         Tocca una delle tue 6 buche per seminare i semi in senso antiorario. Se l'ultimo seme cade nella tua riserva, giochi di nuovo!
       </p>
 

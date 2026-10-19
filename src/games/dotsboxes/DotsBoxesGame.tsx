@@ -11,6 +11,7 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 
 interface DotsBoxesGameProps {
   playMode: PlayMode;
@@ -73,45 +74,35 @@ export const DotsBoxesGame: React.FC<DotsBoxesGameProps> = ({
   const grid = gameState.size;
   const svgSize = M * 2 + (grid - 1) * S;
 
+  const p1Name = playMode === 'bot' ? 'Tu' : 'Giocatore 1';
+  const p2Name = playMode === 'bot' ? 'BOT' : 'Giocatore 2';
+
   return (
     <div className="flex flex-col items-center w-full max-w-md mx-auto px-2">
+      {/* Top Player Indicator (Player 2: rotated 180 in local 1v1 tabletop) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={p2Name}
+        color={P_COLORS[1]}
+        isCurrentTurn={gameState.turn === 1 && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+        score={`Quadratini: ${gameState.scores[1]}`}
+      />
+
       {/* Grid size toggle */}
-      <div className="flex items-center justify-center w-full mb-2 px-1 text-xs">
+      <div className="flex items-center justify-center w-full my-1.5 px-1 text-xs">
         <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/10 dark:bg-white/10">
           {[3, 4, 5].map((n) => (
             <button
               key={n}
               onClick={() => handleRestart(n)}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
-                gridSize === n ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              className={`px-2.5 py-1 rounded-lg font-black transition-colors ${
+                gridSize === n ? 'bg-amber-500 text-stone-900 shadow-sm' : 'text-stone-600 dark:text-stone-300 hover:text-white'
               }`}
             >
               {n}×{n}
             </button>
           ))}
-        </div>
-      </div>
-
-      {/* Turn bar with scores */}
-      <div className="flex items-center justify-between w-full mb-3 px-1 gap-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all flex-1 ${
-            gameState.turn === 0 && !gameState.gameOver ? 'ring-2 ring-blue-500 bg-blue-500/10' : 'opacity-70'
-          }`}
-        >
-          <span className="w-3 h-3 rounded-full shrink-0" style={{ background: P_COLORS[0] }} />
-          <span className="text-xs font-semibold">{playMode === 'bot' ? 'Tu' : 'Giocatore 1'}</span>
-          <span className="ml-auto font-bold text-blue-500">{gameState.scores[0]}</span>
-        </div>
-
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all flex-1 ${
-            gameState.turn === 1 && !gameState.gameOver ? 'ring-2 ring-amber-500 bg-amber-500/10' : 'opacity-70'
-          }`}
-        >
-          <span className="w-3 h-3 rounded-full shrink-0" style={{ background: P_COLORS[1] }} />
-          <span className="text-xs font-semibold">{playMode === 'bot' ? 'BOT' : 'Giocatore 2'}</span>
-          <span className="ml-auto font-bold text-amber-500">{gameState.scores[1]}</span>
         </div>
       </div>
 
@@ -192,6 +183,16 @@ export const DotsBoxesGame: React.FC<DotsBoxesGameProps> = ({
           )}
         </svg>
       </div>
+
+      {/* Bottom Player Indicator (Player 1: normal orientation) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName={p1Name}
+        color={P_COLORS[0]}
+        isCurrentTurn={gameState.turn === 0 && !gameState.gameOver}
+        isFlipped={false}
+        score={`Quadratini: ${gameState.scores[0]}`}
+      />
 
       {isBotThinking && (
         <div className="mt-3 text-xs font-medium text-amber-500 animate-pulse">Il BOT sta disegnando...</div>

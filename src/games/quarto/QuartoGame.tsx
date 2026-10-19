@@ -12,6 +12,7 @@ import {
 import { useTheme } from '../../theme/themeContext';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 
 interface QuartoGameProps {
   playMode: PlayMode;
@@ -111,6 +112,10 @@ export const QuartoGame: React.FC<QuartoGameProps> = ({
   const isWinningCell = (r: number, c: number) =>
     gameState.winningLine?.some((p) => p.r === r && p.c === c) ?? false;
 
+  const activePlayer = gameState.phase === 'pick' ? gameState.turn : 1 - gameState.turn;
+  const p1Name = playMode === 'bot' ? 'Tu (P1)' : 'Giocatore 1';
+  const p2Name = playMode === 'bot' ? 'BOT (P2)' : 'Giocatore 2';
+
   const statusText =
     playMode === 'bot'
       ? gameState.turn === 0 && gameState.phase === 'pick'
@@ -126,7 +131,16 @@ export const QuartoGame: React.FC<QuartoGameProps> = ({
 
   return (
     <div className="flex flex-col items-center w-full max-w-md mx-auto px-2">
-      <p className="mb-3 text-xs font-semibold text-center text-stone-500 dark:text-stone-400">{statusText}</p>
+      {/* Top Player Indicator (Player 2: rotated 180 in local 1v1 tabletop) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={p2Name}
+        color="#a855f7"
+        isCurrentTurn={activePlayer === 1 && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+      />
+
+      <p className="my-2 text-xs font-semibold text-center text-stone-500 dark:text-stone-400">{statusText}</p>
 
       {/* Board */}
       <div
@@ -189,6 +203,15 @@ export const QuartoGame: React.FC<QuartoGameProps> = ({
           )}
         </div>
       </div>
+
+      {/* Bottom Player Indicator (Player 1: normal orientation) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName={p1Name}
+        color="#3b82f6"
+        isCurrentTurn={activePlayer === 0 && !gameState.gameOver}
+        isFlipped={false}
+      />
 
       {isBotThinking && (
         <div className="mt-2 text-xs font-medium text-amber-500 animate-pulse">Il BOT sta pensando...</div>

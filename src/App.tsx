@@ -29,6 +29,7 @@ import { DotsBoxesGame } from './games/dotsboxes/DotsBoxesGame';
 import { GomokuGame } from './games/gomoku/GomokuGame';
 import { NimGame } from './games/nim/NimGame';
 import { AbaloneGame } from './games/abalone/AbaloneGame';
+import { GuessWhoGame } from './games/guesswho/GuessWhoGame';
 
 function AppContent() {
   const { theme } = useTheme();
@@ -259,6 +260,17 @@ function AppContent() {
                   isTabletFlipped={isTabletFlipped}
                 />
               )}
+
+              {activeGameId === 'guesswho' && (
+                <GuessWhoGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
     </>
   );
 
@@ -269,7 +281,7 @@ function AppContent() {
         <ExitButton onExit={() => setViewMode('catalog')} />
 
         {/* Board Container */}
-        <div className="w-full h-full flex flex-col items-center justify-center">
+        <div className="w-full h-full flex flex-col items-center justify-start overflow-y-auto pt-6 pb-12">
           {renderActiveGameBoard()}
         </div>
 

@@ -15,6 +15,7 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 import { motion } from 'motion/react';
 import { SLIDE, FADE, useMoveKey } from '../../utils/animations';
 
@@ -136,44 +137,36 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
   const botOut = gameState.knockedOut[1];
   const moveKey = useMoveKey(gameState.lastMove);
 
+  const p1Name = playMode === 'bot' ? 'Tu (Nero)' : 'Nero (Giocatore 1)';
+  const p2Name = playMode === 'bot' ? 'BOT (Bianco)' : 'Bianco (Giocatore 2)';
+
   return (
     <div className="flex flex-col items-center w-full max-w-md mx-auto px-2">
+      {/* Top Player Indicator (Bianco / P2: rotated 180 in local 1v1 tabletop) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={p2Name}
+        color="#ffffff"
+        pieceIcon={<div className="w-2.5 h-2.5 rounded-full bg-white ring-1 ring-black/40" />}
+        isCurrentTurn={gameState.turn === 1 && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+        score={`Fuori: ${botOut}/${gameState.target}`}
+      />
+
       {/* Win threshold toggle */}
-      <div className="flex items-center justify-center w-full mb-2 px-1 text-xs">
+      <div className="flex items-center justify-center w-full my-1.5 px-1 text-xs">
         <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/10 dark:bg-white/10">
           {[4, 5, 6].map((n) => (
             <button
               key={n}
               onClick={() => handleRestart(n)}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
-                target === n ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              className={`px-2.5 py-1 rounded-lg font-black transition-colors ${
+                target === n ? 'bg-amber-500 text-stone-900 shadow-sm' : 'text-stone-600 dark:text-stone-300 hover:text-white'
               }`}
             >
               a {n}
             </button>
           ))}
-        </div>
-      </div>
-
-      {/* Turn / status bar */}
-      <div className="flex items-center justify-between w-full mb-3 px-1 gap-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all flex-1 ${
-            gameState.turn === 0 && !gameState.gameOver ? 'ring-2 ring-stone-400 bg-white/10' : 'opacity-70'
-          }`}
-        >
-          <span className="w-3.5 h-3.5 rounded-full bg-stone-800 ring-1 ring-white/40 shrink-0" />
-          <span className="text-xs font-semibold">{playMode === 'bot' ? 'Tu' : 'Giocatore 1'}</span>
-          <span className="ml-auto text-[10px] font-bold opacity-70">fuori {humanOut}/{gameState.target}</span>
-        </div>
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all flex-1 ${
-            gameState.turn === 1 && !gameState.gameOver ? 'ring-2 ring-slate-200 bg-white/10' : 'opacity-70'
-          }`}
-        >
-          <span className="w-3.5 h-3.5 rounded-full bg-white ring-1 ring-black/40 shrink-0" />
-          <span className="text-xs font-semibold">{playMode === 'bot' ? 'BOT' : 'Giocatore 2'}</span>
-          <span className="ml-auto text-[10px] font-bold opacity-70">fuori {botOut}/{gameState.target}</span>
         </div>
       </div>
 
@@ -266,6 +259,17 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
           ) : null}
         </svg>
       </div>
+
+      {/* Bottom Player Indicator (Nero / P1: normal orientation) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName={p1Name}
+        color="#1f2937"
+        pieceIcon={<div className="w-2.5 h-2.5 rounded-full bg-stone-900 ring-1 ring-white/40" />}
+        isCurrentTurn={gameState.turn === 0 && !gameState.gameOver}
+        isFlipped={false}
+        score={`Fuori: ${humanOut}/${gameState.target}`}
+      />
 
       {isBotThinking && (
         <div className="mt-3 text-xs font-medium text-amber-500 animate-pulse">Il BOT sta pensando...</div>

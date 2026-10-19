@@ -5,6 +5,7 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 
 interface NimGameProps {
   playMode: PlayMode;
@@ -53,20 +54,62 @@ export const NimGame: React.FC<NimGameProps> = ({ playMode, difficulty, onSelect
     setGameState(createInitialNimState(s));
   };
 
-  const canTake = (n: number) =>
-    !gameState.gameOver && !isBotThinking && n <= gameState.sticks && (playMode !== 'bot' || gameState.turn === 0);
+  const canTake = (n: number, forPlayer: 0 | 1) =>
+    !gameState.gameOver &&
+    !isBotThinking &&
+    n <= gameState.sticks &&
+    gameState.turn === forPlayer &&
+    (playMode !== 'bot' || forPlayer === 0);
+
+  const p1Name = playMode === 'bot' ? 'Tu (P1)' : 'Giocatore 1';
+  const p2Name = playMode === 'bot' ? 'BOT (P2)' : 'Giocatore 2';
+
+  const renderTakeButtons = (forPlayer: 0 | 1, isFlipped: boolean) => (
+    <div className={`flex gap-2 w-full my-2 transition-transform ${isFlipped ? 'rotate-180' : ''}`}>
+      {Array.from({ length: NIM_MAX_TAKE }).map((_, i) => {
+        const n = i + 1;
+        const enabled = canTake(n, forPlayer);
+        return (
+          <button
+            key={n}
+            onClick={() => handleTake(n)}
+            disabled={!enabled}
+            className={`flex-1 py-3.5 rounded-2xl font-black text-xl transition-all shadow-md active:scale-95 ${
+              enabled
+                ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 border-b-4 border-amber-700 active:border-b-0 active:translate-y-1'
+                : 'bg-black/10 text-stone-400 opacity-40 cursor-not-allowed border-none'
+            }`}
+          >
+            -{n}
+          </button>
+        );
+      })}
+    </div>
+  );
 
   return (
     <div className="flex flex-col items-center w-full max-w-sm mx-auto px-2">
+      {/* Top Player Indicator (P2: rotated 180 in local 1v1 tabletop) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={p2Name}
+        color="#f59e0b"
+        isCurrentTurn={gameState.turn === 1 && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+      />
+
+      {/* Player 2 take controls in local 1v1 */}
+      {playMode === 'local_pvp' && renderTakeButtons(1, true)}
+
       {/* Starting sticks toggle */}
-      <div className="flex items-center justify-center w-full mb-2 px-1 text-xs">
+      <div className="flex items-center justify-center w-full my-1.5 px-1 text-xs">
         <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/10 dark:bg-white/10">
           {[13, 16, 21].map((n) => (
             <button
               key={n}
               onClick={() => handleRestart(n)}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
-                start === n ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              className={`px-2.5 py-1 rounded-lg font-black transition-colors ${
+                start === n ? 'bg-amber-500 text-stone-900 shadow-sm' : 'text-stone-600 dark:text-stone-300 hover:text-white'
               }`}
             >
               {n}
@@ -75,29 +118,11 @@ export const NimGame: React.FC<NimGameProps> = ({ playMode, difficulty, onSelect
         </div>
       </div>
 
-      {/* Turn bar */}
-      <div className="flex items-center justify-between w-full mb-3 px-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 0 && !gameState.gameOver ? 'ring-2 ring-blue-500 bg-blue-500/10' : 'opacity-70'
-          }`}
-        >
-          <span className="text-xs font-semibold">{playMode === 'bot' ? 'Tu' : 'Giocatore 1'}</span>
-        </div>
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 1 && !gameState.gameOver ? 'ring-2 ring-amber-500 bg-amber-500/10' : 'opacity-70'
-          }`}
-        >
-          <span className="text-xs font-semibold">{playMode === 'bot' ? 'BOT' : 'Giocatore 2'}</span>
-        </div>
-      </div>
-
       {/* Remaining sticks */}
-      <div className="text-2xl font-extrabold mb-1">
-        {gameState.sticks} <span className="text-base font-semibold opacity-60">bastoncini</span>
+      <div className="text-2xl font-black my-1 text-stone-900 dark:text-white">
+        {gameState.sticks} <span className="text-base font-bold opacity-60">bastoncini</span>
       </div>
-      <p className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 mb-3">
+      <p className="text-[11px] font-black text-stone-500 dark:text-stone-400 mb-2">
         Chi prende l'ultimo bastoncino... perde!
       </p>
 
@@ -121,27 +146,17 @@ export const NimGame: React.FC<NimGameProps> = ({ playMode, difficulty, onSelect
         </div>
       </div>
 
-      {/* Take buttons */}
-      <div className="flex gap-2 mt-4 w-full">
-        {Array.from({ length: NIM_MAX_TAKE }).map((_, i) => {
-          const n = i + 1;
-          const enabled = canTake(n);
-          return (
-            <button
-              key={n}
-              onClick={() => handleTake(n)}
-              disabled={!enabled}
-              className={`flex-1 py-3 rounded-xl font-bold text-lg transition-transform ${
-                enabled
-                  ? 'bg-amber-500 hover:bg-amber-400 text-stone-900 active:scale-95 shadow-lg shadow-amber-500/20'
-                  : 'bg-black/10 text-stone-400 cursor-not-allowed'
-              }`}
-            >
-              -{n}
-            </button>
-          );
-        })}
-      </div>
+      {/* Player 1 take controls */}
+      {renderTakeButtons(0, false)}
+
+      {/* Bottom Player Indicator (P1: normal orientation) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName={p1Name}
+        color="#3b82f6"
+        isCurrentTurn={gameState.turn === 0 && !gameState.gameOver}
+        isFlipped={false}
+      />
 
       {isBotThinking && (
         <div className="mt-3 text-xs font-medium text-amber-500 animate-pulse">Il BOT sta togliendo i bastoncini...</div>

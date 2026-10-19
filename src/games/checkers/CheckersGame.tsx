@@ -14,6 +14,7 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 import { motion } from 'motion/react';
 import { GridSlidePiece, FADE } from '../../utils/animations';
 import { Crown } from 'lucide-react';
@@ -141,34 +142,15 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
 
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto px-2">
-      {/* Turn indicator & captured counts */}
-      <div className="flex items-center justify-between w-full mb-3 px-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 'r' && !gameState.gameOver
-              ? 'ring-2 ring-red-500 bg-red-500/10'
-              : 'opacity-70'
-          }`}
-        >
-          <div className="w-4 h-4 rounded-full bg-red-500 shadow-sm" />
-          <span className="text-xs font-semibold">Rosso (P1)</span>
-          <span className="text-[11px] opacity-75">· {12 - gameState.blackCaptured} rimasti</span>
-        </div>
-
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 'b' && !gameState.gameOver
-              ? 'ring-2 ring-slate-400 bg-slate-500/10'
-              : 'opacity-70'
-          }`}
-        >
-          <span className="text-[11px] opacity-75">{12 - gameState.redCaptured} rimasti ·</span>
-          <span className="text-xs font-semibold">
-            {playMode === 'bot' ? 'Nero (BOT)' : 'Nero (P2)'}
-          </span>
-          <div className="w-4 h-4 rounded-full bg-slate-800 border border-slate-600 shadow-sm" />
-        </div>
-      </div>
+      {/* Top Player Indicator (Player 2: inverted in 1vs1 tabletop mode) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={playMode === 'bot' ? 'Nero (BOT)' : 'Nero (Giocatore 2)'}
+        color="#1c1917"
+        isCurrentTurn={gameState.turn === 'b' && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+        score={`Pedine: ${12 - gameState.redCaptured}`}
+      />
 
       {/* 8x8 Board Container */}
       <div
@@ -259,9 +241,19 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
         </div>
       </div>
 
+      {/* Bottom Player Indicator (Player 1) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName="Rosso (Giocatore 1)"
+        color="#ef4444"
+        isCurrentTurn={gameState.turn === 'r' && !gameState.gameOver}
+        isFlipped={false}
+        score={`Pedine: ${12 - gameState.blackCaptured}`}
+      />
+
       {/* Bot Thinking indicator */}
       {isBotThinking && (
-        <div className="mt-3 text-xs font-medium text-amber-500 animate-pulse flex items-center gap-1.5">
+        <div className="mt-2 text-xs font-black text-amber-500 animate-pulse flex items-center gap-1.5">
           <span>Il BOT sta calcolando la mossa...</span>
         </div>
       )}

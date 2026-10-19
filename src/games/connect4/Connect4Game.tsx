@@ -12,6 +12,7 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 import { ArrowDown } from 'lucide-react';
 
 interface Connect4GameProps {
@@ -75,30 +76,14 @@ export const Connect4Game: React.FC<Connect4GameProps> = ({
 
   return (
     <div className="flex flex-col items-center w-full max-w-xl mx-auto px-2">
-      {/* Turn & Player Status Indicator */}
-      <div className="flex items-center justify-between w-full mb-3 px-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 'red' && !gameState.gameOver
-              ? 'ring-2 ring-red-500 bg-red-500/10'
-              : 'opacity-70'
-          }`}
-        >
-          <div className="w-4 h-4 rounded-full bg-red-500 shadow-sm" />
-          <span className="text-xs font-semibold">{p1Name}</span>
-        </div>
-
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 'yellow' && !gameState.gameOver
-              ? 'ring-2 ring-amber-400 bg-amber-400/10'
-              : 'opacity-70'
-          }`}
-        >
-          <span className="text-xs font-semibold">{p2Name}</span>
-          <div className="w-4 h-4 rounded-full bg-amber-400 shadow-sm" />
-        </div>
-      </div>
+      {/* Top Player Status Indicator (Player 2: inverted in 1vs1 tabletop mode) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={p2Name}
+        color="#facc15"
+        isCurrentTurn={gameState.turn === 'yellow' && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+      />
 
       {/* Interactive Board Arena */}
       <div
@@ -169,9 +154,18 @@ export const Connect4Game: React.FC<Connect4GameProps> = ({
         </div>
       </div>
 
+      {/* Bottom Player Status Indicator (Player 1: always normal orientation) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName={p1Name}
+        color="#ef4444"
+        isCurrentTurn={gameState.turn === 'red' && !gameState.gameOver}
+        isFlipped={false}
+      />
+
       {/* Bot Thinking indicator */}
       {isBotThinking && (
-        <div className="mt-3 text-xs font-medium text-amber-500 animate-pulse flex items-center gap-1.5">
+        <div className="mt-2 text-xs font-black text-amber-500 animate-pulse flex items-center gap-1.5">
           <span>Il BOT sta pensando alla mossa migliore...</span>
         </div>
       )}

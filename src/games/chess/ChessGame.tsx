@@ -12,6 +12,7 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 import { motion } from 'motion/react';
 import { GridSlidePiece, FADE } from '../../utils/animations';
 import { AlertCircle } from 'lucide-react';
@@ -145,34 +146,16 @@ export const ChessGame: React.FC<ChessGameProps> = ({
 
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto px-2">
-      {/* Player turn bar */}
-      <div className="flex items-center justify-between w-full mb-3 px-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 'w' && !gameState.gameOver
-              ? 'ring-2 ring-amber-400 bg-amber-400/10'
-              : 'opacity-70'
-          }`}
-        >
-          <span className="text-lg">♔</span>
-          <span className="text-xs font-semibold">Bianco (P1)</span>
-          <span className="text-[11px] opacity-75">· {gameState.whiteCaptured.length} catturati</span>
-        </div>
-
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 'b' && !gameState.gameOver
-              ? 'ring-2 ring-slate-400 bg-slate-500/10'
-              : 'opacity-70'
-          }`}
-        >
-          <span className="text-[11px] opacity-75">{gameState.blackCaptured.length} catturati ·</span>
-          <span className="text-xs font-semibold">
-            {playMode === 'bot' ? 'Nero (BOT)' : 'Nero (P2)'}
-          </span>
-          <span className="text-lg">♚</span>
-        </div>
-      </div>
+      {/* Top Player Indicator (Player 2 / Black: rotated 180 in local 1v1 tabletop) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={playMode === 'bot' ? 'Nero (BOT)' : 'Nero (Giocatore 2)'}
+        color="#1c1917"
+        pieceIcon={<span className="text-white text-xs">♚</span>}
+        isCurrentTurn={gameState.turn === 'b' && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+        score={`Catturati: ${gameState.blackCaptured.length}`}
+      />
 
       {/* Check Alert Banner */}
       {gameState.inCheck && !gameState.gameOver && (
@@ -270,6 +253,17 @@ export const ChessGame: React.FC<ChessGameProps> = ({
           )}
         </div>
       </div>
+
+      {/* Bottom Player Indicator (Player 1 / White: normal orientation) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName="Bianco (Giocatore 1)"
+        color="#fef08a"
+        pieceIcon={<span className="text-stone-900 text-xs">♔</span>}
+        isCurrentTurn={gameState.turn === 'w' && !gameState.gameOver}
+        isFlipped={false}
+        score={`Catturati: ${gameState.whiteCaptured.length}`}
+      />
 
       {/* Bot Thinking indicator */}
       {isBotThinking && (

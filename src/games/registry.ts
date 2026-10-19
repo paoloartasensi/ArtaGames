@@ -16,7 +16,8 @@ export type GameId =
   | 'dotsboxes'
   | 'gomoku'
   | 'nim'
-  | 'abalone';
+  | 'abalone'
+  | 'guesswho';
 
 export interface GameMetadata {
   id: GameId;
@@ -377,6 +378,26 @@ export const GAME_REGISTRY: Record<GameId, GameMetadata> = {
     },
     boardDescription: 'Tavola esagonale con biglie',
     iconName: 'Orbit',
+  },
+  guesswho: {
+    id: 'guesswho',
+    title: 'Indovina Chi',
+    subtitle: 'Trova il personaggio segreto con le domande giuste',
+    minAge: '5+ anni',
+    category: 'Classici',
+    summary: 'Fai domande all\'avversario per scoprire il suo personaggio segreto: ha gli occhiali? Ha la barba? Abbassa le tessere e indovina chi è!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Indovina Chi',
+      steps: [
+        'A inizio partita ricevi un personaggio misterioso segreto che l\'avversario deve indovinare.',
+        'A ogni turno fai una domanda (es. "Porta gli occhiali?" o "Ha i capelli chiari?").',
+        'In base alla risposta SÌ o NO, abbassa le tessere dei personaggi scartati.',
+        'Quando sei sicuro, premi "Indovina!" e seleziona il personaggio segreto dell\'avversario per vincere!',
+      ],
+      tip: 'Consiglio: fai domande che dividono i personaggi rimasti a metà per escluderne il maggior numero possibile!',
+    },
+    boardDescription: 'Tabellone 3D con tessere ribaltabili',
+    iconName: 'HelpCircle',
   },
 };
 

@@ -12,6 +12,7 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 
 interface ReversiGameProps {
   playMode: PlayMode;
@@ -88,27 +89,16 @@ export const ReversiGame: React.FC<ReversiGameProps> = ({
 
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto px-2">
-      {/* Turn + score */}
-      <div className="flex items-center justify-between w-full mb-3 px-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 'black' && !gameState.gameOver ? 'ring-2 ring-stone-800 dark:ring-white bg-black/10' : 'opacity-70'
-          }`}
-        >
-          <div className="w-4 h-4 rounded-full bg-stone-900 dark:bg-white shadow-sm" />
-          <span className="text-xs font-semibold">{p1Name}</span>
-          <span className="ml-1 px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 text-xs font-bold">{black}</span>
-        </div>
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 'white' && !gameState.gameOver ? 'ring-2 ring-stone-400 bg-white/20' : 'opacity-70'
-          }`}
-        >
-          <span className="ml-1 px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 text-xs font-bold">{white}</span>
-          <span className="text-xs font-semibold">{p2Name}</span>
-          <div className="w-4 h-4 rounded-full bg-white shadow-sm ring-1 ring-black/20" />
-        </div>
-      </div>
+      {/* Top Player Indicator (White / P2: rotated 180 in local 1v1 tabletop) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={p2Name}
+        color="#ffffff"
+        pieceIcon={<div className="w-2.5 h-2.5 rounded-full bg-white ring-1 ring-black/40" />}
+        isCurrentTurn={gameState.turn === 'white' && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+        score={`Dischi: ${white}`}
+      />
 
       {/* Board */}
       <div
@@ -142,6 +132,17 @@ export const ReversiGame: React.FC<ReversiGameProps> = ({
           )}
         </div>
       </div>
+
+      {/* Bottom Player Indicator (Black / P1: normal orientation) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName={p1Name}
+        color="#1c1917"
+        pieceIcon={<div className="w-2.5 h-2.5 rounded-full bg-stone-900 ring-1 ring-white/40" />}
+        isCurrentTurn={gameState.turn === 'black' && !gameState.gameOver}
+        isFlipped={false}
+        score={`Dischi: ${black}`}
+      />
 
       {isBotThinking && (
         <div className="mt-3 text-xs font-medium text-amber-500 animate-pulse">Il BOT sta pensando...</div>

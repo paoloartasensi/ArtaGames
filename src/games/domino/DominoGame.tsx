@@ -14,6 +14,7 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 
 interface DominoGameProps {
   playMode: PlayMode;
@@ -134,35 +135,58 @@ export const DominoGame: React.FC<DominoGameProps> = ({
 
   const handleRestart = () => setGameState(createInitialDominoState());
 
-  const isMyTurn = playMode === 'bot' ? gameState.turn === 0 : true;
-  const hand = gameState.hands[gameState.turn];
   const canPlayTile = (t: DominoTile) => tileMatches(t, gameState.leftEnd, gameState.rightEnd) !== null;
-  const hasPlayable = hasPlayableTile(hand, gameState.leftEnd, gameState.rightEnd);
 
   const p1Name = 'Blu (Giocatore 1)';
   const p2Name = playMode === 'bot' ? 'Rosso (BOT)' : 'Rosso (Giocatore 2)';
 
+  const p2HasPlayable = hasPlayableTile(gameState.hands[1], gameState.leftEnd, gameState.rightEnd);
+  const p1HasPlayable = hasPlayableTile(gameState.hands[0], gameState.leftEnd, gameState.rightEnd);
+
   return (
     <div className="flex flex-col items-center w-full max-w-xl mx-auto px-2">
-      {/* Turn indicator */}
-      <div className="flex items-center justify-between w-full mb-3 px-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 0 && !gameState.gameOver ? 'ring-2 ring-blue-500 bg-blue-500/10' : 'opacity-70'
-          }`}
-        >
-          <div className="w-4 h-4 rounded-full bg-blue-500 shadow-sm" />
-          <span className="text-xs font-semibold">{p1Name}</span>
+      {/* Top Player Indicator (Rosso / P2: rotated 180 in local 1v1 tabletop) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={p2Name}
+        color="#f43f5e"
+        isCurrentTurn={gameState.turn === 1 && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+        score={`Tessere: ${gameState.hands[1].length}`}
+      />
+
+      {/* Player 2 Hand (flipped 180 for tabletop local_pvp) */}
+      {playMode === 'local_pvp' && (
+        <div className="w-full rotate-180 my-1.5 rounded-2xl p-2 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 transition-transform">
+          <div className="flex flex-wrap gap-1.5 justify-center min-h-[56px]">
+            {gameState.hands[1].map((t) => {
+              const playable = gameState.turn === 1 && canPlayTile(t) && !gameState.gameOver;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => handleTileClick(t.id)}
+                  disabled={!playable}
+                  className={`transition-transform ${playable ? 'hover:-translate-y-1 cursor-pointer' : 'opacity-80'}`}
+                >
+                  <div className={playable ? 'ring-2 ring-amber-400 rounded-lg' : ''}>
+                    <DominoTileView tile={t} size="sm" />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          {gameState.turn === 1 && !gameState.gameOver && !p2HasPlayable && (
+            <div className="mt-1 flex justify-center">
+              <button
+                onClick={handleDraw}
+                className="px-4 py-1.5 rounded-xl bg-amber-500 text-stone-950 font-black text-xs shadow transition-transform active:scale-95"
+              >
+                {gameState.boneyard.length > 0 ? 'Pesca tessera' : 'Passa'}
+              </button>
+            </div>
+          )}
         </div>
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 1 && !gameState.gameOver ? 'ring-2 ring-rose-500 bg-rose-500/10' : 'opacity-70'
-          }`}
-        >
-          <span className="text-xs font-semibold">{p2Name}</span>
-          <div className="w-4 h-4 rounded-full bg-rose-500 shadow-sm" />
-        </div>
-      </div>
+      )}
 
       {/* Board chain */}
       <div
@@ -182,16 +206,13 @@ export const DominoGame: React.FC<DominoGameProps> = ({
       </div>
 
       {/* Hand */}
-      <div className="mt-3 w-full rounded-2xl p-3 border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
-        <div className="text-[11px] font-bold mb-2 text-stone-500 dark:text-stone-400">
-          {isMyTurn ? 'Le tue tessere (tocca per giocare)' : 'Tessere avversario'}
-        </div>
-        <div className="flex flex-wrap gap-2 justify-center min-h-[96px]">
-          {hand.length === 0 ? (
+      <div className="mt-2 w-full rounded-2xl p-2 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10">
+        <div className="flex flex-wrap gap-2 justify-center min-h-[80px]">
+          {gameState.hands[0].length === 0 ? (
             <span className="text-xs text-stone-400 self-center">Nessuna tessera</span>
           ) : (
-            hand.map((t) => {
-              const playable = isMyTurn && canPlayTile(t) && !gameState.gameOver && !isBotThinking;
+            gameState.hands[0].map((t) => {
+              const playable = gameState.turn === 0 && canPlayTile(t) && !gameState.gameOver && !isBotThinking;
               return (
                 <button
                   key={t.id}
@@ -200,7 +221,7 @@ export const DominoGame: React.FC<DominoGameProps> = ({
                   className={`transition-transform ${playable ? 'hover:-translate-y-1 cursor-pointer' : 'opacity-80'}`}
                 >
                   <div className={playable ? 'ring-2 ring-amber-400 rounded-lg' : ''}>
-                    <DominoTileView tile={t} size="lg" />
+                    <DominoTileView tile={t} size="sm" />
                   </div>
                 </button>
               );
@@ -208,17 +229,27 @@ export const DominoGame: React.FC<DominoGameProps> = ({
           )}
         </div>
 
-        {isMyTurn && !gameState.gameOver && !hasPlayable && (
+        {gameState.turn === 0 && !gameState.gameOver && !p1HasPlayable && !isBotThinking && (
           <div className="mt-2 flex justify-center">
             <button
               onClick={handleDraw}
-              className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-sm shadow transition-transform active:scale-95"
+              className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs shadow-md transition-transform active:scale-95"
             >
               {gameState.boneyard.length > 0 ? 'Pesca una tessera' : 'Passa il turno'}
             </button>
           </div>
         )}
       </div>
+
+      {/* Bottom Player Indicator (Blu / P1: normal orientation) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName={p1Name}
+        color="#3b82f6"
+        isCurrentTurn={gameState.turn === 0 && !gameState.gameOver}
+        isFlipped={false}
+        score={`Tessere: ${gameState.hands[0].length}`}
+      />
 
       {isBotThinking && (
         <div className="mt-2 text-xs font-medium text-amber-500 animate-pulse">Il BOT sta giocando...</div>

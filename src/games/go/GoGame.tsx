@@ -13,6 +13,7 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 import { SkipForward, Eye } from 'lucide-react';
 
 interface GoGameProps {
@@ -104,81 +105,67 @@ export const GoGame: React.FC<GoGameProps> = ({
     }
   }
 
+  const p1Name = 'Nero (Giocatore 1)';
+  const p2Name = playMode === 'bot' ? 'Bianco (BOT)' : 'Bianco (Giocatore 2)';
+
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto px-2">
-      {/* Board Size Toggle for Kids (9x9 standard vs 13x13) */}
-      <div className="flex items-center justify-between w-full mb-2 px-1 text-xs">
+      {/* Top Player Indicator (Bianco / P2: rotated 180 in local 1v1 tabletop) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={p2Name}
+        color="#ffffff"
+        pieceIcon={<div className="w-2.5 h-2.5 rounded-full bg-white ring-1 ring-black/40" />}
+        isCurrentTurn={gameState.turn === 'W' && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+        score={`Catturate: ${gameState.capturedB}`}
+        actionButton={
+          playMode === 'local_pvp' && gameState.turn === 'W' && !gameState.gameOver ? (
+            <button
+              onClick={handlePass}
+              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs shadow-md active:translate-y-0.5 uppercase tracking-wider flex items-center gap-1"
+            >
+              <SkipForward className="w-3.5 h-3.5" />
+              <span>Passa</span>
+            </button>
+          ) : undefined
+        }
+      />
+
+      {/* Board Size Toggle for Kids (9x9 standard vs 13x13) & hint */}
+      <div className="flex items-center justify-between w-full my-1.5 px-1 text-xs">
         <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/10 dark:bg-white/10">
           <button
             onClick={() => handleRestart(9)}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
-              boardSize === 9 ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+            className={`px-2.5 py-1 rounded-lg font-black transition-colors ${
+              boardSize === 9 ? 'bg-amber-500 text-stone-900 shadow-sm' : 'text-stone-600 dark:text-stone-300 hover:text-white'
             }`}
           >
-            9x9 Rapido (Kids)
+            9x9
           </button>
           <button
             onClick={() => handleRestart(13)}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
-              boardSize === 13 ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+            className={`px-2.5 py-1 rounded-lg font-black transition-colors ${
+              boardSize === 13 ? 'bg-amber-500 text-stone-900 shadow-sm' : 'text-stone-600 dark:text-stone-300 hover:text-white'
             }`}
           >
-            13x13 Medio
+            13x13
           </button>
         </div>
 
         {/* Liberties hint toggle */}
         <button
           onClick={() => setShowLibertiesHint(!showLibertiesHint)}
-          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-[11px] font-medium transition-colors ${
+          className={`flex items-center gap-1 px-2.5 py-1 rounded-xl border text-[11px] font-black transition-colors ${
             showLibertiesHint
-              ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-              : 'border-white/10 text-slate-400'
+              ? 'bg-amber-500/20 text-amber-500 border-amber-500/40'
+              : 'border-black/10 dark:border-white/10 text-stone-400'
           }`}
-          title="Evidenzia in rosso le pietre con 1 solo respiro (in pericolo di cattura!)"
+          title="Evidenzia in rosso le pietre con 1 solo respiro"
         >
           <Eye className="w-3.5 h-3.5" />
           <span>Aiuto Respiri</span>
         </button>
-      </div>
-
-      {/* Turn indicator & captured counts */}
-      <div className="flex items-center justify-between w-full mb-3 px-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 'B' && !gameState.gameOver
-              ? 'ring-2 ring-stone-900 bg-stone-900/20'
-              : 'opacity-70'
-          }`}
-        >
-          <div className="w-4 h-4 rounded-full bg-stone-950 border border-stone-700 shadow-sm" />
-          <span className="text-xs font-semibold">Nero (P1)</span>
-          <span className="text-[11px] opacity-75">· {gameState.capturedW} catturate</span>
-        </div>
-
-        <button
-          onClick={handlePass}
-          disabled={gameState.gameOver || isBotThinking}
-          title="Passa il turno se non hai altre mosse"
-          className="px-3 py-1 rounded-lg border border-amber-500/40 text-amber-400 hover:bg-amber-500/20 text-xs font-semibold flex items-center gap-1 active:scale-95 transition-all"
-        >
-          <SkipForward className="w-3.5 h-3.5" />
-          <span>Passa</span>
-        </button>
-
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 'W' && !gameState.gameOver
-              ? 'ring-2 ring-white bg-white/20'
-              : 'opacity-70'
-          }`}
-        >
-          <span className="text-[11px] opacity-75">{gameState.capturedB} catturate ·</span>
-          <span className="text-xs font-semibold">
-            {playMode === 'bot' ? 'Bianco (BOT)' : 'Bianco (P2)'}
-          </span>
-          <div className="w-4 h-4 rounded-full bg-stone-100 border border-stone-300 shadow-sm" />
-        </div>
       </div>
 
       {/* Go Goban Board */}
@@ -286,6 +273,28 @@ export const GoGame: React.FC<GoGameProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Bottom Player Indicator (Nero / P1: normal orientation) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName={p1Name}
+        color="#1c1917"
+        pieceIcon={<div className="w-2.5 h-2.5 rounded-full bg-stone-900 ring-1 ring-white/40" />}
+        isCurrentTurn={gameState.turn === 'B' && !gameState.gameOver}
+        isFlipped={false}
+        score={`Catturate: ${gameState.capturedW}`}
+        actionButton={
+          gameState.turn === 'B' && !gameState.gameOver && !isBotThinking ? (
+            <button
+              onClick={handlePass}
+              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs shadow-md active:translate-y-0.5 uppercase tracking-wider flex items-center gap-1"
+            >
+              <SkipForward className="w-3.5 h-3.5" />
+              <span>Passa</span>
+            </button>
+          ) : undefined
+        }
+      />
 
       {/* Bot Thinking indicator */}
       {isBotThinking && (

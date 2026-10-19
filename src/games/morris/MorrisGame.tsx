@@ -13,6 +13,7 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 import { motion } from 'motion/react';
 import { SLIDE, FADE, useMoveKey } from '../../utils/animations';
 
@@ -144,31 +145,15 @@ export const MorrisGame: React.FC<MorrisGameProps> = ({
 
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto px-2">
-      {/* Turn indicator */}
-      <div className="flex items-center justify-between w-full mb-3 px-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 0 && !gameState.gameOver ? 'ring-2 ring-blue-500 bg-blue-500/10' : 'opacity-70'
-          }`}
-        >
-          <div className="w-4 h-4 rounded-full bg-blue-500 shadow-sm" />
-          <span className="text-xs font-semibold">{p1Name}</span>
-          <span className="ml-1 px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 text-xs font-bold">
-            {gameState.piecesOnBoard[0]}
-          </span>
-        </div>
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 1 && !gameState.gameOver ? 'ring-2 ring-rose-500 bg-rose-500/10' : 'opacity-70'
-          }`}
-        >
-          <span className="ml-1 px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 text-xs font-bold">
-            {gameState.piecesOnBoard[1]}
-          </span>
-          <span className="text-xs font-semibold">{p2Name}</span>
-          <div className="w-4 h-4 rounded-full bg-rose-500 shadow-sm" />
-        </div>
-      </div>
+      {/* Top Player Indicator (Rosso / P2: rotated 180 in local 1v1 tabletop) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={p2Name}
+        color="#f43f5e"
+        isCurrentTurn={gameState.turn === 1 && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+        score={`Pezzi: ${gameState.piecesOnBoard[1]}`}
+      />
 
       {/* Board */}
       <div
@@ -258,7 +243,17 @@ export const MorrisGame: React.FC<MorrisGameProps> = ({
         </svg>
       </div>
 
-      <p className="mt-3 text-xs font-semibold text-center text-stone-500 dark:text-stone-400">{statusText}</p>
+      {/* Bottom Player Indicator (Blu / P1: normal orientation) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName={p1Name}
+        color="#3b82f6"
+        isCurrentTurn={gameState.turn === 0 && !gameState.gameOver}
+        isFlipped={false}
+        score={`Pezzi: ${gameState.piecesOnBoard[0]}`}
+      />
+
+      <p className="mt-2 text-xs font-semibold text-center text-stone-500 dark:text-stone-400">{statusText}</p>
 
       {isBotThinking && (
         <div className="mt-2 text-xs font-medium text-amber-500 animate-pulse">Il BOT sta pensando...</div>

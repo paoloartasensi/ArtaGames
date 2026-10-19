@@ -10,6 +10,7 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 
 interface GomokuGameProps {
   playMode: PlayMode;
@@ -66,43 +67,35 @@ export const GomokuGame: React.FC<GomokuGameProps> = ({
   const isWinCell = (r: number, c: number) =>
     gameState.winningLine?.some((p) => p.r === r && p.c === c) ?? false;
 
+  const p1Name = playMode === 'bot' ? 'Tu (Nero)' : 'Nero (Giocatore 1)';
+  const p2Name = playMode === 'bot' ? 'BOT (Bianco)' : 'Bianco (Giocatore 2)';
+
   return (
     <div className="flex flex-col items-center w-full max-w-sm mx-auto px-2">
+      {/* Top Player Indicator (White / P2: rotated 180 in local 1v1 tabletop) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={p2Name}
+        color="#ffffff"
+        pieceIcon={<div className="w-2.5 h-2.5 rounded-full bg-white ring-1 ring-black/40" />}
+        isCurrentTurn={gameState.turn === 1 && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+      />
+
       {/* Board size toggle */}
-      <div className="flex items-center justify-center w-full mb-2 px-1 text-xs">
+      <div className="flex items-center justify-center w-full my-1.5 px-1 text-xs">
         <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/10 dark:bg-white/10">
           {[9, 11, 15].map((n) => (
             <button
               key={n}
               onClick={() => handleRestart(n)}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
-                boardSize === n ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              className={`px-2.5 py-1 rounded-lg font-black transition-colors ${
+                boardSize === n ? 'bg-amber-500 text-stone-900 shadow-sm' : 'text-stone-600 dark:text-stone-300 hover:text-white'
               }`}
             >
               {n}×{n}
             </button>
           ))}
-        </div>
-      </div>
-
-      {/* Turn bar */}
-      <div className="flex items-center justify-between w-full mb-3 px-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 0 && !gameState.gameOver ? 'ring-2 ring-stone-400 bg-white/10' : 'opacity-70'
-          }`}
-        >
-          <span className="w-4 h-4 rounded-full bg-gradient-to-br from-stone-500 to-stone-900 ring-1 ring-black/40" />
-          <span className="text-xs font-semibold">{playMode === 'bot' ? 'Tu (Nero)' : 'Nero'}</span>
-        </div>
-
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 1 && !gameState.gameOver ? 'ring-2 ring-slate-300 bg-white/10' : 'opacity-70'
-          }`}
-        >
-          <span className="text-xs font-semibold">{playMode === 'bot' ? 'BOT (Bianco)' : 'Bianco'}</span>
-          <span className="w-4 h-4 rounded-full bg-gradient-to-br from-white to-stone-300 ring-1 ring-black/20" />
         </div>
       </div>
 
@@ -144,6 +137,16 @@ export const GomokuGame: React.FC<GomokuGameProps> = ({
           )}
         </div>
       </div>
+
+      {/* Bottom Player Indicator (Black / P1: normal orientation) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName={p1Name}
+        color="#1c1917"
+        pieceIcon={<div className="w-2.5 h-2.5 rounded-full bg-stone-900 ring-1 ring-white/40" />}
+        isCurrentTurn={gameState.turn === 0 && !gameState.gameOver}
+        isFlipped={false}
+      />
 
       {isBotThinking && (
         <div className="mt-3 text-xs font-medium text-amber-500 animate-pulse">Il BOT sta piazzando la pietra...</div>

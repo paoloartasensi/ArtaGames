@@ -13,6 +13,7 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 import { GridSlidePiece } from '../../utils/animations';
 import { Dices } from 'lucide-react';
 
@@ -100,25 +101,27 @@ export const SnakesGame: React.FC<SnakesGameProps> = ({
 
   return (
     <div className="flex flex-col items-center w-full max-w-xl mx-auto px-2">
-      {/* Turn indicator */}
-      <div className="flex items-center justify-between w-full mb-3 px-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 0 && !gameState.gameOver ? 'ring-2 ring-blue-500 bg-blue-500/10' : 'opacity-70'
-          }`}
-        >
-          <div className="w-4 h-4 rounded-full bg-blue-500 shadow-sm" />
-          <span className="text-xs font-semibold">{p1Name}</span>
-        </div>
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 1 && !gameState.gameOver ? 'ring-2 ring-rose-500 bg-rose-500/10' : 'opacity-70'
-          }`}
-        >
-          <span className="text-xs font-semibold">{p2Name}</span>
-          <div className="w-4 h-4 rounded-full bg-rose-500 shadow-sm" />
-        </div>
-      </div>
+      {/* Top Player Indicator (Rosso / P2: rotated 180 in local 1v1 tabletop) */}
+      <TabletopPlayerBar
+        playerNumber={2}
+        playerName={p2Name}
+        color="#f43f5e"
+        isCurrentTurn={gameState.turn === 1 && !gameState.gameOver}
+        isFlipped={playMode === 'local_pvp'}
+        score={`Casella ${gameState.positions[1]}`}
+        actionButton={
+          playMode === 'local_pvp' && gameState.turn === 1 && !gameState.gameOver ? (
+            <button
+              onClick={handleRoll}
+              disabled={isBotThinking}
+              className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-rose-600 border-b-2 border-rose-800 text-white font-black text-xs shadow-md active:translate-y-0.5 active:border-b-0 uppercase tracking-wider flex items-center gap-1.5"
+            >
+              <Dices className="w-4 h-4" />
+              <span>TIRA</span>
+            </button>
+          ) : undefined
+        }
+      />
 
       {/* Board */}
       <div
@@ -218,23 +221,37 @@ export const SnakesGame: React.FC<SnakesGameProps> = ({
         </svg>
       </div>
 
-      {/* Dice + roll button */}
-      <div className="mt-4 flex items-center gap-4">
-        <div className="w-16 h-16 rounded-2xl bg-white dark:bg-white/10 shadow-inner flex items-center justify-center text-3xl font-black border border-black/10 dark:border-white/10">
-          {gameState.dice ?? '·'}
+      {/* Center dice roll indicator */}
+      {gameState.dice && (
+        <div className="my-1.5 flex items-center gap-2 px-3 py-1 bg-white/80 dark:bg-black/50 rounded-xl border border-stone-800 text-xs font-black shadow-sm">
+          <span>Ultimo lancio:</span>
+          <span className="text-base text-amber-500 font-black">🎲 {gameState.dice}</span>
         </div>
-        <button
-          onClick={handleRoll}
-          disabled={gameState.gameOver || isBotThinking || (playMode === 'bot' && gameState.turn === 1)}
-          className="px-6 py-4 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-lg shadow-lg shadow-amber-600/20 transition-transform active:scale-95 disabled:opacity-40 flex items-center gap-2"
-        >
-          <Dices className="w-6 h-6" />
-          <span>Lancia il dado</span>
-        </button>
-      </div>
+      )}
+
+      {/* Bottom Player Indicator (Blu / P1: normal orientation) */}
+      <TabletopPlayerBar
+        playerNumber={1}
+        playerName={p1Name}
+        color="#3b82f6"
+        isCurrentTurn={gameState.turn === 0 && !gameState.gameOver}
+        isFlipped={false}
+        score={`Casella ${gameState.positions[0]}`}
+        actionButton={
+          gameState.turn === 0 && !gameState.gameOver && !isBotThinking ? (
+            <button
+              onClick={handleRoll}
+              className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 border-b-2 border-blue-800 text-white font-black text-xs shadow-md active:translate-y-0.5 active:border-b-0 uppercase tracking-wider flex items-center gap-1.5"
+            >
+              <Dices className="w-4 h-4" />
+              <span>TIRA</span>
+            </button>
+          ) : undefined
+        }
+      />
 
       {isBotThinking && (
-        <div className="mt-3 text-xs font-medium text-amber-500 animate-pulse">
+        <div className="mt-2 text-xs font-medium text-amber-500 animate-pulse">
           Il BOT sta lanciando il dado...
         </div>
       )}
