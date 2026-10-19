@@ -35,7 +35,7 @@ function AppContent() {
   const { theme, isDark } = useTheme();
 
   const [activeGameId, setActiveGameId] = useState<GameId>('ludo');
-  const [viewMode, setViewMode] = useState<'catalog' | 'game'>('catalog');
+  const [viewMode, setViewMode] = useState<'catalog' | 'game'>('game');
   const [playMode, setPlayMode] = useState<PlayMode>('bot');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
