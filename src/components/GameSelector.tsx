@@ -7,7 +7,7 @@ interface GameSelectorProps {
   activeGameId: GameId;
 }
 
-// Profili dei due bambini — modifica qui nomi, età ed emoji.
+// Profili dei bambini — modifica qui nomi, età ed emoji.
 interface Profile {
   id: string;
   name: string;
@@ -17,8 +17,8 @@ interface Profile {
 }
 
 const PROFILES: Profile[] = [
-  { id: 'leo', name: 'Leo', age: 5, emoji: '🦁', color: '#3B82F6' },
-  { id: 'mia', name: 'Mia', age: 7, emoji: '🦊', color: '#F59E0B' },
+  { id: 'leo', name: 'Leo', age: 7, emoji: '🦁', color: '#F59E0B' },
+  { id: 'rick', name: 'Rick', age: 5, emoji: '🦖', color: '#10B981' },
 ];
 
 const GAME_EMOJIS: Record<GameId, string> = {
