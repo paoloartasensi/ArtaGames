@@ -14,6 +14,7 @@ export default defineConfig(() => {
       legacy({
         targets: ['defaults', 'safari >= 12', 'iOS >= 12'],
         modernTargets: ['defaults', 'safari >= 12', 'iOS >= 12'],
+        modernPolyfills: true,
       }),
       VitePWA({
         registerType: 'autoUpdate',
