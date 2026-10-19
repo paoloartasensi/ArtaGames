@@ -40,14 +40,14 @@ export const TRACK: [number, number][] = [
   [7, 0], [6, 0],
 ];
 
-// Player 0 = Blu (bottom-right base), Player 1 = Rosso (top-left base).
-// Opposite corners, facing each other.
-export const START_INDEX: [number, number] = [26, 0];
+// Player 0 = Blu (top-right base), Player 1 = Rosso (bottom-left base).
+// Opposite corners, matching the official Offline Games board orientation.
+export const START_INDEX: [number, number] = [13, 39];
 
 // Home columns: 5 cells each, ordered from the track toward the centre.
 export const HOME_COLUMNS: [[number, number][], [number, number][]] = [
-  [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9]], // Blu (bottom-right)
-  [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5]], // Rosso (top-left)
+  [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7]], // Blu (coming down from top)
+  [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7]], // Rosso (coming up from bottom)
 ];
 
 // The four start cells (A-fields) are the safe squares of the original board:

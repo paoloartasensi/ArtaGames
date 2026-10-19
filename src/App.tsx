@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { ThemeProvider, useTheme } from './theme/themeContext';
 import { Header } from './components/Header';
 import { GameSelector } from './components/GameSelector';
-import { GameControls } from './components/GameControls';
 import { ThemeModal } from './components/ThemeModal';
 import { KidsRulesModal } from './components/KidsRulesModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
+import { ExitButton } from './components/ExitButton';
+import { GameLaunchModal } from './components/GameLaunchModal';
 import { GameId, GAME_REGISTRY } from './games/registry';
 import { PlayMode, Difficulty } from './types/game';
 
@@ -29,10 +30,8 @@ import { GomokuGame } from './games/gomoku/GomokuGame';
 import { NimGame } from './games/nim/NimGame';
 import { AbaloneGame } from './games/abalone/AbaloneGame';
 
-import { ArrowLeft, Sparkles } from 'lucide-react';
-
 function AppContent() {
-  const { theme, isDark } = useTheme();
+  const { theme } = useTheme();
 
   const [activeGameId, setActiveGameId] = useState<GameId>('connect4');
   const [viewMode, setViewMode] = useState<'catalog' | 'game'>('catalog');
@@ -41,107 +40,39 @@ function AppContent() {
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   const [isTabletFlipped, setIsTabletFlipped] = useState(false);
-  const [gameKey, setGameKey] = useState(0);
+  const [pendingGameId, setPendingGameId] = useState<GameId | null>(null);
+  const [isLaunchModalOpen, setIsLaunchModalOpen] = useState(false);
 
   const activeGame = GAME_REGISTRY[activeGameId];
 
   const handleSelectGame = (id: GameId) => {
-    setActiveGameId(id);
-    setViewMode('game');
-    setGameKey((k) => k + 1);
+    setPendingGameId(id);
+    setIsLaunchModalOpen(true);
   };
 
-  const handleRestart = () => {
-    setGameKey((k) => k + 1);
-  };
-
-  // Cambiare modalità riavvia la partita (remount del gioco)
-  const handleSetPlayMode = (mode: PlayMode) => {
+  const handleLaunchGame = (mode: PlayMode, diff: Difficulty) => {
+    if (pendingGameId) {
+      setActiveGameId(pendingGameId);
+    }
     setPlayMode(mode);
+    setDifficulty(diff);
+    setViewMode('game');
+    setIsLaunchModalOpen(false);
     setGameKey((k) => k + 1);
   };
 
-  return (
-    <div className={`min-h-screen flex flex-col ${theme.bgMain} ${theme.textPrimary}`}>
-      {/* Top Bar Header */}
-      <Header
-        activeGameId={activeGameId}
-        viewMode={viewMode}
-        onGoToCatalog={() => setViewMode('catalog')}
-        onOpenRules={() => setIsRulesModalOpen(true)}
-        onOpenTheme={() => setIsThemeModalOpen(true)}
-      />
-
-      {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-5xl mx-auto px-3 sm:px-6 py-4 flex flex-col justify-start">
-        {viewMode === 'catalog' ? (
-          <GameSelector
-            onSelectGame={handleSelectGame}
-            activeGameId={activeGameId}
-          />
-        ) : (
-          <div className="flex flex-col items-center gap-4 w-full">
-            {/* Active Game Title Bar */}
-            <div className="w-full flex items-center justify-between gap-3 pb-2 border-b border-black/10 dark:border-white/10">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setViewMode('catalog')}
-                  className={`p-2 rounded-xl border transition-colors flex items-center gap-1.5 text-xs font-semibold ${
-                    isDark
-                      ? 'border-white/10 text-slate-300 hover:text-white hover:bg-white/5'
-                      : 'border-black/10 text-stone-700 hover:text-black hover:bg-black/5'
-                  }`}
-                  title="Torna a tutti i giochi"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span className="hidden sm:inline">Catalogo</span>
-                </button>
-
-                <div>
-                  <h2 className="text-base sm:text-lg font-bold tracking-tight">
-                    {activeGame.title}
-                  </h2>
-                  <div className={`text-xs flex items-center gap-1.5 ${theme.textMuted}`}>
-                    <span>{activeGame.minAge}</span>
-                    <span aria-hidden="true">·</span>
-                    <span>{activeGame.category}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rules link button */}
-              <button
-                onClick={() => setIsRulesModalOpen(true)}
-                className={`text-xs font-semibold text-amber-500 hover:text-amber-400 underline underline-offset-2 flex items-center gap-1`}
-              >
-                <span>Regole 3 Passi</span>
-              </button>
-            </div>
-
-            {/* Central Game Controls (Mode, Difficulty, Restart, Flip) */}
-            <GameControls
-              playMode={playMode}
-              onSetPlayMode={handleSetPlayMode}
-              difficulty={difficulty}
-              onSetDifficulty={setDifficulty}
-              onRestart={handleRestart}
-              onOpenRules={() => setIsRulesModalOpen(true)}
-              isTabletFlipped={isTabletFlipped}
-              onToggleTabletFlip={() => setIsTabletFlipped(!isTabletFlipped)}
-            />
-
-            {/* Active Game Board */}
-            <div className="w-full py-2 flex justify-center">
-              {activeGameId === 'connect4' && (
-                <Connect4Game
-                  key={gameKey}
-                  playMode={playMode}
-                  difficulty={difficulty}
-                  onOpenRules={() => setIsRulesModalOpen(true)}
-                  onSelectGame={() => setViewMode('catalog')}
-                  isTabletFlipped={isTabletFlipped}
-                />
-              )}
+  const renderActiveGameBoard = () => (
+    <>
+      {activeGameId === 'connect4' && (
+        <Connect4Game
+          key={gameKey}
+          playMode={playMode}
+          difficulty={difficulty}
+          onOpenRules={() => setIsRulesModalOpen(true)}
+          onSelectGame={() => setViewMode('catalog')}
+          isTabletFlipped={isTabletFlipped}
+        />
+      )}
 
               {activeGameId === 'checkers' && (
                 <CheckersGame
@@ -327,9 +258,47 @@ function AppContent() {
                   isTabletFlipped={isTabletFlipped}
                 />
               )}
-            </div>
-          </div>
-        )}
+    </>
+  );
+
+  if (viewMode === 'game') {
+    return (
+      <div className="fixed inset-0 w-screen h-screen overflow-hidden bg-[#56a2cb] select-none flex flex-col items-center justify-center z-30">
+        {/* Top-Right "USCITA" Tab Button */}
+        <ExitButton onExit={() => setViewMode('catalog')} />
+
+        {/* Board Container */}
+        <div className="w-full h-full flex flex-col items-center justify-center">
+          {renderActiveGameBoard()}
+        </div>
+
+        {/* Rules Modal */}
+        <KidsRulesModal
+          game={activeGame}
+          isOpen={isRulesModalOpen}
+          onClose={() => setIsRulesModalOpen(false)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className={`min-h-screen flex flex-col ${theme.bgMain} ${theme.textPrimary}`}>
+      {/* Top Bar Header */}
+      <Header
+        activeGameId={activeGameId}
+        viewMode={viewMode}
+        onGoToCatalog={() => setViewMode('catalog')}
+        onOpenRules={() => setIsRulesModalOpen(true)}
+        onOpenTheme={() => setIsThemeModalOpen(true)}
+      />
+
+      {/* Main Content Area */}
+      <main className="flex-1 w-full max-w-5xl mx-auto px-3 sm:px-6 py-4 flex flex-col justify-start">
+        <GameSelector
+          onSelectGame={handleSelectGame}
+          activeGameId={activeGameId}
+        />
       </main>
 
       {/* Offline Indicator */}
@@ -342,9 +311,17 @@ function AppContent() {
       />
 
       <KidsRulesModal
-        game={activeGame}
+        game={pendingGameId ? GAME_REGISTRY[pendingGameId] : activeGame}
         isOpen={isRulesModalOpen}
         onClose={() => setIsRulesModalOpen(false)}
+      />
+
+      <GameLaunchModal
+        gameId={pendingGameId}
+        isOpen={isLaunchModalOpen}
+        onClose={() => setIsLaunchModalOpen(false)}
+        onLaunch={handleLaunchGame}
+        onOpenRules={() => setIsRulesModalOpen(true)}
       />
     </div>
   );
