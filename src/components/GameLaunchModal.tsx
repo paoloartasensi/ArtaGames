@@ -57,29 +57,29 @@ export const GameLaunchModal: React.FC<GameLaunchModalProps> = ({
             <button
               type="button"
               onClick={() => setPlayMode('bot')}
-              className={`p-3.5 rounded-2xl border-2 flex flex-col items-center gap-1.5 transition-all ${
+              className={`p-4 rounded-3xl border-2 flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
                 playMode === 'bot'
-                  ? 'border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400 shadow-sm'
-                  : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-300 hover:border-stone-400'
+                  ? 'border-sky-500 bg-sky-500/15 text-sky-600 dark:text-sky-400 border-b-4 border-b-sky-700 shadow-md'
+                  : 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:border-stone-500'
               }`}
             >
-              <Bot className="w-6 h-6" />
-              <span className="text-xs font-bold">1 Giocatore</span>
-              <span className="text-[10px] opacity-70">vs Computer</span>
+              <Bot className="w-8 h-8 stroke-[2.5]" />
+              <span className="text-sm font-black tracking-tight">1 Giocatore</span>
+              <span className="text-[11px] font-bold opacity-75">vs Computer</span>
             </button>
 
             <button
               type="button"
               onClick={() => setPlayMode('local_pvp')}
-              className={`p-3.5 rounded-2xl border-2 flex flex-col items-center gap-1.5 transition-all ${
+              className={`p-4 rounded-3xl border-2 flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
                 playMode === 'local_pvp'
-                  ? 'border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400 shadow-sm'
-                  : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-300 hover:border-stone-400'
+                  ? 'border-sky-500 bg-sky-500/15 text-sky-600 dark:text-sky-400 border-b-4 border-b-sky-700 shadow-md'
+                  : 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:border-stone-500'
               }`}
             >
-              <Users className="w-6 h-6" />
-              <span className="text-xs font-bold">2 Giocatori</span>
-              <span className="text-[10px] opacity-70">Stesso Schermo</span>
+              <Users className="w-8 h-8 stroke-[2.5]" />
+              <span className="text-sm font-black tracking-tight">2 Giocatori</span>
+              <span className="text-[11px] font-bold opacity-75">Stesso Schermo</span>
             </button>
           </div>
         </div>
@@ -87,7 +87,7 @@ export const GameLaunchModal: React.FC<GameLaunchModalProps> = ({
         {/* Difficulty Selector (only for vs Bot) */}
         {playMode === 'bot' && (
           <div className="w-full mt-4 space-y-2">
-            <label className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+            <label className="text-xs font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider">
               Difficoltà Bot
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -99,10 +99,10 @@ export const GameLaunchModal: React.FC<GameLaunchModalProps> = ({
                     key={d}
                     type="button"
                     onClick={() => setDifficulty(d)}
-                    className={`py-2 px-1 rounded-xl text-xs font-bold border-2 transition-all ${
+                    className={`py-2.5 px-1 rounded-2xl text-xs font-black border-2 transition-all cursor-pointer ${
                       isSelected
-                        ? 'border-amber-500 bg-amber-500/15 text-amber-700 dark:text-amber-300'
-                        : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400'
+                        ? 'border-amber-500 bg-amber-500/20 text-amber-700 dark:text-amber-300 border-b-4 border-b-amber-600 shadow-sm'
+                        : 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400'
                     }`}
                   >
                     {label}
@@ -116,9 +116,9 @@ export const GameLaunchModal: React.FC<GameLaunchModalProps> = ({
         {/* Start Game Action Button */}
         <button
           onClick={handleStart}
-          className="w-full mt-6 py-4 rounded-2xl bg-[#186b97] hover:bg-[#13587d] text-white font-black text-lg tracking-wide shadow-lg shadow-sky-900/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full mt-6 py-4 rounded-2xl bg-[#186b97] hover:bg-[#13587d] border-b-4 border-[#0f4460] active:border-b-2 active:translate-y-1 text-white font-black text-xl tracking-wider shadow-xl flex items-center justify-center gap-2 cursor-pointer transition-all"
         >
-          <Play className="w-5 h-5 fill-current" />
+          <Play className="w-6 h-6 fill-current" />
           <span>GIOCA</span>
         </button>
 
