@@ -62,7 +62,7 @@ export const BattleshipGame: React.FC<BattleshipGameProps> = ({
   // BOT firing turn (only in BOT mode; the bot is always p2)
   useEffect(() => {
     if (isPvP) return;
-    if (gameState.phase === 'battle' && gameState.turn === 'p2' && !gameState.winner && !isBotThinking) {
+    if (gameState.phase === 'battle' && gameState.turn === 'p2' && !gameState.winner) {
       setIsBotThinking(true);
       const timer = setTimeout(() => {
         const { nextState, result } = fireBotShot(gameState, difficulty);
@@ -76,7 +76,7 @@ export const BattleshipGame: React.FC<BattleshipGameProps> = ({
       }, 700);
       return () => clearTimeout(timer);
     }
-  }, [gameState, difficulty, isBotThinking, isPvP]);
+  }, [gameState, difficulty, isPvP]);
 
   const handleCellClick = (r: number, c: number) => {
     if (gameState.phase !== 'battle' || isBotThinking || handoff) return;

@@ -158,7 +158,7 @@ export const LudoGame: React.FC<LudoGameProps> = ({
 
   // Bot turn: roll first, then pick a token to move.
   useEffect(() => {
-    if (playMode !== 'bot' || gameState.turn !== 1 || gameState.gameOver || isBotThinking) return;
+    if (playMode !== 'bot' || gameState.turn !== 1 || gameState.gameOver) return;
 
     setIsBotThinking(true);
     const t = setTimeout(() => {
@@ -181,7 +181,7 @@ export const LudoGame: React.FC<LudoGameProps> = ({
       setIsBotThinking(false);
     }, 700);
     return () => clearTimeout(t);
-  }, [gameState, playMode, difficulty, isBotThinking]);
+  }, [gameState, playMode, difficulty]);
 
   const handleRoll = () => {
     if (gameState.gameOver || isBotThinking) return;

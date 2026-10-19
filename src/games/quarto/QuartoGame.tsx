@@ -56,7 +56,7 @@ export const QuartoGame: React.FC<QuartoGameProps> = ({
   const [isBotThinking, setIsBotThinking] = useState(false);
 
   useEffect(() => {
-    if (playMode !== 'bot' || gameState.gameOver || isBotThinking) return;
+    if (playMode !== 'bot' || gameState.gameOver) return;
     const botPicks = gameState.turn === 1 && gameState.phase === 'pick';
     const botPlaces = gameState.turn === 0 && gameState.phase === 'place';
     if (!botPicks && !botPlaces) return;
@@ -81,7 +81,7 @@ export const QuartoGame: React.FC<QuartoGameProps> = ({
       setIsBotThinking(false);
     }, 650);
     return () => clearTimeout(t);
-  }, [gameState, playMode, difficulty, isBotThinking]);
+  }, [gameState, playMode, difficulty]);
 
   const humanPicks =
     playMode === 'bot' ? gameState.turn === 0 && gameState.phase === 'pick' : gameState.phase === 'pick';

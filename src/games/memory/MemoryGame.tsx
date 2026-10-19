@@ -44,7 +44,7 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ playMode, difficulty, on
 
   // BOT turn: reveal two cards with a pause between them.
   useEffect(() => {
-    if (playMode !== 'bot' || gameState.turn !== 1 || gameState.gameOver || isBotThinking) return;
+    if (playMode !== 'bot' || gameState.turn !== 1 || gameState.gameOver) return;
     if (gameState.mismatchPair) return;
     setIsBotThinking(true);
 
@@ -88,7 +88,7 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ playMode, difficulty, on
       clearTimeout(t0);
       setIsBotThinking(false);
     };
-  }, [gameState, playMode, difficulty, isBotThinking]);
+  }, [gameState, playMode, difficulty]);
 
   const handleCardClick = (i: number) => {
     if (gameState.gameOver || isBotThinking || gameState.mismatchPair) return;

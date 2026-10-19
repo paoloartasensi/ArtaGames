@@ -20,7 +20,7 @@ export const NimGame: React.FC<NimGameProps> = ({ playMode, difficulty, onSelect
 
   // BOT turn
   useEffect(() => {
-    if (playMode !== 'bot' || gameState.gameOver || isBotThinking) return;
+    if (playMode !== 'bot' || gameState.gameOver) return;
     if (gameState.turn !== 1) return;
     setIsBotThinking(true);
     const t = setTimeout(() => {
@@ -33,7 +33,7 @@ export const NimGame: React.FC<NimGameProps> = ({ playMode, difficulty, onSelect
       setIsBotThinking(false);
     }, 650);
     return () => clearTimeout(t);
-  }, [gameState, playMode, difficulty, isBotThinking]);
+  }, [gameState, playMode, difficulty]);
 
   const handleTake = (n: number) => {
     if (gameState.gameOver || isBotThinking) return;

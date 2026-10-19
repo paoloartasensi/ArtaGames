@@ -41,7 +41,7 @@ export const ReversiGame: React.FC<ReversiGameProps> = ({
   }, [gameState.legalMoves, gameState.gameOver]);
 
   useEffect(() => {
-    if (playMode === 'bot' && gameState.turn === 'white' && !gameState.gameOver && !isBotThinking) {
+    if (playMode === 'bot' && gameState.turn === 'white' && !gameState.gameOver) {
       setIsBotThinking(true);
       const t = setTimeout(() => {
         const mv = getBotReversiMove(gameState, difficulty);
@@ -56,7 +56,7 @@ export const ReversiGame: React.FC<ReversiGameProps> = ({
       }, 600);
       return () => clearTimeout(t);
     }
-  }, [gameState, playMode, difficulty, isBotThinking]);
+  }, [gameState, playMode, difficulty]);
 
   const handleCellClick = (r: number, c: number) => {
     if (gameState.gameOver || isBotThinking) return;

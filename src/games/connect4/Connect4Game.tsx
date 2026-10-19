@@ -34,7 +34,7 @@ export const Connect4Game: React.FC<Connect4GameProps> = ({
 
   // BOT turn handler
   useEffect(() => {
-    if (playMode === 'bot' && gameState.turn === 'yellow' && !gameState.gameOver && !isBotThinking) {
+    if (playMode === 'bot' && gameState.turn === 'yellow' && !gameState.gameOver) {
       setIsBotThinking(true);
       const timer = setTimeout(() => {
         const botCol = getBotConnect4Move(gameState, difficulty);
@@ -47,7 +47,7 @@ export const Connect4Game: React.FC<Connect4GameProps> = ({
       }, 550);
       return () => clearTimeout(timer);
     }
-  }, [gameState, playMode, difficulty, isBotThinking]);
+  }, [gameState, playMode, difficulty]);
 
   const handleColumnClick = (c: number) => {
     if (gameState.gameOver || isBotThinking) return;

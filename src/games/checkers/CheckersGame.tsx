@@ -34,7 +34,7 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
 
   // BOT AI turn
   useEffect(() => {
-    if (playMode === 'bot' && gameState.turn === 'b' && !gameState.gameOver && !isBotThinking) {
+    if (playMode === 'bot' && gameState.turn === 'b' && !gameState.gameOver) {
       setIsBotThinking(true);
       const timer = setTimeout(() => {
         const botMove = getBotCheckersMove(gameState, difficulty);
@@ -50,7 +50,7 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
       }, 550);
       return () => clearTimeout(timer);
     }
-  }, [gameState, playMode, difficulty, isBotThinking]);
+  }, [gameState, playMode, difficulty]);
 
   const handleCellClick = (r: number, c: number) => {
     if (gameState.gameOver || isBotThinking) return;

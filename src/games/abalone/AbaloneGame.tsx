@@ -39,7 +39,7 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
 
   // BOT turn
   useEffect(() => {
-    if (playMode !== 'bot' || gameState.gameOver || isBotThinking) return;
+    if (playMode !== 'bot' || gameState.gameOver) return;
     if (gameState.turn !== 1) return;
     setIsBotThinking(true);
     const t = setTimeout(() => {
@@ -55,7 +55,7 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
       setIsBotThinking(false);
     }, 700);
     return () => clearTimeout(t);
-  }, [gameState, playMode, difficulty, isBotThinking]);
+  }, [gameState, playMode, difficulty]);
 
   const canAct = !gameState.gameOver && !isBotThinking && (playMode !== 'bot' || gameState.turn === 0);
 

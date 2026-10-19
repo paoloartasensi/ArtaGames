@@ -36,7 +36,7 @@ export const GoGame: React.FC<GoGameProps> = ({
 
   // BOT AI turn
   useEffect(() => {
-    if (playMode === 'bot' && gameState.turn === 'W' && !gameState.gameOver && !isBotThinking) {
+    if (playMode === 'bot' && gameState.turn === 'W' && !gameState.gameOver) {
       setIsBotThinking(true);
       const timer = setTimeout(() => {
         const botMove = getBotGoMove(gameState, difficulty);
@@ -58,7 +58,7 @@ export const GoGame: React.FC<GoGameProps> = ({
       }, 550);
       return () => clearTimeout(timer);
     }
-  }, [gameState, playMode, difficulty, isBotThinking]);
+  }, [gameState, playMode, difficulty]);
 
   const handleIntersectionClick = (r: number, c: number) => {
     if (gameState.gameOver || isBotThinking) return;

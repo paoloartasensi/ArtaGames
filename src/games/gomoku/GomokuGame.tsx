@@ -31,7 +31,7 @@ export const GomokuGame: React.FC<GomokuGameProps> = ({
 
   // BOT turn
   useEffect(() => {
-    if (playMode !== 'bot' || gameState.gameOver || isBotThinking) return;
+    if (playMode !== 'bot' || gameState.gameOver) return;
     if (gameState.turn !== 1) return;
     setIsBotThinking(true);
     const t = setTimeout(() => {
@@ -44,7 +44,7 @@ export const GomokuGame: React.FC<GomokuGameProps> = ({
       setIsBotThinking(false);
     }, 550);
     return () => clearTimeout(t);
-  }, [gameState, playMode, difficulty, isBotThinking]);
+  }, [gameState, playMode, difficulty]);
 
   const handleClick = (r: number, c: number) => {
     if (gameState.gameOver || isBotThinking) return;

@@ -46,7 +46,7 @@ export const MorrisGame: React.FC<MorrisGameProps> = ({
   const [isBotThinking, setIsBotThinking] = useState(false);
 
   useEffect(() => {
-    if (playMode === 'bot' && gameState.turn === 1 && !gameState.gameOver && !isBotThinking) {
+    if (playMode === 'bot' && gameState.turn === 1 && !gameState.gameOver) {
       setIsBotThinking(true);
       const t = setTimeout(() => {
         const action = getBotMorrisAction(gameState, difficulty);
@@ -80,7 +80,7 @@ export const MorrisGame: React.FC<MorrisGameProps> = ({
       }, 650);
       return () => clearTimeout(t);
     }
-  }, [gameState, playMode, difficulty, isBotThinking]);
+  }, [gameState, playMode, difficulty]);
 
   const handlePointClick = (point: number) => {
     if (gameState.gameOver || isBotThinking) return;

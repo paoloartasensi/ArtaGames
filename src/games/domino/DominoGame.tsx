@@ -88,7 +88,7 @@ export const DominoGame: React.FC<DominoGameProps> = ({
   const [isBotThinking, setIsBotThinking] = useState(false);
 
   useEffect(() => {
-    if (playMode === 'bot' && gameState.turn === 1 && !gameState.gameOver && !isBotThinking) {
+    if (playMode === 'bot' && gameState.turn === 1 && !gameState.gameOver) {
       setIsBotThinking(true);
       const t = setTimeout(() => {
         const action = getBotDominoAction(gameState, difficulty);
@@ -109,7 +109,7 @@ export const DominoGame: React.FC<DominoGameProps> = ({
       }, 700);
       return () => clearTimeout(t);
     }
-  }, [gameState, playMode, difficulty, isBotThinking]);
+  }, [gameState, playMode, difficulty]);
 
   const handleTileClick = (tileId: number) => {
     if (gameState.gameOver || isBotThinking) return;

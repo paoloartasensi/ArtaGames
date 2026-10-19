@@ -30,7 +30,7 @@ export const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
 
   // BOT turn
   useEffect(() => {
-    if (playMode === 'bot' && gameState.turn === 'O' && !gameState.gameOver && !isBotThinking) {
+    if (playMode === 'bot' && gameState.turn === 'O' && !gameState.gameOver) {
       setIsBotThinking(true);
       const timer = setTimeout(() => {
         const botMove = getBotTTTMove(gameState, difficulty);
@@ -43,7 +43,7 @@ export const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
       }, 450);
       return () => clearTimeout(timer);
     }
-  }, [gameState, playMode, difficulty, isBotThinking]);
+  }, [gameState, playMode, difficulty]);
 
   const handleClick = (idx: number) => {
     if (gameState.gameOver || isBotThinking) return;

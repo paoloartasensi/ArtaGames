@@ -52,7 +52,7 @@ export const SnakesGame: React.FC<SnakesGameProps> = ({
   };
 
   useEffect(() => {
-    if (playMode === 'bot' && gameState.turn === 1 && !gameState.gameOver && !isBotThinking) {
+    if (playMode === 'bot' && gameState.turn === 1 && !gameState.gameOver) {
       setIsBotThinking(true);
       const t = setTimeout(() => {
         const next = rollSnakesMove(gameState);
@@ -64,7 +64,7 @@ export const SnakesGame: React.FC<SnakesGameProps> = ({
       }, 700);
       return () => clearTimeout(t);
     }
-  }, [gameState, playMode, isBotThinking]);
+  }, [gameState, playMode]);
 
   const handleRoll = () => {
     if (gameState.gameOver || isBotThinking) return;
