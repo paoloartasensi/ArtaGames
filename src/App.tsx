@@ -48,8 +48,6 @@ function AppContent() {
   const handleSelectGame = (id: GameId) => {
     setActiveGameId(id);
     setViewMode('game');
-    // Battaglia Navale è solo vs BOT: forza la modalità per coerenza
-    if (id === 'battleship') setPlayMode('bot');
     setGameKey((k) => k + 1);
   };
 
@@ -124,7 +122,6 @@ function AppContent() {
             <GameControls
               playMode={playMode}
               onSetPlayMode={handleSetPlayMode}
-              allowPvp={activeGameId !== 'battleship'}
               difficulty={difficulty}
               onSetDifficulty={setDifficulty}
               onRestart={handleRestart}
