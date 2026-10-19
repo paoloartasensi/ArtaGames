@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ArtaGames — Mockup 2 · Carosello Copertine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1E1B2E;
+    --ink: #fff;
+    --muted: #b8b2d6;
+    --accent: #FFB703;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Baloo 2', system-ui, sans-serif;
+    background: radial-gradient(1000px 600px at 50% -100px, #3A3560 0%, var(--bg) 60%);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+  }
+  .ribbon {
+    background: rgba(0,0,0,0.35); color: #FFE3C2; text-align: center;
+    font-weight: 800; letter-spacing: 0.14em; font-size: 12px; padding: 8px 12px; text-transform: uppercase;
+  }
+  .stage { flex: 1; max-width: 620px; width: 100%; margin: 0 auto; padding: 22px 18px 30px; display: flex; flex-direction: column; }
+  .viewport { position: relative; overflow: hidden; border-radius: 34px; box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6); }
+  .track { display: flex; transition: transform 0.35s cubic-bezier(.22,.8,.3,1); }
+  .slide {
+    min-width: 100%;
+    aspect-ratio: 4/5;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: 40px 28px; text-align: center; position: relative; overflow: hidden;
+  }
+  .slide::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(300px 300px at 50% 22%, rgba(255,255,255,0.35), transparent 70%);
+  }
+  .slide > * { position: relative; }
+  .emoji { font-size: 150px; line-height: 1; filter: drop-shadow(0 12px 14px rgba(0,0,0,0.3)); }
+  .title { font-size: 52px; font-weight: 800; line-height: 1; text-shadow: 0 3px 0 rgba(0,0,0,0.15); }
+  .age { font-size: 22px; font-weight: 800; background: rgba(0,0,0,0.25); padding: 6px 20px; border-radius: 999px; }
+  .play {
+    display: inline-flex; align-items: center; gap: 12px;
+    font-family: inherit; font-size: 30px; font-weight: 800; color: #33261a;
+    background: var(--accent); border: none; border-radius: 999px;
+    padding: 20px 44px; cursor: pointer;
+    box-shadow: 0 12px 0 #d98f00, 0 18px 30px -8px rgba(0,0,0,0.4);
+    transition: transform .1s ease, box-shadow .1s ease;
+  }
+  .play:active { transform: translateY(8px); box-shadow: 0 4px 0 #d98f00, 0 8px 16px -6px rgba(0,0,0,0.4); }
+  .nav { display: flex; align-items: center; justify-content: center; gap: 22px; margin-top: 26px; }
+  .arrow {
+    width: 64px; height: 64px; border-radius: 50%; border: none; cursor: pointer;
+    font-size: 30px; color: var(--ink); background: rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .arrow:active { background: rgba(255,255,255,0.25); }
+  .dots { display: flex; gap: 10px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.28); transition: .2s; }
+  .dot.on { background: var(--accent); width: 30px; border-radius: 999px; }
+  .hint { text-align: center; color: var(--muted); margin-top: 18px; font-size: 16px; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="ribbon">Mockup 2 · Carosello Copertine</div>
+  <div class="stage">
+    <div class="viewport">
+      <div class="track" id="track">
+        <div class="slide" style="background:#EF4444"><span class="emoji">🟡</span><span class="title">Forza 4</span><span class="age">5+ anni</span><button class="play">▶ Gioca</button></div>
+        <div class="slide" style="background:#F59E0B"><span class="emoji">⚫</span><span class="title">Dama</span><span class="age">6+ anni</span><button class="play">▶ Gioca</button></div>
+        <div class="slide" style="background:#3B82F6"><span class="emoji">🚢</span><span class="title">Battaglia Navale</span><span class="age">6+ anni</span><button class="play">▶ Gioca</button></div>
+        <div class="slide" style="background:#22C55E"><span class="emoji">🐍</span><span class="title">Serpenti e Scale</span><span class="age">5+ anni</span><button class="play">▶ Gioca</button></div>
+        <div class="slide" style="background:#EC4899"><span class="emoji">🐶</span><span class="title">Memory</span><span class="age">5+ anni</span><button class="play">▶ Gioca</button></div>
+        <div class="slide" style="background:#8B5CF6"><span class="emoji">♟️</span><span class="title">Scacchi</span><span class="age">7+ anni</span><button class="play">▶ Gioca</button></div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="arrow" id="prev">‹</button>
+      <div class="dots" id="dots"></div>
+      <button class="arrow" id="next">›</button>
+    </div>
+    <p class="hint">💡 Un gioco alla volta, grande come una copertina, con un solo grande bottone GIOCA.</p>
+  </div>
+  <script>
+    const track = document.getElementById('track');
+    const slides = track.children.length;
+    const dots = document.getElementById('dots');
+    let i = 0;
+    for (let k = 0; k < slides; k++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (k === 0 ? ' on' : '');
+      dots.appendChild(d);
+    }
+    function go(n) {
+      i = (n + slides) % slides;
+      track.style.transform = `translateX(-${i * 100}%)`;
+      [...dots.children].forEach((d, k) => d.classList.toggle('on', k === i));
+    }
+    document.getElementById('next').onclick = () => go(i + 1);
+    document.getElementById('prev').onclick = () => go(i - 1);
+  </script>
+</body>
+</html>

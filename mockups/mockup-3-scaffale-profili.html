@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ArtaGames — Mockup 3 · Scaffale &amp; Profili</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EFFBF4;
+    --ink: #17331f;
+    --muted: #5f7a68;
+    --accent: #00B368;
+    --accent-ink: #fff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Baloo 2', system-ui, sans-serif;
+    background: linear-gradient(180deg, #D7F6E6 0%, var(--bg) 220px);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-bottom: 40px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .ribbon {
+    background: #17331f; color: #D7F6E6; text-align: center;
+    font-weight: 800; letter-spacing: 0.14em; font-size: 12px; padding: 8px 12px; text-transform: uppercase;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 20px 18px; }
+  .profiles { display: flex; gap: 16px; justify-content: center; margin: 12px 0 22px; }
+  .profile {
+    flex: 1; max-width: 200px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    background: #fff; border: 3px solid transparent; border-radius: 24px; padding: 18px 12px;
+    cursor: pointer; box-shadow: 0 8px 20px -10px rgba(23,51,31,0.3);
+    transition: transform .12s ease, border-color .12s ease;
+  }
+  .profile:hover { transform: translateY(-3px); }
+  .profile.on { border-color: var(--accent); }
+  .avatar {
+    width: 88px; height: 88px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 46px;
+    color: #fff; box-shadow: inset 0 -6px 0 rgba(0,0,0,0.15);
+  }
+  .profile .name { font-size: 22px; font-weight: 800; }
+  .profile .sub { font-size: 15px; color: var(--muted); font-weight: 600; }
+  .cta {
+    display: block; width: 100%; text-align: center;
+    font-family: inherit; font-size: 28px; font-weight: 800; color: var(--accent-ink);
+    background: var(--accent); border: none; border-radius: 20px; padding: 20px;
+    cursor: pointer; box-shadow: 0 10px 0 #008a4f, 0 18px 30px -10px rgba(0,179,104,0.5);
+    transition: transform .1s ease, box-shadow .1s ease;
+  }
+  .cta:active { transform: translateY(6px); box-shadow: 0 4px 0 #008a4f, 0 8px 16px -8px rgba(0,179,104,0.5); }
+  .section { margin-top: 26px; font-size: 24px; font-weight: 800; }
+  .shelf { display: flex; gap: 16px; overflow-x: auto; padding: 8px 2px 14px; scroll-snap-type: x mandatory; }
+  .tile {
+    flex: 0 0 150px; scroll-snap-align: start;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    min-height: 170px; border-radius: 24px; color: #fff; text-align: center;
+    cursor: pointer; box-shadow: 0 10px 24px -12px rgba(23,51,31,0.4);
+    transition: transform .12s ease;
+  }
+  .tile:hover { transform: translateY(-4px) scale(1.02); }
+  .tile .emoji { font-size: 56px; }
+  .tile .name { font-size: 19px; font-weight: 800; line-height: 1.05; }
+  .tile .age { font-size: 14px; font-weight: 800; background: rgba(0,0,0,0.2); padding: 2px 10px; border-radius: 999px; }
+  .hint { margin-top: 20px; text-align: center; color: var(--muted); font-size: 16px; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="ribbon">Mockup 3 · Scaffale &amp; Profili</div>
+  <div class="wrap">
+    <div class="profiles">
+      <div class="profile on" id="p1">
+        <div class="avatar" style="background:#3B82F6">🦁</div>
+        <div class="name">Leo</div>
+        <div class="sub">5 anni</div>
+      </div>
+      <div class="profile" id="p2">
+        <div class="avatar" style="background:#F59E0B">🦊</div>
+        <div class="name">Mia</div>
+        <div class="sub">7 anni</div>
+      </div>
+    </div>
+
+    <button class="cta">🎲 GIOCA ORA</button>
+
+    <div class="section">Tutti i giochi</div>
+    <div class="shelf">
+      <div class="tile" style="background:#EF4444"><span class="emoji">🟡</span><span class="name">Forza 4</span><span class="age">5+</span></div>
+      <div class="tile" style="background:#F59E0B"><span class="emoji">⚫</span><span class="name">Dama</span><span class="age">6+</span></div>
+      <div class="tile" style="background:#3B82F6"><span class="emoji">🚢</span><span class="name">Battaglia Navale</span><span class="age">6+</span></div>
+      <div class="tile" style="background:#10B981"><span class="emoji">⚪</span><span class="name">Go</span><span class="age">6+</span></div>
+      <div class="tile" style="background:#8B5CF6"><span class="emoji">♟️</span><span class="name">Scacchi</span><span class="age">7+</span></div>
+      <div class="tile" style="background:#06B6D4"><span class="emoji">❌</span><span class="name">Tris</span><span class="age">5+</span></div>
+      <div class="tile" style="background:#22C55E"><span class="emoji">🐍</span><span class="name">Serpenti e Scale</span><span class="age">5+</span></div>
+      <div class="tile" style="background:#EC4899"><span class="emoji">🐶</span><span class="name">Memory</span><span class="age">5+</span></div>
+      <div class="tile" style="background:#B45309"><span class="emoji">🫘</span><span class="name">Mancala</span><span class="age">5+</span></div>
+      <div class="tile" style="background:#0EA5E9"><span class="emoji">🁡</span><span class="name">Domino</span><span class="age">5+</span></div>
+      <div class="tile" style="background:#64748B"><span class="emoji">🔘</span><span class="name">Reversi</span><span class="age">7+</span></div>
+      <div class="tile" style="background:#6366F1"><span class="emoji">✚</span><span class="name">Mulino</span><span class="age">7+</span></div>
+      <div class="tile" style="background:#D946EF"><span class="emoji">🧩</span><span class="name">Quarto</span><span class="age">7+</span></div>
+    </div>
+    <p class="hint">💡 Profili per i due bimbi, un grande pulsante GIOCA e uno scaffale scorrevole di tessere.</p>
+  </div>
+  <script>
+    const p1 = document.getElementById('p1');
+    const p2 = document.getElementById('p2');
+    p1.onclick = () => { p1.classList.add('on'); p2.classList.remove('on'); };
+    p2.onclick = () => { p2.classList.add('on'); p1.classList.remove('on'); };
+  </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ArtaGames — Mockup 1 · Tessere Giganti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFF6EA;
+    --ink: #33261a;
+    --muted: #8a7560;
+    --accent: #FF7A00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Baloo 2', system-ui, sans-serif;
+    background: radial-gradient(1200px 600px at 50% -100px, #FFE3C2 0%, var(--bg) 55%);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-bottom: 40px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .ribbon {
+    background: #33261a;
+    color: #FFE3C2;
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    font-size: 12px;
+    padding: 8px 12px;
+    text-transform: uppercase;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 20px; }
+  header { text-align: center; margin: 18px 0 26px; }
+  header h1 { font-size: 40px; font-weight: 800; line-height: 1.05; }
+  header h1 .acc { color: var(--accent); }
+  header p { font-size: 19px; color: var(--muted); margin-top: 6px; font-weight: 600; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 240px;
+    padding: 28px 16px;
+    border-radius: 32px;
+    color: #fff;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 14px 30px -12px rgba(51,38,26,0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 22px 40px -12px rgba(51,38,26,0.45); }
+  .card:active { transform: scale(0.97); }
+  .card::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 45%);
+    pointer-events: none;
+  }
+  .emoji { font-size: 84px; line-height: 1; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.25)); }
+  .title { font-size: 30px; font-weight: 800; margin-top: 10px; line-height: 1.05; }
+  .age {
+    margin-top: 10px;
+    font-size: 17px; font-weight: 800;
+    background: rgba(0,0,0,0.22);
+    padding: 4px 14px; border-radius: 999px;
+    letter-spacing: 0.02em;
+  }
+  .hint {
+    margin-top: 26px; text-align: center; font-size: 17px; color: var(--muted); font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="ribbon">Mockup 1 · Tessere Giganti</div>
+  <div class="wrap">
+    <header>
+      <h1>Giochi da <span class="acc">Tavolo</span></h1>
+      <p>Tocca una tessera grande e gioca subito</p>
+    </header>
+    <main class="grid">
+      <div class="card" style="background:#EF4444"><span class="emoji">🟡</span><span class="title">Forza 4</span><span class="age">5+ anni</span></div>
+      <div class="card" style="background:#F59E0B"><span class="emoji">⚫</span><span class="title">Dama</span><span class="age">6+ anni</span></div>
+      <div class="card" style="background:#3B82F6"><span class="emoji">🚢</span><span class="title">Battaglia Navale</span><span class="age">6+ anni</span></div>
+      <div class="card" style="background:#10B981"><span class="emoji">⚪</span><span class="title">Go</span><span class="age">6+ anni</span></div>
+      <div class="card" style="background:#8B5CF6"><span class="emoji">♟️</span><span class="title">Scacchi</span><span class="age">7+ anni</span></div>
+      <div class="card" style="background:#06B6D4"><span class="emoji">❌</span><span class="title">Tris</span><span class="age">5+ anni</span></div>
+      <div class="card" style="background:#22C55E"><span class="emoji">🐍</span><span class="title">Serpenti e Scale</span><span class="age">5+ anni</span></div>
+      <div class="card" style="background:#EC4899"><span class="emoji">🐶</span><span class="title">Memory</span><span class="age">5+ anni</span></div>
+      <div class="card" style="background:#B45309"><span class="emoji">🫘</span><span class="title">Mancala</span><span class="age">5+ anni</span></div>
+      <div class="card" style="background:#0EA5E9"><span class="emoji">🁡</span><span class="title">Domino</span><span class="age">5+ anni</span></div>
+      <div class="card" style="background:#64748B"><span class="emoji">🔘</span><span class="title">Reversi</span><span class="age">7+ anni</span></div>
+      <div class="card" style="background:#6366F1"><span class="emoji">✚</span><span class="title">Mulino</span><span class="age">7+ anni</span></div>
+      <div class="card" style="background:#D946EF"><span class="emoji">🧩</span><span class="title">Quarto</span><span class="age">7+ anni</span></div>
+    </main>
+    <p class="hint">💡 Massime zone di tocco: 2 colonne, icone e titoli enormi, zero testo piccolo.</p>
+  </div>
+</body>
+</html>

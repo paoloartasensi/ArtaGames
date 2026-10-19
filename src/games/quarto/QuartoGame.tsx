@@ -158,9 +158,7 @@ export const QuartoGame: React.FC<QuartoGameProps> = ({
       {gameState.phase === 'place' && gameState.currentPick && (
         <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-stone-500 dark:text-stone-400">
           <span>Pezzo da piazzare:</span>
-          <div className="bg-black/5 dark:bg-white/5 rounded-xl p-1">
-            <div style={pieceStyle(gameState.currentPick)} className="!w-8 !h-8" />
-          </div>
+          <PieceView piece={gameState.currentPick} size={36} />
         </div>
       )}
 
