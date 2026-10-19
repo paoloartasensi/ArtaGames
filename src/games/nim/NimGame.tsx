@@ -15,7 +15,8 @@ interface NimGameProps {
 
 export const NimGame: React.FC<NimGameProps> = ({ playMode, difficulty, onSelectGame, isTabletFlipped }) => {
   const { theme } = useTheme();
-  const [gameState, setGameState] = useState<NimState>(createInitialNimState());
+  const [start, setStart] = useState<number>(16);
+  const [gameState, setGameState] = useState<NimState>(() => createInitialNimState(16));
   const [isBotThinking, setIsBotThinking] = useState(false);
 
   // BOT turn
@@ -45,13 +46,34 @@ export const NimGame: React.FC<NimGameProps> = ({ playMode, difficulty, onSelect
     }
   };
 
-  const handleRestart = () => setGameState(createInitialNimState());
+  const handleRestart = (newStart?: number) => {
+    const s = newStart ?? start;
+    if (newStart) setStart(newStart);
+    setGameState(createInitialNimState(s));
+  };
 
   const canTake = (n: number) =>
     !gameState.gameOver && !isBotThinking && n <= gameState.sticks && (playMode !== 'bot' || gameState.turn === 0);
 
   return (
     <div className="flex flex-col items-center w-full max-w-sm mx-auto px-2">
+      {/* Starting sticks toggle */}
+      <div className="flex items-center justify-center w-full mb-2 px-1 text-xs">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/10 dark:bg-white/10">
+          {[13, 16, 21].map((n) => (
+            <button
+              key={n}
+              onClick={() => handleRestart(n)}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
+                start === n ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Turn bar */}
       <div className="flex items-center justify-between w-full mb-3 px-2">
         <div

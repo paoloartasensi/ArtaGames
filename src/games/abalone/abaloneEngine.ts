@@ -36,12 +36,13 @@ export interface AbaloneState {
   board: Record<string, AbaPlayer>; // only occupied cells
   turn: AbaPlayer;
   knockedOut: [number, number];
+  target: number; // marbles to knock out to win
   gameOver: boolean;
   winner: AbaPlayer | null;
   lastMove: { from: string[]; to: string[]; knockedOff: string[] } | null;
 }
 
-export function createInitialAbaloneState(): AbaloneState {
+export function createInitialAbaloneState(target = 6): AbaloneState {
   const board: Record<string, AbaPlayer> = {};
   // Black (0) at the top: 5 + 6 + 3 = 14 marbles.
   for (let q = 0; q <= 4; q++) board[abaKey(q, -4)] = 0;
@@ -55,6 +56,7 @@ export function createInitialAbaloneState(): AbaloneState {
     board,
     turn: 0,
     knockedOut: [0, 0],
+    target,
     gameOver: false,
     winner: null,
     lastMove: null,
@@ -194,7 +196,7 @@ export function applyAbaMove(state: AbaloneState, move: AbaMove): AbaloneState {
 
   const knockedOut: [number, number] = [...state.knockedOut];
   knockedOut[opp] += move.knockedOff.length;
-  const gameOver = knockedOut[opp] >= 6;
+  const gameOver = knockedOut[opp] >= state.target;
 
   return {
     board,

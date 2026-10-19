@@ -2,20 +2,11 @@ import { Difficulty } from '../../types/game';
 
 export type DBPlayer = 0 | 1;
 
-// Grid of dots: 5x5 dots -> 4x4 boxes (16 boxes, good balance for kids).
-export const DOTS_X = 5;
-export const DOTS_Y = 5;
-export const BOX_COLS = DOTS_X - 1;
-export const BOX_ROWS = DOTS_Y - 1;
-
-export type DBEdge =
-  | { kind: 'h'; r: number; c: number } // horizontal: dot(r,c) -> dot(r,c+1)
-  | { kind: 'v'; r: number; c: number }; // vertical: dot(r,c) -> dot(r+1,c)
-
 export interface DotsBoxesState {
-  hEdges: boolean[][]; // DOTS_Y rows x BOX_COLS cols
-  vEdges: boolean[][]; // BOX_ROWS rows x DOTS_X cols
-  boxes: (DBPlayer | null)[]; // BOX_ROWS x BOX_COLS
+  size: number; // boxes per side (square grid)
+  hEdges: boolean[][]; // (size+1) rows x size cols
+  vEdges: boolean[][]; // size rows x (size+1) cols
+  boxes: (DBPlayer | null)[]; // size x size
   turn: DBPlayer;
   scores: [number, number];
   gameOver: boolean;
@@ -23,11 +14,16 @@ export interface DotsBoxesState {
   lastBox: { r: number; c: number } | null;
 }
 
-export function createInitialDotsBoxesState(): DotsBoxesState {
+export type DBEdge =
+  | { kind: 'h'; r: number; c: number } // horizontal: dot(r,c) -> dot(r,c+1)
+  | { kind: 'v'; r: number; c: number }; // vertical: dot(r,c) -> dot(r+1,c)
+
+export function createInitialDotsBoxesState(size = 4): DotsBoxesState {
   return {
-    hEdges: Array.from({ length: DOTS_Y }, () => Array(BOX_COLS).fill(false)),
-    vEdges: Array.from({ length: BOX_ROWS }, () => Array(DOTS_X).fill(false)),
-    boxes: Array(BOX_ROWS * BOX_COLS).fill(null),
+    size,
+    hEdges: Array.from({ length: size + 1 }, () => Array(size).fill(false)),
+    vEdges: Array.from({ length: size }, () => Array(size + 1).fill(false)),
+    boxes: Array(size * size).fill(null),
     turn: 0,
     scores: [0, 0],
     gameOver: false,
@@ -36,23 +32,21 @@ export function createInitialDotsBoxesState(): DotsBoxesState {
   };
 }
 
-export function boxIndex(r: number, c: number): number {
-  return r * BOX_COLS + c;
-}
+const boxIndex = (size: number, r: number, c: number) => r * size + c;
 
 function isEdgeDrawn(state: DotsBoxesState, e: DBEdge): boolean {
   return e.kind === 'h' ? state.hEdges[e.r][e.c] : state.vEdges[e.r][e.c];
 }
 
 // The 1 or 2 boxes that share an edge.
-function adjacentBoxes(e: DBEdge): { r: number; c: number }[] {
+function adjacentBoxes(size: number, e: DBEdge): { r: number; c: number }[] {
   const list: { r: number; c: number }[] = [];
   if (e.kind === 'h') {
     if (e.r - 1 >= 0) list.push({ r: e.r - 1, c: e.c });
-    if (e.r < BOX_ROWS) list.push({ r: e.r, c: e.c });
+    if (e.r < size) list.push({ r: e.r, c: e.c });
   } else {
     if (e.c - 1 >= 0) list.push({ r: e.r, c: e.c - 1 });
-    if (e.c < BOX_COLS) list.push({ r: e.r, c: e.c });
+    if (e.c < size) list.push({ r: e.r, c: e.c });
   }
   return list;
 }
@@ -69,15 +63,15 @@ function sideCount(state: DotsBoxesState, r: number, c: number): number {
 
 // Boxes that would be completed (still unowned, missing only this edge) by drawing `e`.
 function completedBoxes(state: DotsBoxesState, e: DBEdge): { r: number; c: number }[] {
-  return adjacentBoxes(e).filter(
-    (b) => state.boxes[boxIndex(b.r, b.c)] === null && sideCount(state, b.r, b.c) === 3,
+  return adjacentBoxes(state.size, e).filter(
+    (b) => state.boxes[boxIndex(state.size, b.r, b.c)] === null && sideCount(state, b.r, b.c) === 3,
   );
 }
 
 // True if drawing `e` hands the opponent a capture (leaves a box with 3 sides).
 function givesAwayBox(state: DotsBoxesState, e: DBEdge): boolean {
-  return adjacentBoxes(e).some(
-    (b) => state.boxes[boxIndex(b.r, b.c)] === null && sideCount(state, b.r, b.c) === 2,
+  return adjacentBoxes(state.size, e).some(
+    (b) => state.boxes[boxIndex(state.size, b.r, b.c)] === null && sideCount(state, b.r, b.c) === 2,
   );
 }
 
@@ -95,15 +89,15 @@ export function drawEdge(state: DotsBoxesState, e: DBEdge): DotsBoxesState | nul
     const boxes = [...state.boxes];
     const scores: [number, number] = [...state.scores];
     for (const b of completed) {
-      boxes[boxIndex(b.r, b.c)] = state.turn;
+      boxes[boxIndex(state.size, b.r, b.c)] = state.turn;
       scores[state.turn]++;
     }
     const allOwned = boxes.every((x) => x !== null);
     return {
+      ...state,
       hEdges,
       vEdges,
       boxes,
-      turn: state.turn, // captures keep the turn
       scores,
       gameOver: allOwned,
       winner: allOwned ? (scores[0] > scores[1] ? 0 : scores[1] > scores[0] ? 1 : 'draw') : null,
@@ -112,23 +106,21 @@ export function drawEdge(state: DotsBoxesState, e: DBEdge): DotsBoxesState | nul
   }
 
   return {
+    ...state,
     hEdges,
     vEdges,
-    boxes: state.boxes,
     turn: (1 - state.turn) as DBPlayer,
-    scores: state.scores,
-    gameOver: false,
-    winner: null,
     lastBox: null,
   };
 }
 
 export function getAvailableEdges(state: DotsBoxesState): DBEdge[] {
+  const { size } = state;
   const out: DBEdge[] = [];
-  for (let r = 0; r < DOTS_Y; r++)
-    for (let c = 0; c < BOX_COLS; c++) if (!state.hEdges[r][c]) out.push({ kind: 'h', r, c });
-  for (let r = 0; r < BOX_ROWS; r++)
-    for (let c = 0; c < DOTS_X; c++) if (!state.vEdges[r][c]) out.push({ kind: 'v', r, c });
+  for (let r = 0; r < size + 1; r++)
+    for (let c = 0; c < size; c++) if (!state.hEdges[r][c]) out.push({ kind: 'h', r, c });
+  for (let r = 0; r < size; r++)
+    for (let c = 0; c < size + 1; c++) if (!state.vEdges[r][c]) out.push({ kind: 'v', r, c });
   return out;
 }
 
@@ -160,8 +152,8 @@ export function getBotDotsBoxesEdge(state: DotsBoxesState, difficulty: Difficult
   let bestScore = Infinity;
   for (const e of pool) {
     let s = 0;
-    for (const b of adjacentBoxes(e)) {
-      if (state.boxes[boxIndex(b.r, b.c)] === null) s += sideCount(state, b.r, b.c) * 10;
+    for (const b of adjacentBoxes(state.size, e)) {
+      if (state.boxes[boxIndex(state.size, b.r, b.c)] === null) s += sideCount(state, b.r, b.c) * 10;
     }
     s += Math.random() * 3;
     if (s < bestScore) {

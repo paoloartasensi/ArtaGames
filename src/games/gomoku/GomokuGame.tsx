@@ -5,7 +5,6 @@ import {
   createInitialGomokuState,
   playGomokuMove,
   getBotGomokuMove,
-  GOMOKU_SIZE,
 } from './gomokuEngine';
 import { useTheme } from '../../theme/themeContext';
 import { sound } from '../../utils/audio';
@@ -26,7 +25,8 @@ export const GomokuGame: React.FC<GomokuGameProps> = ({
   isTabletFlipped,
 }) => {
   const { theme } = useTheme();
-  const [gameState, setGameState] = useState<GomokuState>(createInitialGomokuState());
+  const [boardSize, setBoardSize] = useState<number>(9);
+  const [gameState, setGameState] = useState<GomokuState>(() => createInitialGomokuState(9));
   const [isBotThinking, setIsBotThinking] = useState(false);
 
   // BOT turn
@@ -56,13 +56,34 @@ export const GomokuGame: React.FC<GomokuGameProps> = ({
     }
   };
 
-  const handleRestart = () => setGameState(createInitialGomokuState());
+  const handleRestart = (newSize?: number) => {
+    const s = newSize ?? boardSize;
+    if (newSize) setBoardSize(newSize);
+    setGameState(createInitialGomokuState(s));
+  };
 
   const isWinCell = (r: number, c: number) =>
     gameState.winningLine?.some((p) => p.r === r && p.c === c) ?? false;
 
   return (
     <div className="flex flex-col items-center w-full max-w-sm mx-auto px-2">
+      {/* Board size toggle */}
+      <div className="flex items-center justify-center w-full mb-2 px-1 text-xs">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/10 dark:bg-white/10">
+          {[9, 11, 15].map((n) => (
+            <button
+              key={n}
+              onClick={() => handleRestart(n)}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
+                boardSize === n ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {n}×{n}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Turn bar */}
       <div className="flex items-center justify-between w-full mb-3 px-2">
         <div
@@ -91,7 +112,7 @@ export const GomokuGame: React.FC<GomokuGameProps> = ({
         }`}
         style={{ backgroundColor: theme.boardBg }}
       >
-        <div className="grid w-full h-full rounded-xl p-1 gap-[3px]" style={{ gridTemplateColumns: `repeat(${GOMOKU_SIZE}, 1fr)`, backgroundColor: theme.boardGrid }}>
+        <div className="grid w-full h-full rounded-xl p-1 gap-[3px]" style={{ gridTemplateColumns: `repeat(${gameState.size}, 1fr)`, backgroundColor: theme.boardGrid }}>
           {gameState.board.map((row, r) =>
             row.map((cell, c) => {
               const win = isWinCell(r, c);

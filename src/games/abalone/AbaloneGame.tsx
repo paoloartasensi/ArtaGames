@@ -33,7 +33,8 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
   isTabletFlipped,
 }) => {
   const { theme } = useTheme();
-  const [gameState, setGameState] = useState<AbaloneState>(createInitialAbaloneState());
+  const [target, setTarget] = useState<number>(6);
+  const [gameState, setGameState] = useState<AbaloneState>(() => createInitialAbaloneState(6));
   const [selected, setSelected] = useState<string[]>([]);
   const [isBotThinking, setIsBotThinking] = useState(false);
 
@@ -79,8 +80,10 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
     }
   };
 
-  const handleRestart = () => {
-    setGameState(createInitialAbaloneState());
+  const handleRestart = (newTarget?: number) => {
+    const t = newTarget ?? target;
+    if (newTarget) setTarget(newTarget);
+    setGameState(createInitialAbaloneState(t));
     setSelected([]);
   };
 
@@ -109,6 +112,23 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
 
   return (
     <div className="flex flex-col items-center w-full max-w-md mx-auto px-2">
+      {/* Win threshold toggle */}
+      <div className="flex items-center justify-center w-full mb-2 px-1 text-xs">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/10 dark:bg-white/10">
+          {[4, 5, 6].map((n) => (
+            <button
+              key={n}
+              onClick={() => handleRestart(n)}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
+                target === n ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              a {n}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Turn / status bar */}
       <div className="flex items-center justify-between w-full mb-3 px-1 gap-2">
         <div
@@ -118,7 +138,7 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
         >
           <span className="w-3.5 h-3.5 rounded-full bg-stone-800 ring-1 ring-white/40 shrink-0" />
           <span className="text-xs font-semibold">{playMode === 'bot' ? 'Tu' : 'Giocatore 1'}</span>
-          <span className="ml-auto text-[10px] font-bold opacity-70">fuori {humanOut}/6</span>
+          <span className="ml-auto text-[10px] font-bold opacity-70">fuori {humanOut}/{gameState.target}</span>
         </div>
         <div
           className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all flex-1 ${
@@ -127,7 +147,7 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
         >
           <span className="w-3.5 h-3.5 rounded-full bg-white ring-1 ring-black/40 shrink-0" />
           <span className="text-xs font-semibold">{playMode === 'bot' ? 'BOT' : 'Giocatore 2'}</span>
-          <span className="ml-auto text-[10px] font-bold opacity-70">fuori {botOut}/6</span>
+          <span className="ml-auto text-[10px] font-bold opacity-70">fuori {botOut}/{gameState.target}</span>
         </div>
       </div>
 
@@ -196,7 +216,7 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
             ? 'Vince il BOT! 🏆'
             : 'Vince il Giocatore 2! 🏆'
         }
-        winnerSubtitle="Sei biglie nemiche buttate fuori dal bordo!"
+        winnerSubtitle={`Hai buttato fuori ${gameState.target} biglie nemiche!`}
         onRematch={handleRestart}
         onSelectGame={onSelectGame}
       />

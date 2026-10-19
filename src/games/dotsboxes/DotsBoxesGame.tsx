@@ -6,9 +6,6 @@ import {
   createInitialDotsBoxesState,
   drawEdge,
   getBotDotsBoxesEdge,
-  DOTS_X,
-  DOTS_Y,
-  BOX_COLS,
 } from './dotsboxesEngine';
 import { useTheme } from '../../theme/themeContext';
 import { sound } from '../../utils/audio';
@@ -33,7 +30,8 @@ export const DotsBoxesGame: React.FC<DotsBoxesGameProps> = ({
   isTabletFlipped,
 }) => {
   const { theme } = useTheme();
-  const [gameState, setGameState] = useState<DotsBoxesState>(createInitialDotsBoxesState());
+  const [gridSize, setGridSize] = useState<number>(4);
+  const [gameState, setGameState] = useState<DotsBoxesState>(() => createInitialDotsBoxesState(4));
   const [isBotThinking, setIsBotThinking] = useState(false);
 
   // BOT turn
@@ -65,12 +63,34 @@ export const DotsBoxesGame: React.FC<DotsBoxesGameProps> = ({
     }
   };
 
-  const handleRestart = () => setGameState(createInitialDotsBoxesState());
+  const handleRestart = (newSize?: number) => {
+    const s = newSize ?? gridSize;
+    if (newSize) setGridSize(newSize);
+    setGameState(createInitialDotsBoxesState(s));
+  };
 
-  const size = M * 2 + (DOTS_X - 1) * S;
+  const grid = gameState.size;
+  const svgSize = M * 2 + (grid - 1) * S;
 
   return (
     <div className="flex flex-col items-center w-full max-w-md mx-auto px-2">
+      {/* Grid size toggle */}
+      <div className="flex items-center justify-center w-full mb-2 px-1 text-xs">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/10 dark:bg-white/10">
+          {[3, 4, 5].map((n) => (
+            <button
+              key={n}
+              onClick={() => handleRestart(n)}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
+                gridSize === n ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {n}×{n}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Turn bar with scores */}
       <div className="flex items-center justify-between w-full mb-3 px-1 gap-2">
         <div
@@ -99,12 +119,12 @@ export const DotsBoxesGame: React.FC<DotsBoxesGameProps> = ({
         className={`w-full rounded-3xl p-2 sm:p-3 shadow-xl transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
         style={{ backgroundColor: theme.boardBg }}
       >
-        <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-auto block select-none">
+        <svg viewBox={`0 0 ${svgSize} ${svgSize}`} className="w-full h-auto block select-none">
           {/* Owned boxes */}
           {gameState.boxes.map((owner, idx) => {
             if (owner === null) return null;
-            const r = Math.floor(idx / BOX_COLS);
-            const c = idx % BOX_COLS;
+            const r = Math.floor(idx / grid);
+            const c = idx % grid;
             const x = M + c * S;
             const y = M + r * S;
             const isLast = gameState.lastBox !== null && gameState.lastBox.r === r && gameState.lastBox.c === c;
@@ -120,8 +140,8 @@ export const DotsBoxesGame: React.FC<DotsBoxesGameProps> = ({
           })}
 
           {/* Horizontal edges */}
-          {Array.from({ length: DOTS_Y }).map((_, r) =>
-            Array.from({ length: BOX_COLS }).map((_, c) => {
+          {Array.from({ length: grid + 1 }).map((_, r) =>
+            Array.from({ length: grid }).map((_, c) => {
               const x1 = M + c * S;
               const y1 = M + r * S;
               const x2 = M + (c + 1) * S;
@@ -142,8 +162,8 @@ export const DotsBoxesGame: React.FC<DotsBoxesGameProps> = ({
           )}
 
           {/* Vertical edges */}
-          {Array.from({ length: DOTS_Y - 1 }).map((_, r) =>
-            Array.from({ length: DOTS_X }).map((_, c) => {
+          {Array.from({ length: grid }).map((_, r) =>
+            Array.from({ length: grid + 1 }).map((_, c) => {
               const x1 = M + c * S;
               const y1 = M + r * S;
               const y2 = M + (r + 1) * S;
@@ -164,8 +184,8 @@ export const DotsBoxesGame: React.FC<DotsBoxesGameProps> = ({
           )}
 
           {/* Dots */}
-          {Array.from({ length: DOTS_Y }).map((_, r) =>
-            Array.from({ length: DOTS_X }).map((_, c) => (
+          {Array.from({ length: grid + 1 }).map((_, r) =>
+            Array.from({ length: grid + 1 }).map((_, c) => (
               <circle key={`d${r}-${c}`} cx={M + c * S} cy={M + r * S} r={6} fill={theme.boardGrid} />
             )),
           )}

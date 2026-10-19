@@ -2,7 +2,7 @@ import { Difficulty } from '../../types/game';
 
 export type NimPlayer = 0 | 1;
 
-export const NIM_START = 16;
+export const NIM_DEFAULT_START = 16;
 export const NIM_MAX_TAKE = 3;
 
 export interface NimState {
@@ -13,8 +13,8 @@ export interface NimState {
   lastTake: number;
 }
 
-export function createInitialNimState(): NimState {
-  return { sticks: NIM_START, turn: 0, gameOver: false, winner: null, lastTake: 0 };
+export function createInitialNimState(start: number = NIM_DEFAULT_START): NimState {
+  return { sticks: start, turn: 0, gameOver: false, winner: null, lastTake: 0 };
 }
 
 // Misère Nim: whoever is forced to take the last stick loses.
