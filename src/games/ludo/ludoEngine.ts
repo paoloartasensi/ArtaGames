@@ -50,8 +50,9 @@ export const HOME_COLUMNS: [[number, number][], [number, number][]] = [
   [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5]], // Rosso (top-left)
 ];
 
-// Star/globe cells are safe: tokens here can never be captured.
-export const STAR_CELLS = new Set([8, 21, 34, 47]);
+// The four start cells (A-fields) are the safe squares of the original board:
+// tokens on them can never be captured. Indices 0, 13, 26, 39.
+export const SAFE_CELLS = new Set([0, 13, 26, 39]);
 
 export const FINISH_POS = 56; // reached the home centre
 
@@ -128,7 +129,7 @@ export function moveLudo(state: LudoState, tokenIndex: number): LudoState | null
   let captured = 0;
   if (to >= 0 && to <= 50) {
     const abs = (START_INDEX[player] + to) % 52;
-    if (!STAR_CELLS.has(abs)) {
+    if (!SAFE_CELLS.has(abs)) {
       const opp = other(player);
       const oppStart = START_INDEX[opp];
       tokens[opp] = tokens[opp].map((p) => {
@@ -189,7 +190,7 @@ export function getBotLudoMove(state: LudoState, difficulty: Difficulty): number
 
     if (next.lastMove?.finished) score += 14;
     if (next.lastMove?.captured) score += next.lastMove.captured * 8;
-    if (pos >= 0 && pos <= 50 && STAR_CELLS.has((START_INDEX[player] + pos) % 52)) score += 3;
+    if (pos >= 0 && pos <= 50 && SAFE_CELLS.has((START_INDEX[player] + pos) % 52)) score += 3;
     if (next.lastMove && next.lastMove.from === -1) score += 2; // bring a piece out
     score += pos * 0.15; // prefer advancing the lead piece
     score += Math.random() * (difficulty === 'master' ? 0.3 : 1.5);

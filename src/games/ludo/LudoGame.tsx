@@ -9,7 +9,6 @@ import {
   TRACK,
   START_INDEX,
   HOME_COLUMNS,
-  STAR_CELLS,
   FINISH_POS,
 } from './ludoEngine';
 import { useTheme } from '../../theme/themeContext';
@@ -107,6 +106,9 @@ export const LudoGame: React.FC<LudoGameProps> = ({
   // that Giocatore 2 is NOT using, so all four colours are always on the board.
   const baseVerde = '#bbf7d0';
   const baseLeftover = botYellow ? C.base1 : '#fde68a';
+  // The four start cells (A-fields) are the safe squares of the original board.
+  const startVerde = '#4ade80';
+  const startLeftover = botYellow ? C.start1 : '#fbbf24';
   // Board background tint shows whose turn it is at a glance (soft pastel).
   const turnColor = gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode);
 
@@ -318,9 +320,10 @@ export const LudoGame: React.FC<LudoGameProps> = ({
           {/* Track cells */}
           {TRACK.map(([r, c], i) => {
             let fill = C.track;
-            if (STAR_CELLS.has(i)) fill = C.star;
-            else if (START_INDEX[0] === i) fill = C.start0;
+            if (START_INDEX[0] === i) fill = C.start0;
             else if (START_INDEX[1] === i) fill = start1;
+            else if (i === 13) fill = startVerde;
+            else if (i === 39) fill = startLeftover;
             return (
               <rect
                 key={i}
@@ -350,25 +353,6 @@ export const LudoGame: React.FC<LudoGameProps> = ({
               />
             ))
           )}
-
-          {/* Star glyphs */}
-          {[...STAR_CELLS].map((i) => {
-            const [r, c] = TRACK[i];
-            return (
-              <text
-                key={`star${i}`}
-                x={c + 0.5}
-                y={r + 0.5}
-                fontSize="0.52"
-                textAnchor="middle"
-                dominantBaseline="central"
-                fill="#ffffff"
-                fontWeight="bold"
-              >
-                ★
-              </text>
-            );
-          })}
 
           {/* Start markers (white dot) */}
           {[0, 1].map((p) => {
