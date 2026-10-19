@@ -323,18 +323,18 @@ function AppContent() {
         onClose={() => setIsThemeModalOpen(false)}
       />
 
-      <KidsRulesModal
-        game={pendingGameId ? GAME_REGISTRY[pendingGameId] : activeGame}
-        isOpen={isRulesModalOpen}
-        onClose={() => setIsRulesModalOpen(false)}
-      />
-
       <GameLaunchModal
         gameId={pendingGameId}
         isOpen={isLaunchModalOpen}
         onClose={() => setIsLaunchModalOpen(false)}
         onLaunch={handleLaunchGame}
         onOpenRules={() => setIsRulesModalOpen(true)}
+      />
+
+      <KidsRulesModal
+        game={pendingGameId ? GAME_REGISTRY[pendingGameId] : activeGame}
+        isOpen={isRulesModalOpen}
+        onClose={() => setIsRulesModalOpen(false)}
       />
     </div>
   );
