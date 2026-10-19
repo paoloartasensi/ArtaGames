@@ -16,6 +16,13 @@ import { BattleshipGame } from './games/battleship/BattleshipGame';
 import { ChessGame } from './games/chess/ChessGame';
 import { GoGame } from './games/go/GoGame';
 import { TicTacToeGame } from './games/tictactoe/TicTacToeGame';
+import { SnakesGame } from './games/snakes/SnakesGame';
+import { MemoryGame } from './games/memory/MemoryGame';
+import { MancalaGame } from './games/mancala/MancalaGame';
+import { DominoGame } from './games/domino/DominoGame';
+import { ReversiGame } from './games/reversi/ReversiGame';
+import { MorrisGame } from './games/morris/MorrisGame';
+import { QuartoGame } from './games/quarto/QuartoGame';
 
 import { ArrowLeft, Sparkles } from 'lucide-react';
 
@@ -170,6 +177,82 @@ function AppContent() {
 
               {activeGameId === 'tictactoe' && (
                 <TicTacToeGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'snakes' && (
+                <SnakesGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'memory' && (
+                <MemoryGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                />
+              )}
+
+              {activeGameId === 'mancala' && (
+                <MancalaGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'domino' && (
+                <DominoGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'reversi' && (
+                <ReversiGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'morris' && (
+                <MorrisGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'quarto' && (
+                <QuartoGame
                   key={gameKey}
                   playMode={playMode}
                   difficulty={difficulty}

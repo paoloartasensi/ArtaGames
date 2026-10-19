@@ -1,7 +1,7 @@
 import React from 'react';
 import { GameId, ALL_GAMES, GameMetadata } from '../games/registry';
 import { useTheme } from '../theme/themeContext';
-import { CircleDot, Grid3X3, Compass, Circle, Crown, Hash, Sparkles, ChevronRight, Play } from 'lucide-react';
+import { CircleDot, Grid3X3, Compass, Circle, Crown, Hash, Sparkles, ChevronRight, Play, Dices, Brain, Sprout, LayoutGrid, Contrast, Crosshair, Shapes } from 'lucide-react';
 
 interface GameSelectorProps {
   onSelectGame: (id: GameId) => void;
@@ -15,6 +15,13 @@ const ICONS_MAP: Record<string, React.ReactNode> = {
   Circle: <Circle className="w-6 h-6 text-emerald-500" />,
   Crown: <Crown className="w-6 h-6 text-purple-500" />,
   Hash: <Hash className="w-6 h-6 text-cyan-500" />,
+  Dices: <Dices className="w-6 h-6 text-orange-500" />,
+  Brain: <Brain className="w-6 h-6 text-pink-500" />,
+  Sprout: <Sprout className="w-6 h-6 text-green-500" />,
+  LayoutGrid: <LayoutGrid className="w-6 h-6 text-sky-500" />,
+  Contrast: <Contrast className="w-6 h-6 text-slate-500" />,
+  Crosshair: <Crosshair className="w-6 h-6 text-indigo-500" />,
+  Shapes: <Shapes className="w-6 h-6 text-fuchsia-500" />,
 };
 
 export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, activeGameId }) => {
@@ -98,7 +105,7 @@ export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, active
               In Espansione: Prossimi Grandi Classici
             </div>
             <div className={`text-[11px] mt-0.5 ${theme.textMuted}`}>
-              Non t'Arrabbiare (Ludo Junior), Indovina Chi, Battaglia delle Carte UNO e Memory
+              Non t'Arrabbiare (Ludo Junior), Indovina Chi e Battaglia delle Carte UNO
             </div>
           </div>
         </div>
