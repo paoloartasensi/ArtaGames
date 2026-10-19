@@ -12,6 +12,8 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { motion } from 'motion/react';
+import { GridSlidePiece, FADE } from '../../utils/animations';
 import { AlertCircle } from 'lucide-react';
 
 interface ChessGameProps {
@@ -45,6 +47,25 @@ const PIECE_NAMES: Record<string, string> = {
   n: 'Cavallo',
   p: 'Pedone',
 };
+
+const PieceGlyph: React.FC<{ piece: ChessPiece; isSelected: boolean }> = ({
+  piece,
+  isSelected,
+}) => (
+  <span
+    className={`relative z-20 text-3xl sm:text-4xl leading-none select-none drop-shadow transition-transform ${
+      piece.color === 'w' ? 'text-white' : 'text-stone-950 dark:text-stone-900'
+    } ${isSelected ? 'scale-115' : 'hover:scale-105'}`}
+    style={{
+      textShadow:
+        piece.color === 'w'
+          ? '0 1px 3px rgba(0,0,0,0.6)'
+          : '0 0 2px rgba(255,255,255,0.4)',
+    }}
+  >
+    {PIECE_GLYPHS[`${piece.color}-${piece.type}`]}
+  </span>
+);
 
 export const ChessGame: React.FC<ChessGameProps> = ({
   playMode,
@@ -119,6 +140,9 @@ export const ChessGame: React.FC<ChessGameProps> = ({
     ? PIECE_NAMES[gameState.board[gameState.selectedPos.r][gameState.selectedPos.c]?.type || '']
     : null;
 
+  const lastMove = gameState.moveHistory[gameState.moveHistory.length - 1];
+  const moveKey = gameState.moveHistory.length;
+
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto px-2">
       {/* Player turn bar */}
@@ -172,7 +196,7 @@ export const ChessGame: React.FC<ChessGameProps> = ({
         }`}
         style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn === 'w' ? 0 : 1, playMode) }}
       >
-        <div className="grid grid-cols-8 grid-rows-8 w-full h-full rounded-xl overflow-hidden shadow-inner border border-black/20">
+        <div className="relative grid grid-cols-8 grid-rows-8 w-full h-full rounded-xl overflow-hidden shadow-inner border border-black/20">
           {gameState.board.map((row, r) =>
             row.map((piece, c) => {
               const isDarkSquare = (r + c) % 2 === 1;
@@ -207,24 +231,42 @@ export const ChessGame: React.FC<ChessGameProps> = ({
                   )}
 
                   {/* Piece Glyph */}
-                  {piece && (
-                    <span
-                      className={`relative z-20 text-3xl sm:text-4xl leading-none select-none drop-shadow transition-transform ${
-                        piece.color === 'w' ? 'text-white' : 'text-stone-950 dark:text-stone-900'
-                      } ${isSelected ? 'scale-115' : 'hover:scale-105'}`}
-                      style={{
-                        textShadow:
-                          piece.color === 'w'
-                            ? '0 1px 3px rgba(0,0,0,0.6)'
-                            : '0 0 2px rgba(255,255,255,0.4)',
-                      }}
-                    >
-                      {PIECE_GLYPHS[`${piece.color}-${piece.type}`]}
-                    </span>
-                  )}
+                  {piece &&
+                    (lastMove && lastMove.toR === r && lastMove.toC === c ? (
+                      <GridSlidePiece
+                        fromRow={lastMove.fromR}
+                        fromCol={lastMove.fromC}
+                        toRow={r}
+                        toCol={c}
+                      >
+                        <PieceGlyph piece={piece} isSelected={isSelected} />
+                      </GridSlidePiece>
+                    ) : (
+                      <PieceGlyph piece={piece} isSelected={isSelected} />
+                    ))}
                 </button>
               );
             })
+          )}
+
+          {/* Capture ghost: fades the captured piece away at the destination */}
+          {lastMove?.captured && (
+            <motion.div
+              key={moveKey}
+              className="absolute pointer-events-none flex items-center justify-center"
+              style={{
+                left: `${lastMove.toC * 12.5}%`,
+                top: `${lastMove.toR * 12.5}%`,
+                width: '12.5%',
+                height: '12.5%',
+                zIndex: 40,
+              }}
+              initial={{ opacity: 0.9, scale: 1 }}
+              animate={{ opacity: 0, scale: 0.7 }}
+              transition={{ ...FADE, delay: 0.1 }}
+            >
+              <PieceGlyph piece={lastMove.captured} isSelected={false} />
+            </motion.div>
           )}
         </div>
       </div>

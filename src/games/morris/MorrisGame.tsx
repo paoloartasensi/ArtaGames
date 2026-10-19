@@ -13,6 +13,8 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { motion } from 'motion/react';
+import { SLIDE, FADE, useMoveKey } from '../../utils/animations';
 
 interface MorrisGameProps {
   playMode: PlayMode;
@@ -121,6 +123,14 @@ export const MorrisGame: React.FC<MorrisGameProps> = ({
 
   const handleRestart = () => setGameState(createInitialMorrisState());
 
+  const moveKey = useMoveKey(gameState.lastMove);
+  const removedPoint = gameState.lastMove.removed;
+  const removedIsPlayer0 =
+    removedPoint != null && (gameState.gameOver ? gameState.winner === 1 : gameState.turn === 0);
+  const lm = gameState.lastMove;
+  const slideFromPos: [number, number] | null = lm.from != null ? POS[lm.from] : null;
+  const isSliding = lm.from != null && lm.to != null && lm.removed === null;
+
   const p1Name = 'Blu (Giocatore 1)';
   const p2Name = playMode === 'bot' ? 'Rosso (BOT)' : 'Rosso (Giocatore 2)';
 
@@ -197,14 +207,29 @@ export const MorrisGame: React.FC<MorrisGameProps> = ({
             return (
               <g key={i} onClick={() => handlePointClick(i)} className={clickable ? 'cursor-pointer' : ''}>
                 <circle cx={x} cy={y} r={4.5} fill="transparent" />
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={3.2}
-                  fill={piece === null ? 'transparent' : piece === 0 ? '#3b82f6' : '#f43f5e'}
-                  stroke={piece === null ? 'none' : '#fff'}
-                  strokeWidth="0.6"
-                />
+                {piece !== null &&
+                  (isSliding && lm.to === i ? (
+                    <motion.circle
+                      cx={x}
+                      cy={y}
+                      r={3.2}
+                      initial={{ cx: slideFromPos![0], cy: slideFromPos![1] }}
+                      animate={{ cx: x, cy: y }}
+                      transition={SLIDE}
+                      fill={piece === 0 ? '#3b82f6' : '#f43f5e'}
+                      stroke="#fff"
+                      strokeWidth="0.6"
+                    />
+                  ) : (
+                    <circle
+                      cx={x}
+                      cy={y}
+                      r={3.2}
+                      fill={piece === 0 ? '#3b82f6' : '#f43f5e'}
+                      stroke="#fff"
+                      strokeWidth="0.6"
+                    />
+                  ))}
                 {piece === null && (
                   <circle cx={x} cy={y} r={1.6} fill="rgba(0,0,0,0.25)" />
                 )}
@@ -213,6 +238,23 @@ export const MorrisGame: React.FC<MorrisGameProps> = ({
               </g>
             );
           })}
+
+          {/* Removal ghost: fades the removed piece away */}
+          {removedPoint != null && (
+            <motion.circle
+              key={moveKey}
+              cx={POS[removedPoint][0]}
+              cy={POS[removedPoint][1]}
+              r={3.2}
+              fill={removedIsPlayer0 ? '#3b82f6' : '#f43f5e'}
+              stroke="#fff"
+              strokeWidth="0.6"
+              initial={{ opacity: 0.9 }}
+              animate={{ opacity: 0 }}
+              transition={FADE}
+              pointerEvents="none"
+            />
+          )}
         </svg>
       </div>
 

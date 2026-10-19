@@ -13,7 +13,7 @@ export interface MorrisState {
   mustRemove: boolean;
   gameOver: boolean;
   winner: MorrisPlayer | null;
-  lastMove: { to: number | null; removed: number | null };
+  lastMove: { from: number | null; to: number | null; removed: number | null };
 }
 
 export const MORRIS_POINTS = 24;
@@ -66,7 +66,7 @@ export function createInitialMorrisState(): MorrisState {
     mustRemove: false,
     gameOver: false,
     winner: null,
-    lastMove: { to: null, removed: null },
+    lastMove: { from: null, to: null, removed: null },
   };
 }
 
@@ -126,7 +126,7 @@ export function placeMorris(state: MorrisState, point: number): MorrisState | nu
       piecesToPlace,
       phase,
       mustRemove: true,
-      lastMove: { to: point, removed: null },
+      lastMove: { from: null, to: point, removed: null },
     };
   }
 
@@ -171,7 +171,7 @@ export function removeMorris(state: MorrisState, point: number): MorrisState | n
       phase,
       gameOver: true,
       winner: state.turn,
-      lastMove: { to: state.lastMove.to, removed: point },
+      lastMove: { from: state.lastMove.from, to: state.lastMove.to, removed: point },
     };
   }
 
@@ -211,7 +211,7 @@ export function moveMorris(state: MorrisState, to: number): MorrisState | null {
       board,
       selected: null,
       mustRemove: true,
-      lastMove: { to, removed: null },
+      lastMove: { from, to, removed: null },
     };
   }
 
@@ -225,7 +225,7 @@ export function moveMorris(state: MorrisState, to: number): MorrisState | null {
       turn: opp,
       gameOver: true,
       winner: state.turn,
-      lastMove: { to, removed: null },
+      lastMove: { from, to, removed: null },
     };
   }
 

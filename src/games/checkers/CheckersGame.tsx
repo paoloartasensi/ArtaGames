@@ -135,6 +135,10 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
     setGameState(createInitialCheckersState());
   };
 
+  const lastMove = gameState.moveHistory[gameState.moveHistory.length - 1];
+  const moveKey = gameState.moveHistory.length;
+  const isCapture = !!lastMove && Math.abs(lastMove.toR - lastMove.fromR) === 2;
+
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto px-2">
       {/* Turn indicator & captured counts */}
@@ -173,7 +177,7 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
         }`}
         style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn === 'r' ? 0 : 1, playMode) }}
       >
-        <div className="grid grid-cols-8 grid-rows-8 w-full h-full rounded-xl overflow-hidden shadow-inner border border-black/20">
+        <div className="relative grid grid-cols-8 grid-rows-8 w-full h-full rounded-xl overflow-hidden shadow-inner border border-black/20">
           {gameState.board.map((row, r) =>
             row.map((piece, c) => {
               const isDarkSquare = (r + c) % 2 === 1;
@@ -208,26 +212,50 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
                   )}
 
                   {/* Checkers Piece */}
-                  {piece && (
-                    <div
-                      className={`relative z-20 w-[82%] h-[82%] rounded-full shadow-md flex items-center justify-center transition-transform ${
-                        piece.toLowerCase() === 'r'
-                          ? 'bg-gradient-to-tr from-red-600 to-red-400 border border-red-300'
-                          : 'bg-gradient-to-tr from-stone-900 to-stone-700 border border-stone-600 text-stone-200'
-                      } ${isSelected ? 'scale-110 ring-2 ring-white shadow-lg' : ''}`}
-                    >
-                      {/* Inner concentric ring for traditional tactile feel */}
-                      <div className="w-[65%] h-[65%] rounded-full border border-white/20 flex items-center justify-center">
-                        {(piece === 'R' || piece === 'B') && (
-                          <Crown className="w-4 h-4 text-amber-300 fill-amber-300 drop-shadow" />
-                        )}
-                      </div>
-                    </div>
-                  )}
+                  {piece &&
+                    (lastMove && lastMove.toR === r && lastMove.toC === c ? (
+                      <GridSlidePiece
+                        fromRow={lastMove.fromR}
+                        fromCol={lastMove.fromC}
+                        toRow={r}
+                        toCol={c}
+                      >
+                        <PieceDisc piece={piece} isSelected={isSelected} />
+                      </GridSlidePiece>
+                    ) : (
+                      <PieceDisc piece={piece} isSelected={isSelected} />
+                    ))}
                 </button>
               );
             })
           )}
+
+          {/* Capture ghost: fades the captured piece away at the midpoint */}
+          {isCapture &&
+            lastMove &&
+            (() => {
+              const mover = gameState.board[lastMove.toR][lastMove.toC];
+              const capturedPiece: CheckersPieceNonNull =
+                mover?.toLowerCase() === 'r' ? 'b' : 'r';
+              return (
+                <motion.div
+                  key={moveKey}
+                  className="absolute pointer-events-none flex items-center justify-center"
+                  style={{
+                    left: `${((lastMove.fromC + lastMove.toC) / 2) * 12.5}%`,
+                    top: `${((lastMove.fromR + lastMove.toR) / 2) * 12.5}%`,
+                    width: '12.5%',
+                    height: '12.5%',
+                    zIndex: 40,
+                  }}
+                  initial={{ opacity: 0.9, scale: 1 }}
+                  animate={{ opacity: 0, scale: 0.6 }}
+                  transition={{ ...FADE, delay: 0.1 }}
+                >
+                  <PieceDisc piece={capturedPiece} isSelected={false} />
+                </motion.div>
+              );
+            })()}
         </div>
       </div>
 
