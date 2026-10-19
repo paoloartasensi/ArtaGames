@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { WifiOff, Download, Check } from 'lucide-react';
+import { WifiOff } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 
 export const OfflineIndicator: React.FC = () => {
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
@@ -17,12 +18,20 @@ export const OfflineIndicator: React.FC = () => {
     };
   }, []);
 
-  if (isOnline) return null;
-
   return (
-    <div className="fixed bottom-4 left-4 z-50 flex items-center gap-2 rounded-xl bg-amber-600/95 backdrop-blur-md px-3.5 py-2 text-xs font-semibold text-white shadow-lg border border-amber-500 animate-in fade-in slide-in-from-bottom-2 duration-200">
-      <WifiOff className="w-4 h-4 text-amber-200 shrink-0" />
-      <span>Modalità Offline attiva · Tutti i giochi e i BOT funzionano al 100%!</span>
-    </div>
+    <AnimatePresence>
+      {!isOnline && (
+        <motion.div
+          className="fixed bottom-4 left-4 z-50 flex items-center gap-2 rounded-xl bg-amber-600/95 backdrop-blur-md px-3.5 py-2 text-xs font-semibold text-white shadow-lg border border-amber-500"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 12 }}
+          transition={{ duration: 0.2 }}
+        >
+          <WifiOff className="w-4 h-4 text-amber-200 shrink-0" />
+          <span>Modalità Offline attiva · Tutti i giochi e i BOT funzionano al 100%!</span>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };

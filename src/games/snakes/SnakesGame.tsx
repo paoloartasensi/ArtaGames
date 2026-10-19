@@ -13,6 +13,7 @@ import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
+import { GridSlidePiece } from '../../utils/animations';
 import { Dices } from 'lucide-react';
 
 interface SnakesGameProps {
@@ -82,6 +83,21 @@ export const SnakesGame: React.FC<SnakesGameProps> = ({
   const p1Name = 'Blu (Giocatore 1)';
   const p2Name = playMode === 'bot' ? 'Rosso (BOT)' : 'Rosso (Giocatore 2)';
 
+  const lastMove = gameState.lastMove;
+  const fromRC = lastMove ? cellRowCol(lastMove.from) : null;
+  const toRC = lastMove ? cellRowCol(lastMove.to) : null;
+
+  const tokenDiv = (player: 0 | 1) => (
+    <div
+      className="w-3 h-3.5 sm:w-4 sm:h-[18px]"
+      style={{
+        clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)',
+        backgroundColor: player === 0 ? '#3b82f6' : '#f43f5e',
+        filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.35))',
+      }}
+    />
+  );
+
   return (
     <div className="flex flex-col items-center w-full max-w-xl mx-auto px-2">
       {/* Turn indicator */}
@@ -117,16 +133,26 @@ export const SnakesGame: React.FC<SnakesGameProps> = ({
               return (
                 <div
                   key={n}
-                  className="relative rounded-[4px] flex items-start justify-start overflow-hidden"
+                  className="relative rounded-[4px] flex items-start justify-start"
                   style={{ backgroundColor: (r + c) % 2 === 0 ? CELL_A : CELL_B }}
                 >
                   <span className="text-[8px] sm:text-[10px] font-bold leading-none p-0.5" style={{ color: CELL_TEXT }}>
                     {n}
                   </span>
                   <div className="absolute inset-0 flex items-center justify-center gap-1">
-                    {p1Here && <div className="w-3 h-3.5 sm:w-4 sm:h-[18px]" style={{ clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)', backgroundColor: '#3b82f6', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.35))' }} />}
-                    {p2Here && <div className="w-3 h-3.5 sm:w-4 sm:h-[18px]" style={{ clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)', backgroundColor: '#f43f5e', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.35))' }} />}
+                    {p1Here && !(lastMove?.player === 0 && n === lastMove.to) && tokenDiv(0)}
+                    {p2Here && !(lastMove?.player === 1 && n === lastMove.to) && tokenDiv(1)}
                   </div>
+                  {lastMove?.player === 0 && p1Here && n === lastMove.to && fromRC && toRC && (
+                    <GridSlidePiece fromRow={fromRC.row} fromCol={fromRC.col} toRow={toRC.row} toCol={toRC.col}>
+                      {tokenDiv(0)}
+                    </GridSlidePiece>
+                  )}
+                  {lastMove?.player === 1 && p2Here && n === lastMove.to && fromRC && toRC && (
+                    <GridSlidePiece fromRow={fromRC.row} fromCol={fromRC.col} toRow={toRC.row} toCol={toRC.col}>
+                      {tokenDiv(1)}
+                    </GridSlidePiece>
+                  )}
                 </div>
               );
             })

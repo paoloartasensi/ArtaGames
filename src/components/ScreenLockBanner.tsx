@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ShieldCheck, ShieldAlert, Maximize2, Minimize2, Eye } from 'lucide-react';
 import { screenShield, ScreenLockState } from '../utils/screenLock';
 import { useTheme } from '../theme/themeContext';
+import { AnimatePresence, motion } from 'motion/react';
 
 export const ScreenLockBanner: React.FC = () => {
   const { theme, isDark } = useTheme();
@@ -39,14 +40,22 @@ export const ScreenLockBanner: React.FC = () => {
   return (
     <>
       {/* Toast Notification */}
-      {showToast && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-semibold px-4 py-2 rounded-full shadow-lg border border-slate-700/30 flex items-center gap-2">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 dark:text-emerald-600" />
-            <span>{toastMessage}</span>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            className="fixed top-16 inset-x-0 z-50 pointer-events-none flex justify-center"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-semibold px-4 py-2 rounded-full shadow-lg border border-slate-700/30 flex items-center gap-2">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 dark:text-emerald-600" />
+              <span>{toastMessage}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Floating Mini Controls for Tablet / Mobile */}
       <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/10 dark:bg-white/10 backdrop-blur-md border border-white/10 text-xs">
