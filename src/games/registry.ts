@@ -1,0 +1,136 @@
+export type GameId = 'connect4' | 'checkers' | 'battleship' | 'go' | 'chess' | 'tictactoe';
+
+export interface GameMetadata {
+  id: GameId;
+  title: string;
+  subtitle: string;
+  minAge: string;
+  category: 'Classici' | 'Strategia' | 'Rapidi';
+  summary: string;
+  rulesKidFriendly: {
+    title: string;
+    steps: string[];
+    tip: string;
+  };
+  boardDescription: string;
+  iconName: string;
+}
+
+export const GAME_REGISTRY: Record<GameId, GameMetadata> = {
+  connect4: {
+    id: 'connect4',
+    title: 'Forza 4',
+    subtitle: 'Allinea 4 gettoni dello stesso colore',
+    minAge: '5+ anni',
+    category: 'Classici',
+    summary: 'Fai cadere i gettoni dall\'alto: il primo che ne mette 4 in fila (orizzontale, verticale o diagonale) vince!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Forza 4',
+      steps: [
+        'A turno, tocca una colonna per far cadere il tuo gettone.',
+        'La gravità fa scivolare il gettone in fondo alla colonna.',
+        'Il primo che allinea 4 gettoni in fila (orizzontale, verticale o obliquo) fa punto e vince!',
+      ],
+      tip: 'Consiglio: tieni d\'occhio le mosse dell\'avversario per bloccare le sue file di 3 gettoni!',
+    },
+    boardDescription: 'Griglia 7x6 con gravità realistica',
+    iconName: 'Grid3X3',
+  },
+  checkers: {
+    id: 'checkers',
+    title: 'Dama Classica',
+    subtitle: 'Salta sopra i pezzi avversari e conquista la Dama',
+    minAge: '6+ anni',
+    category: 'Classici',
+    summary: 'Muovi in diagonale sulle caselle scure. Salta sopra i pezzi avversari per catturarli e raggiungi l\'altro lato per diventare Dama!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Dama',
+      steps: [
+        'I tuoi pezzi avanzano sempre in diagonale di 1 passo sulle caselle scure.',
+        'Se un pezzo avversario è vicino e dietro c\'è una casella vuota, saltalo e catturalo!',
+        'Quando una tua pedina arriva all\'ultima riga in fondo, diventa una Dama con la corona e può muoversi anche all\'indietro!',
+      ],
+      tip: 'Consiglio: cerca di proteggere le tue pedine facendole viaggiare insieme in gruppo.',
+    },
+    boardDescription: 'Scacchiera 8x8 con salti e corone',
+    iconName: 'CircleDot',
+  },
+  battleship: {
+    id: 'battleship',
+    title: 'Battaglia Navale',
+    subtitle: 'Trova e affonda la flotta avversaria',
+    minAge: '6+ anni',
+    category: 'Strategia',
+    summary: 'Posiziona le tue navi sul radar e spara colpi nell\'oceano dell\'avversario. Acqua o Colpito? Trovale tutte per vincere!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Battaglia Navale',
+      steps: [
+        'Posiziona le tue 5 navi sulla tua griglia (oppure premi "Disponi Navi" per fare in automatico).',
+        'A turno tocca una casella sul radar nemico per lanciare un colpo.',
+        'Se trovi il mare compare uno spruzzo d\'acqua; se becchi una nave vedrai un\'esplosione! Affonda tutte le navi per vincere!',
+      ],
+      tip: 'Consiglio: quando colpisci una nave, spara nelle caselle subito vicine per trovare il resto!',
+    },
+    boardDescription: 'Radar 8x8 o 10x10 con flotta navale',
+    iconName: 'Compass',
+  },
+  go: {
+    id: 'go',
+    title: 'Go Semplificato',
+    subtitle: 'Circonda e cattura le pietre avversarie',
+    minAge: '6+ anni',
+    category: 'Strategia',
+    summary: 'Il gioco da tavolo più antico del mondo, semplificato in un mini-tavolo 7x7 o 9x9 per bambini. Circonda le pietre nemiche per catturarle!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Go Junior',
+      steps: [
+        'I giocatori posizionano una pietra nera o bianca sulle intersezioni delle linee.',
+        'Le pietre hanno "respiri" (le linee libere vicine). Se circondi completamente una pietra togliendole tutti i respiri, la catturi!',
+        'Puoi anche "passare il turno" se non ci sono più mosse buone. Vince chi conquista più territorio e pietre!',
+      ],
+      tip: 'Consiglio: tieni le tue pietre vicine per creare gruppi forti e con tanti respiri.',
+    },
+    boardDescription: 'Tavola goban 7x7 / 9x9 con pietre zen',
+    iconName: 'Circle',
+  },
+  chess: {
+    id: 'chess',
+    title: 'Scacchi Junior',
+    subtitle: 'La sfida dei Re, con mosse guidate per imparare',
+    minAge: '7+ anni',
+    category: 'Strategia',
+    summary: 'I pezzi del Reame: Cavalli che saltano a L, Torri come castelli, Alfieri diagonali e la potente Regina. Le caselle si illuminano per guidare ogni mossa!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Scacchi Junior',
+      steps: [
+        'Tocca un tuo pezzo: il gioco illuminerà con puntini verdi tutte le caselle in cui può muoversi!',
+        'I Pedoni avanzano diritti, la Torre va dritta, l\'Alfiere in diagonale, il Cavallo salta a L.',
+        'L\'obiettivo è mettere sotto scacco il Re avversario senza che possa scappare!',
+      ],
+      tip: 'Consiglio: gli aiuti visivi ti mostrano sempre le mosse sicure e le catture possibili!',
+    },
+    boardDescription: 'Scacchiera 8x8 con evidenziatore mosse',
+    iconName: 'Crown',
+  },
+  tictactoe: {
+    id: 'tictactoe',
+    title: 'Tris Classico',
+    subtitle: 'Tre in fila per i più piccoli',
+    minAge: '5+ anni',
+    category: 'Rapidi',
+    summary: 'Il gioco più veloce e intuitivo: metti 3 simboli in fila su una griglia 3x3 prima del tuo avversario.',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Tris',
+      steps: [
+        'A turno metti il tuo simbolo (X o O) in una casella vuota.',
+        'Cerca di fare 3 in fila in orizzontale, verticale o diagonale.',
+        'Se la griglia si riempie senza vincitori, è un pareggio amichevole!',
+      ],
+      tip: 'Consiglio: inizia mettendo il tuo pezzo al centro se puoi!',
+    },
+    boardDescription: 'Griglia rapida 3x3',
+    iconName: 'Hash',
+  },
+};
+
+export const ALL_GAMES: GameMetadata[] = Object.values(GAME_REGISTRY);
