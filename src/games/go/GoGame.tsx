@@ -187,7 +187,7 @@ export const GoGame: React.FC<GoGameProps> = ({
           isTabletFlipped ? 'rotate-180' : ''
         }`}
         style={{
-          backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn === 'B' ? 0 : 1, playMode),
+          backgroundColor: '#e0b069',
         }}
       >
         {/* Goban Grid lines container */}
@@ -205,7 +205,7 @@ export const GoGame: React.FC<GoGameProps> = ({
                 y1={i}
                 x2={boardSize - 1}
                 y2={i}
-                stroke={theme.boardGrid}
+                stroke="#3a2a18"
                 strokeWidth={0.06}
               />
             ))}
@@ -217,18 +217,18 @@ export const GoGame: React.FC<GoGameProps> = ({
                 y1={0}
                 x2={i}
                 y2={boardSize - 1}
-                stroke={theme.boardGrid}
+                stroke="#3a2a18"
                 strokeWidth={0.06}
               />
             ))}
             {/* Star points (Hoshi) */}
             {boardSize === 9 && (
               <>
-                <circle cx={2} cy={2} r={0.15} fill={theme.boardGrid} />
-                <circle cx={6} cy={2} r={0.15} fill={theme.boardGrid} />
-                <circle cx={4} cy={4} r={0.15} fill={theme.boardGrid} />
-                <circle cx={2} cy={6} r={0.15} fill={theme.boardGrid} />
-                <circle cx={6} cy={6} r={0.15} fill={theme.boardGrid} />
+                <circle cx={2} cy={2} r={0.15} fill="#3a2a18" />
+                <circle cx={6} cy={2} r={0.15} fill="#3a2a18" />
+                <circle cx={4} cy={4} r={0.15} fill="#3a2a18" />
+                <circle cx={2} cy={6} r={0.15} fill="#3a2a18" />
+                <circle cx={6} cy={6} r={0.15} fill="#3a2a18" />
               </>
             )}
           </svg>

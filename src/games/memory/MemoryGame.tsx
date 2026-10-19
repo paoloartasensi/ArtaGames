@@ -140,7 +140,7 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ playMode, difficulty, on
       {/* Card grid */}
       <div
         className={`grid grid-cols-4 gap-2 w-full p-3 rounded-3xl shadow-xl transition-transform`}
-        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode) }}
+        style={{ backgroundColor: '#e8e0d0' }}
       >
         {gameState.cards.map((card, i) => (
           <button
@@ -152,13 +152,13 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ playMode, difficulty, on
                 ? 'bg-emerald-500/20 border-emerald-500/40 opacity-60 scale-95'
                 : card.flipped
                 ? 'bg-white dark:bg-white/90 border-white/40 scale-105'
-                : 'bg-black/20 dark:bg-white/10 border-black/10 dark:border-white/10 hover:scale-105 cursor-pointer'
+                : 'bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-300 hover:scale-105 cursor-pointer'
             }`}
           >
             {card.matched || card.flipped ? (
               card.emoji
             ) : (
-              <span className="text-stone-400 dark:text-stone-300 text-xl font-black">?</span>
+              <span className="text-white/90 text-xl font-black">?</span>
             )}
           </button>
         ))}

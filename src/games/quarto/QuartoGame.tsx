@@ -131,7 +131,7 @@ export const QuartoGame: React.FC<QuartoGameProps> = ({
       {/* Board */}
       <div
         className={`w-full aspect-square rounded-3xl p-2 sm:p-3 shadow-xl transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
-        style={{ backgroundColor: theme.boardBg }}
+        style={{ backgroundColor: '#6b4423' }}
       >
         <div className="grid grid-cols-4 gap-1.5 h-full w-full bg-black/20 rounded-xl p-1.5">
           {gameState.board.map((row, r) =>

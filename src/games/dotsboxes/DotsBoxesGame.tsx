@@ -118,7 +118,7 @@ export const DotsBoxesGame: React.FC<DotsBoxesGameProps> = ({
       {/* Board */}
       <div
         className={`w-full rounded-3xl p-2 sm:p-3 shadow-xl transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
-        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode) }}
+        style={{ backgroundColor: '#f7f2e7' }}
       >
         <svg viewBox={`0 0 ${svgSize} ${svgSize}`} className="w-full h-auto block select-none">
           {/* Owned boxes */}

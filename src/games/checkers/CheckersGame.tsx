@@ -163,7 +163,7 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
                   disabled={gameState.gameOver || isBotThinking}
                   className="relative aspect-square flex items-center justify-center transition-colors focus:outline-none"
                   style={{
-                    backgroundColor: isDarkSquare ? theme.cellDark : theme.cellLight,
+                    backgroundColor: isDarkSquare ? '#8a5a33' : '#f0dcb0',
                   }}
                 >
                   {/* Selected square highlight */}

@@ -66,9 +66,9 @@ function DominoTileView({
       : 'w-10 h-[72px] rounded-lg';
   return (
     <div
-      className={`${dims} bg-white border-2 border-stone-300 shadow-sm flex flex-col overflow-hidden`}
+      className={`${dims} bg-[#f3e3c0] border-2 border-[#c49a5a] shadow-sm flex flex-col overflow-hidden`}
     >
-      <div className="flex-1 border-b border-stone-400 flex items-center justify-center">
+      <div className="flex-1 border-b border-[#c49a5a] flex items-center justify-center">
         <HalfPips value={top} />
       </div>
       <div className="flex-1 flex items-center justify-center">

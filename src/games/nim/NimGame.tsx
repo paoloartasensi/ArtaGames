@@ -104,7 +104,7 @@ export const NimGame: React.FC<NimGameProps> = ({ playMode, difficulty, onSelect
       {/* Board with sticks */}
       <div
         className={`w-full rounded-3xl p-4 sm:p-5 shadow-xl transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
-        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode) }}
+        style={{ backgroundColor: '#d9a66b' }}
       >
         <div className="flex flex-wrap items-end justify-center gap-x-2 gap-y-3 min-h-[120px] rounded-2xl bg-black/15 p-4">
           {gameState.sticks === 0 ? (

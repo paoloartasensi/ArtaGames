@@ -99,7 +99,7 @@ export const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
         className={`game-board-container relative w-full aspect-square p-3 sm:p-4 rounded-3xl shadow-xl transition-transform ${
           isTabletFlipped ? 'rotate-180' : ''
         }`}
-        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn === 'X' ? 0 : 1, playMode) }}
+        style={{ backgroundColor: '#d9a66b' }}
       >
         <div className="grid grid-cols-3 grid-rows-3 gap-2.5 w-full h-full bg-black/20 p-2.5 rounded-2xl">
           {gameState.board.map((cell, idx) => {

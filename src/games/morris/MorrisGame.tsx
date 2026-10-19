@@ -163,7 +163,7 @@ export const MorrisGame: React.FC<MorrisGameProps> = ({
       {/* Board */}
       <div
         className={`w-full aspect-square rounded-3xl p-3 shadow-xl transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
-        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode) }}
+        style={{ backgroundColor: '#d9a66b' }}
       >
         <svg viewBox="0 0 100 100" className="w-full h-full">
           {SEGMENTS.map(([a, b], i) => (
@@ -175,8 +175,8 @@ export const MorrisGame: React.FC<MorrisGameProps> = ({
               y2={POS[b][1]}
               stroke="currentColor"
               strokeWidth="1.2"
-              className="text-stone-700 dark:text-stone-200"
-              opacity="0.5"
+              className="text-[#5a3a18]"
+              opacity="0.55"
             />
           ))}
 

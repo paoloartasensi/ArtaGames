@@ -111,7 +111,7 @@ export const GomokuGame: React.FC<GomokuGameProps> = ({
         className={`w-full aspect-square rounded-3xl p-2 sm:p-3 shadow-xl transition-transform ${
           isTabletFlipped ? 'rotate-180' : ''
         }`}
-        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode) }}
+        style={{ backgroundColor: '#e0b069' }}
       >
         <div className="grid w-full h-full rounded-xl p-1 gap-[3px]" style={{ gridTemplateColumns: `repeat(${gameState.size}, 1fr)`, backgroundColor: theme.boardGrid }}>
           {gameState.board.map((row, r) =>
@@ -127,7 +127,7 @@ export const GomokuGame: React.FC<GomokuGameProps> = ({
                   className={`flex items-center justify-center aspect-square rounded-[6px] transition-colors ${
                     playable ? 'hover:bg-white/20 cursor-pointer active:scale-95' : ''
                   }`}
-                  style={{ backgroundColor: theme.cellLight }}
+                  style={{ backgroundColor: '#e0b069' }}
                 >
                   {cell !== null && (
                     <span

@@ -138,7 +138,7 @@ export const Connect4Game: React.FC<Connect4GameProps> = ({
         </div>
 
         {/* 6x7 Grid */}
-        <div className="grid grid-cols-7 gap-1.5 sm:gap-2.5 bg-black/20 p-2 sm:p-3 rounded-2xl">
+        <div className="grid grid-cols-7 gap-1.5 sm:gap-2.5 bg-gradient-to-b from-blue-600 to-blue-800 p-2 sm:p-3 rounded-2xl">
           {gameState.board.map((row, r) =>
             row.map((cell, c) => {
               const winning = isWinningCell(r, c);
@@ -149,7 +149,7 @@ export const Connect4Game: React.FC<Connect4GameProps> = ({
                   key={`${r}-${c}`}
                   onClick={() => handleColumnClick(c)}
                   disabled={gameState.gameOver || isBotThinking}
-                  className="aspect-square rounded-full flex items-center justify-center relative overflow-hidden transition-all bg-black/30 shadow-inner"
+                  className="aspect-square rounded-full flex items-center justify-center relative overflow-hidden transition-all bg-blue-950/80 shadow-inner"
                 >
                   {cell && (
                     <div

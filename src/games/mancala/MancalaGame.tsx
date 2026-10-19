@@ -73,10 +73,10 @@ export const MancalaGame: React.FC<MancalaGameProps> = ({
         key={pit}
         onClick={() => handlePitClick(pit)}
         disabled={!clickable || count === 0}
-        className={`aspect-square rounded-2xl flex items-center justify-center text-lg sm:text-2xl font-black transition-all border-2 shadow-inner ${
+        className={`aspect-[4/3] rounded-full flex items-center justify-center text-base sm:text-xl font-black transition-all shadow-inner ${
           clickable && count > 0
-            ? 'border-amber-400 bg-white/20 dark:bg-white/10 hover:scale-105 cursor-pointer'
-            : 'border-black/10 dark:border-white/10 bg-black/10 dark:bg-white/5'
+            ? 'ring-2 ring-amber-400 bg-gradient-to-b from-[#7a4a20] to-[#3a2410] text-[#f5d9a0] hover:scale-105 cursor-pointer'
+            : 'bg-gradient-to-b from-[#7a4a20] to-[#3a2410] text-[#d9b98a]'
         }`}
       >
         {count > 0 ? count : ''}
@@ -112,12 +112,12 @@ export const MancalaGame: React.FC<MancalaGameProps> = ({
       {/* Board */}
       <div
         className={`w-full rounded-3xl p-3 shadow-xl transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
-        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode) }}
+        style={{ backgroundColor: '#d9a66b' }}
       >
         <div className="flex items-center gap-2">
           {/* P2 store (left) */}
-          <div className="w-12 sm:w-16 self-stretch rounded-2xl bg-black/10 dark:bg-white/5 border-2 border-black/10 dark:border-white/10 flex flex-col items-center justify-center text-xl sm:text-2xl font-black">
-            <span className="text-[10px] font-semibold text-stone-500">Rosso</span>
+          <div className="w-12 sm:w-16 self-stretch rounded-full bg-gradient-to-b from-[#7a4a20] to-[#3a2410] border-2 border-[#5a3a18] shadow-inner flex flex-col items-center justify-center text-xl sm:text-2xl font-black text-[#f5d9a0]">
+            <span className="text-[10px] font-semibold text-[#d9b98a]">Rosso</span>
             {gameState.pits[13]}
           </div>
 
@@ -133,8 +133,8 @@ export const MancalaGame: React.FC<MancalaGameProps> = ({
           </div>
 
           {/* P1 store (right) */}
-          <div className="w-12 sm:w-16 self-stretch rounded-2xl bg-black/10 dark:bg-white/5 border-2 border-black/10 dark:border-white/10 flex flex-col items-center justify-center text-xl sm:text-2xl font-black">
-            <span className="text-[10px] font-semibold text-stone-500">Blu</span>
+          <div className="w-12 sm:w-16 self-stretch rounded-full bg-gradient-to-b from-[#7a4a20] to-[#3a2410] border-2 border-[#5a3a18] shadow-inner flex flex-col items-center justify-center text-xl sm:text-2xl font-black text-[#f5d9a0]">
+            <span className="text-[10px] font-semibold text-[#d9b98a]">Blu</span>
             {gameState.pits[6]}
           </div>
         </div>

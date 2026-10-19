@@ -123,9 +123,9 @@ export const SnakesGame: React.FC<SnakesGameProps> = ({
                   <span className="text-[8px] sm:text-[10px] font-bold leading-none p-0.5" style={{ color: CELL_TEXT }}>
                     {n}
                   </span>
-                  <div className="absolute inset-0 flex items-center justify-center gap-0.5">
-                    {p1Here && <div className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-blue-500 ring-2 ring-white shadow" />}
-                    {p2Here && <div className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-rose-500 ring-2 ring-white shadow" />}
+                  <div className="absolute inset-0 flex items-center justify-center gap-1">
+                    {p1Here && <div className="w-3 h-3.5 sm:w-4 sm:h-[18px]" style={{ clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)', backgroundColor: '#3b82f6', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.35))' }} />}
+                    {p2Here && <div className="w-3 h-3.5 sm:w-4 sm:h-[18px]" style={{ clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)', backgroundColor: '#f43f5e', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.35))' }} />}
                   </div>
                 </div>
               );

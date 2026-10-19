@@ -187,7 +187,7 @@ export const ChessGame: React.FC<ChessGameProps> = ({
                   disabled={gameState.gameOver || isBotThinking}
                   className="relative aspect-square flex items-center justify-center select-none focus:outline-none transition-colors"
                   style={{
-                    backgroundColor: isDarkSquare ? theme.cellDark : theme.cellLight,
+                    backgroundColor: isDarkSquare ? '#8a5a33' : '#f0dcb0',
                   }}
                 >
                   {/* Selected Highlight */}
