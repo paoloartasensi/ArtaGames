@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { PlayMode, Difficulty } from '../../types/game';
 import { NimState, createInitialNimState, takeNimSticks, getBotNimTake, NIM_MAX_TAKE } from './nimEngine';
 import { useTheme } from '../../theme/themeContext';
+import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 
@@ -103,7 +104,7 @@ export const NimGame: React.FC<NimGameProps> = ({ playMode, difficulty, onSelect
       {/* Board with sticks */}
       <div
         className={`w-full rounded-3xl p-4 sm:p-5 shadow-xl transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
-        style={{ backgroundColor: theme.boardBg }}
+        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode) }}
       >
         <div className="flex flex-wrap items-end justify-center gap-x-2 gap-y-3 min-h-[120px] rounded-2xl bg-black/15 p-4">
           {gameState.sticks === 0 ? (

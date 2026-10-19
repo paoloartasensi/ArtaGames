@@ -11,6 +11,7 @@ import {
   getBotDominoAction,
 } from './dominoEngine';
 import { useTheme } from '../../theme/themeContext';
+import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 
@@ -166,7 +167,7 @@ export const DominoGame: React.FC<DominoGameProps> = ({
       {/* Board chain */}
       <div
         className={`w-full rounded-3xl p-3 shadow-xl min-h-[110px] transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
-        style={{ backgroundColor: theme.boardBg }}
+        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode) }}
       >
         <div className="flex flex-wrap items-center justify-center gap-1.5">
           {gameState.board.map(({ tile, flip }, i) => (

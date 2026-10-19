@@ -11,6 +11,7 @@ import {
   getBotAbaMove,
 } from './abaloneEngine';
 import { useTheme } from '../../theme/themeContext';
+import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 
@@ -164,7 +165,7 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
       {/* Board */}
       <div
         className={`w-full rounded-3xl p-2 sm:p-3 shadow-xl transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
-        style={{ backgroundColor: theme.boardBg }}
+        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode) }}
       >
         <svg viewBox={viewBox} className="w-full h-auto block select-none">
           {cells.map((c) => {

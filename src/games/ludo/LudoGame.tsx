@@ -13,6 +13,7 @@ import {
   FINISH_POS,
 } from './ludoEngine';
 import { useTheme } from '../../theme/themeContext';
+import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 import { Dices } from 'lucide-react';
@@ -101,14 +102,13 @@ export const LudoGame: React.FC<LudoGameProps> = ({
   const token1 = botYellow ? '#a16207' : C.token1;
   const p2Ring = botYellow ? 'ring-amber-500 bg-amber-500/10' : 'ring-rose-500 bg-rose-500/10';
   const p2Dot = botYellow ? 'bg-amber-500' : 'bg-rose-500';
-  // Board background tint shows whose turn it is at a glance.
-  const turnColor = gameState.gameOver
-    ? theme.boardBg
-    : gameState.turn === 0
-    ? '#3b82f6'
-    : botYellow
-    ? '#f59e0b'
-    : '#ef4444';
+  // The original board has four coloured corners (Rosso, Giallo, Verde, Blu).
+  // Verde is always decorative; the leftover corner takes the classic colour
+  // that Giocatore 2 is NOT using, so all four colours are always on the board.
+  const baseVerde = '#bbf7d0';
+  const baseLeftover = botYellow ? C.base1 : '#fde68a';
+  // Board background tint shows whose turn it is at a glance (soft pastel).
+  const turnColor = gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode);
 
   // Bot turn: animate the die, then roll, then pick a token to move.
   useEffect(() => {
@@ -306,8 +306,8 @@ export const LudoGame: React.FC<LudoGameProps> = ({
         <svg viewBox="0 0 15 15" className="w-full h-full block" preserveAspectRatio="xMidYMid meet">
           {/* Corner bases */}
           <rect x="0" y="0" width="6" height="6" fill={base1} stroke={frame} strokeWidth="0.06" />
-          <rect x="9" y="0" width="6" height="6" fill={C.baseEmpty} stroke={frame} strokeWidth="0.06" />
-          <rect x="0" y="9" width="6" height="6" fill={C.baseEmpty} stroke={frame} strokeWidth="0.06" />
+          <rect x="9" y="0" width="6" height="6" fill={baseVerde} stroke={frame} strokeWidth="0.06" />
+          <rect x="0" y="9" width="6" height="6" fill={baseLeftover} stroke={frame} strokeWidth="0.06" />
           <rect x="9" y="9" width="6" height="6" fill={C.base0} stroke={frame} strokeWidth="0.06" />
 
           {/* Centre home area */}
@@ -400,7 +400,7 @@ export const LudoGame: React.FC<LudoGameProps> = ({
             ))
           )}
 
-          {/* Tokens */}
+          {/* Tokens (little wooden mushrooms) */}
           {renderedTokens.map((t) => {
             const fill = t.player === 0 ? C.token0 : token1;
             return (
@@ -408,16 +408,23 @@ export const LudoGame: React.FC<LudoGameProps> = ({
                 key={`${t.player}-${t.tokenIndex}`}
                 onClick={() => handleTokenClick(t.player, t.tokenIndex)}
                 style={{ cursor: t.movable ? 'pointer' : 'default' }}
+                transform={`translate(${t.x} ${t.y})`}
               >
-                <circle cx={t.x + 0.06} cy={t.y + 0.1} r="0.4" fill="rgba(0,0,0,0.28)" />
-                <circle cx={t.x} cy={t.y} r="0.4" fill={fill} stroke="#ffffff" strokeWidth="0.08" />
+                {/* ground shadow */}
+                <ellipse cx="0.04" cy="0.3" rx="0.32" ry="0.1" fill="rgba(0,0,0,0.25)" />
+                {/* white outline silhouette */}
+                <circle cx="0" cy="-0.08" r="0.32" fill="#ffffff" />
+                <rect x="-0.16" y="-0.06" width="0.32" height="0.28" rx="0.14" fill="#ffffff" />
+                {/* mushroom body: domed cap + stem */}
+                <circle cx="0" cy="-0.08" r="0.25" fill={fill} />
+                <rect x="-0.1" y="-0.02" width="0.2" height="0.22" rx="0.1" fill={fill} />
                 {t.isLastMoved && (
-                  <circle cx={t.x} cy={t.y} r="0.5" fill="none" stroke="#f59e0b" strokeWidth="0.12" />
+                  <circle cx="0" cy="-0.05" r="0.46" fill="none" stroke="#f59e0b" strokeWidth="0.1" />
                 )}
                 {t.movable && (
                   <circle
-                    cx={t.x}
-                    cy={t.y}
+                    cx="0"
+                    cy="-0.05"
                     r="0.52"
                     fill="none"
                     stroke="#10b981"

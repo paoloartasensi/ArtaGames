@@ -10,6 +10,7 @@ import {
   getBotMorrisAction,
 } from './morrisEngine';
 import { useTheme } from '../../theme/themeContext';
+import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 
@@ -162,7 +163,7 @@ export const MorrisGame: React.FC<MorrisGameProps> = ({
       {/* Board */}
       <div
         className={`w-full aspect-square rounded-3xl p-3 shadow-xl transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
-        style={{ backgroundColor: theme.boardBg }}
+        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode) }}
       >
         <svg viewBox="0 0 100 100" className="w-full h-full">
           {SEGMENTS.map(([a, b], i) => (

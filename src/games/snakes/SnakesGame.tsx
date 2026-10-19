@@ -10,6 +10,7 @@ import {
   BOARD_SIZE,
 } from './snakesEngine';
 import { useTheme } from '../../theme/themeContext';
+import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 import { Dices } from 'lucide-react';
@@ -106,7 +107,7 @@ export const SnakesGame: React.FC<SnakesGameProps> = ({
       {/* Board */}
       <div
         className={`relative w-full aspect-square rounded-3xl shadow-xl p-2 sm:p-3 transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
-        style={{ backgroundColor: theme.boardBg }}
+        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode) }}
       >
         <div className="grid grid-cols-10 grid-rows-10 gap-0.5 h-full w-full">
           {grid.map((row, r) =>

@@ -9,6 +9,7 @@ import {
   ROWS,
 } from './connect4Engine';
 import { useTheme } from '../../theme/themeContext';
+import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 import { ArrowDown } from 'lucide-react';
@@ -104,7 +105,7 @@ export const Connect4Game: React.FC<Connect4GameProps> = ({
         className={`game-board-container relative w-full aspect-[7/6] p-2.5 sm:p-4 rounded-3xl shadow-xl transition-transform ${
           isTabletFlipped ? 'rotate-180' : ''
         }`}
-        style={{ backgroundColor: theme.boardBg }}
+        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn === 'red' ? 0 : 1, playMode) }}
       >
         {/* Top Drop Affordance Bar */}
         <div className="grid grid-cols-7 gap-1.5 sm:gap-2 mb-2">

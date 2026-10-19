@@ -8,6 +8,7 @@ import {
   getBotDotsBoxesEdge,
 } from './dotsboxesEngine';
 import { useTheme } from '../../theme/themeContext';
+import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 
@@ -117,7 +118,7 @@ export const DotsBoxesGame: React.FC<DotsBoxesGameProps> = ({
       {/* Board */}
       <div
         className={`w-full rounded-3xl p-2 sm:p-3 shadow-xl transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
-        style={{ backgroundColor: theme.boardBg }}
+        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode) }}
       >
         <svg viewBox={`0 0 ${svgSize} ${svgSize}`} className="w-full h-auto block select-none">
           {/* Owned boxes */}

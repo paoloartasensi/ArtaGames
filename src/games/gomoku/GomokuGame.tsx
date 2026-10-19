@@ -7,6 +7,7 @@ import {
   getBotGomokuMove,
 } from './gomokuEngine';
 import { useTheme } from '../../theme/themeContext';
+import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 
@@ -110,7 +111,7 @@ export const GomokuGame: React.FC<GomokuGameProps> = ({
         className={`w-full aspect-square rounded-3xl p-2 sm:p-3 shadow-xl transition-transform ${
           isTabletFlipped ? 'rotate-180' : ''
         }`}
-        style={{ backgroundColor: theme.boardBg }}
+        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode) }}
       >
         <div className="grid w-full h-full rounded-xl p-1 gap-[3px]" style={{ gridTemplateColumns: `repeat(${gameState.size}, 1fr)`, backgroundColor: theme.boardGrid }}>
           {gameState.board.map((row, r) =>

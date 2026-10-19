@@ -10,6 +10,7 @@ import {
   getGroupAndLiberties,
 } from './goEngine';
 import { useTheme } from '../../theme/themeContext';
+import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 import { SkipForward, Eye } from 'lucide-react';
@@ -186,7 +187,7 @@ export const GoGame: React.FC<GoGameProps> = ({
           isTabletFlipped ? 'rotate-180' : ''
         }`}
         style={{
-          backgroundColor: theme.boardBg,
+          backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn === 'B' ? 0 : 1, playMode),
         }}
       >
         {/* Goban Grid lines container */}

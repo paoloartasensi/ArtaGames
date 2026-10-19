@@ -9,6 +9,7 @@ import {
   ChessPiece,
 } from './chessEngine';
 import { useTheme } from '../../theme/themeContext';
+import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 import { AlertCircle } from 'lucide-react';
@@ -169,7 +170,7 @@ export const ChessGame: React.FC<ChessGameProps> = ({
         className={`game-board-container relative w-full aspect-square p-2.5 sm:p-3.5 rounded-2xl shadow-xl transition-transform ${
           isTabletFlipped ? 'rotate-180' : ''
         }`}
-        style={{ backgroundColor: theme.boardBg }}
+        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn === 'w' ? 0 : 1, playMode) }}
       >
         <div className="grid grid-cols-8 grid-rows-8 w-full h-full rounded-xl overflow-hidden shadow-inner border border-black/20">
           {gameState.board.map((row, r) =>

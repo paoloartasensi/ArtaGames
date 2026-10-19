@@ -9,6 +9,7 @@ import {
   pickBotSecondCard,
 } from './memoryEngine';
 import { useTheme } from '../../theme/themeContext';
+import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 
@@ -139,7 +140,7 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ playMode, difficulty, on
       {/* Card grid */}
       <div
         className={`grid grid-cols-4 gap-2 w-full p-3 rounded-3xl shadow-xl transition-transform`}
-        style={{ backgroundColor: theme.boardBg }}
+        style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn, playMode) }}
       >
         {gameState.cards.map((card, i) => (
           <button
