@@ -7,6 +7,7 @@ import { sound } from '../utils/audio';
 interface GameControlsProps {
   playMode: PlayMode;
   onSetPlayMode: (mode: PlayMode) => void;
+  allowPvp?: boolean;
   difficulty: Difficulty;
   onSetDifficulty: (diff: Difficulty) => void;
   onRestart: () => void;
@@ -20,6 +21,7 @@ interface GameControlsProps {
 export const GameControls: React.FC<GameControlsProps> = ({
   playMode,
   onSetPlayMode,
+  allowPvp = true,
   difficulty,
   onSetDifficulty,
   onRestart,
@@ -60,22 +62,24 @@ export const GameControls: React.FC<GameControlsProps> = ({
           <span>vs BOT</span>
         </button>
 
-        <button
-          onClick={() => {
-            sound.playTick();
-            onSetPlayMode('local_pvp');
-          }}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold transition-all min-h-[36px] ${
-            playMode === 'local_pvp'
-              ? 'bg-amber-600 text-white shadow-sm'
-              : isDark
-              ? 'text-slate-400 hover:text-white'
-              : 'text-stone-600 hover:text-black'
-          }`}
-        >
-          <Users className="w-3.5 h-3.5" />
-          <span>1 vs 1 Locale</span>
-        </button>
+        {allowPvp && (
+          <button
+            onClick={() => {
+              sound.playTick();
+              onSetPlayMode('local_pvp');
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold transition-all min-h-[36px] ${
+              playMode === 'local_pvp'
+                ? 'bg-amber-600 text-white shadow-sm'
+                : isDark
+                ? 'text-slate-400 hover:text-white'
+                : 'text-stone-600 hover:text-black'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>1 vs 1 Locale</span>
+          </button>
+        )}
       </div>
 
       {/* Middle: Bot Scalable Difficulty Selector (shown only in BOT mode) */}
