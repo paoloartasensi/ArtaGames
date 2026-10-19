@@ -171,10 +171,10 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
                   cy={y}
                   r={R}
                   fill={P_COLORS[owner]}
-                  stroke={owner === 0 ? '#0f172a' : '#cbd5e1'}
+                  stroke={owner === 0 ? '#e5e7eb' : '#475569'}
                   strokeWidth={2}
                 />
-                <circle cx={x - 6} cy={y - 7} r={R * 0.32} fill="#ffffff" opacity={owner === 0 ? 0.25 : 0.6} />
+                <circle cx={x - 6} cy={y - 7} r={R * 0.32} fill="#ffffff" opacity={owner === 0 ? 0.3 : 0.65} />
               </g>
             );
           })}

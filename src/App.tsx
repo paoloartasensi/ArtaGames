@@ -24,6 +24,10 @@ import { ReversiGame } from './games/reversi/ReversiGame';
 import { MorrisGame } from './games/morris/MorrisGame';
 import { QuartoGame } from './games/quarto/QuartoGame';
 import { LudoGame } from './games/ludo/LudoGame';
+import { DotsBoxesGame } from './games/dotsboxes/DotsBoxesGame';
+import { GomokuGame } from './games/gomoku/GomokuGame';
+import { NimGame } from './games/nim/NimGame';
+import { AbaloneGame } from './games/abalone/AbaloneGame';
 
 import { ArrowLeft, Sparkles } from 'lucide-react';
 
@@ -265,6 +269,50 @@ function AppContent() {
 
               {activeGameId === 'ludo' && (
                 <LudoGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'dotsboxes' && (
+                <DotsBoxesGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'gomoku' && (
+                <GomokuGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'nim' && (
+                <NimGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'abalone' && (
+                <AbaloneGame
                   key={gameKey}
                   playMode={playMode}
                   difficulty={difficulty}

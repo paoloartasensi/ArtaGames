@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { GameId, ALL_GAMES } from '../games/registry';
 import { useTheme } from '../theme/themeContext';
 
@@ -6,20 +6,6 @@ interface GameSelectorProps {
   onSelectGame: (id: GameId) => void;
   activeGameId: GameId;
 }
-
-// Profili dei bambini — modifica qui nomi, età ed emoji.
-interface Profile {
-  id: string;
-  name: string;
-  age: number;
-  emoji: string;
-  color: string;
-}
-
-const PROFILES: Profile[] = [
-  { id: 'leo', name: 'Leo', age: 7, emoji: '🦁', color: '#F59E0B' },
-  { id: 'rick', name: 'Rick', age: 5, emoji: '🦖', color: '#10B981' },
-];
 
 const GAME_EMOJIS: Record<GameId, string> = {
   connect4: '🟡',
@@ -36,6 +22,10 @@ const GAME_EMOJIS: Record<GameId, string> = {
   morris: '✚',
   quarto: '🧩',
   ludo: '🎲',
+  dotsboxes: '🔲',
+  gomoku: '🎯',
+  nim: '🪵',
+  abalone: '🎱',
 };
 
 const GAME_COLORS: Record<GameId, string> = {
@@ -53,64 +43,24 @@ const GAME_COLORS: Record<GameId, string> = {
   morris: '#6366F1',
   quarto: '#D946EF',
   ludo: '#F97316',
+  dotsboxes: '#14B8A6',
+  gomoku: '#EAB308',
+  nim: '#A855F7',
+  abalone: '#F43F5E',
 };
 
 export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, activeGameId }) => {
   const { theme } = useTheme();
-  const [profileId, setProfileId] = useState<string>(PROFILES[0].id);
-
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem('tabletop_profile');
-      if (saved && PROFILES.some((p) => p.id === saved)) setProfileId(saved);
-    } catch {}
-  }, []);
-
-  const selectProfile = (id: string) => {
-    setProfileId(id);
-    try {
-      window.localStorage.setItem('tabletop_profile', id);
-    } catch {}
-  };
-
-  const activeProfile = PROFILES.find((p) => p.id === profileId) ?? PROFILES[0];
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4 py-5">
-      {/* Greeting */}
-      <header className="text-center mb-5">
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-          Ciao, {activeProfile.name}! 👋
-        </h1>
+      {/* Header */}
+      <header className="text-center mb-6">
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Scegli un gioco</h1>
         <p className={`text-base sm:text-lg mt-1 font-semibold ${theme.textMuted}`}>
-          Scegli un gioco e divertiti
+          1 vs 1: giocate insieme!
         </p>
       </header>
-
-      {/* Profiles */}
-      <div className="flex gap-3 justify-center mb-6">
-        {PROFILES.map((p) => {
-          const on = p.id === profileId;
-          return (
-            <button
-              key={p.id}
-              onClick={() => selectProfile(p.id)}
-              className={`flex flex-col items-center gap-1.5 flex-1 max-w-[180px] rounded-3xl p-4 border-2 transition-all ${
-                on ? 'ring-2 ring-amber-500 border-transparent' : 'border-black/10 dark:border-white/10'
-              } ${theme.bgSurface}`}
-            >
-              <span
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-3xl sm:text-4xl text-white"
-                style={{ background: p.color, boxShadow: 'inset 0 -5px 0 rgba(0,0,0,0.15)' }}
-              >
-                {p.emoji}
-              </span>
-              <span className="text-lg sm:text-xl font-extrabold leading-none">{p.name}</span>
-              <span className={`text-xs font-semibold ${theme.textMuted}`}>{p.age} anni</span>
-            </button>
-          );
-        })}
-      </div>
 
       {/* Giant tiles */}
       <div className="grid grid-cols-2 gap-4">
