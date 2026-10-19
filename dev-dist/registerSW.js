@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/ArtaGames/dev-sw.js?dev-sw', { scope: '/ArtaGames/', type: 'classic' })
