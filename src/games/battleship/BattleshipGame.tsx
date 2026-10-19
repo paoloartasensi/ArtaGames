@@ -95,9 +95,15 @@ export const BattleshipGame: React.FC<BattleshipGameProps> = ({
 
     if (isPvP && res.nextState.phase !== 'game_over') {
       const next = res.nextState.turn;
+      const resultTitle =
+        res.result === 'sunk'
+          ? `BOOM! Hai affondato: ${res.sunkShipName}! 🎯`
+          : res.result === 'hit'
+          ? 'COLPITO! 🎯'
+          : 'Acqua! 💧';
       setHandoff({
-        title: `Passa il dispositivo a ${sideName(next)}`,
-        subtitle: 'Non guardare! Tocca per iniziare il tuo turno.',
+        title: resultTitle,
+        subtitle: `Passa il dispositivo a ${sideName(next)} — non guardare!`,
       });
     }
   };

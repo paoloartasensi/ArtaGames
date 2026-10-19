@@ -11,7 +11,8 @@ export type GameId =
   | 'domino'
   | 'reversi'
   | 'morris'
-  | 'quarto';
+  | 'quarto'
+  | 'ludo';
 
 export interface GameMetadata {
   id: GameId;
@@ -276,6 +277,26 @@ export const GAME_REGISTRY: Record<GameId, GameMetadata> = {
     },
     boardDescription: 'Griglia 4x4 con 16 pezzi speciali',
     iconName: 'Shapes',
+  },
+  ludo: {
+    id: 'ludo',
+    title: 'Non ti Arrabbiare',
+    subtitle: 'Ludo Junior: corri con le pedine fino a casa',
+    minAge: '5+ anni',
+    category: 'Classici',
+    summary: 'Lancia il dado, fai uscire le pedine dalla base e corri verso casa. Se mangi una pedina avversaria, la rimandi in base!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Non ti Arrabbiare',
+      steps: [
+        'Lancia il dado. Con un 6 fai uscire una pedina dalla tua base e lanci ancora.',
+        'Tocca la pedina da muovere: quelle che puoi muovere si illuminano di verde.',
+        'Se finisci su una pedina avversaria (fuori dalle caselle-stella sicure), la rimandi in base e lanci ancora!',
+        'Vinci portando tutte e 4 le pedine nella casa in centro!',
+      ],
+      tip: 'Consiglio: tieni una pedina sulle caselle-stella (le caselle sicure con la stella), così non può essere mangiata!',
+    },
+    boardDescription: 'Percorso Ludo 15x15 con dadi e pedine',
+    iconName: 'Dice5',
   },
 };
 

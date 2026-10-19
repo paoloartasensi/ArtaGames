@@ -35,6 +35,7 @@ const GAME_EMOJIS: Record<GameId, string> = {
   reversi: '🔘',
   morris: '✚',
   quarto: '🧩',
+  ludo: '🎲',
 };
 
 const GAME_COLORS: Record<GameId, string> = {
@@ -51,6 +52,7 @@ const GAME_COLORS: Record<GameId, string> = {
   reversi: '#64748B',
   morris: '#6366F1',
   quarto: '#D946EF',
+  ludo: '#F97316',
 };
 
 export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, activeGameId }) => {

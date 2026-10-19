@@ -23,6 +23,7 @@ import { DominoGame } from './games/domino/DominoGame';
 import { ReversiGame } from './games/reversi/ReversiGame';
 import { MorrisGame } from './games/morris/MorrisGame';
 import { QuartoGame } from './games/quarto/QuartoGame';
+import { LudoGame } from './games/ludo/LudoGame';
 
 import { ArrowLeft, Sparkles } from 'lucide-react';
 
@@ -253,6 +254,17 @@ function AppContent() {
 
               {activeGameId === 'quarto' && (
                 <QuartoGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'ludo' && (
+                <LudoGame
                   key={gameKey}
                   playMode={playMode}
                   difficulty={difficulty}
