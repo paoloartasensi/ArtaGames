@@ -1,4 +1,3 @@
-import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import legacy from '@vitejs/plugin-legacy';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -10,7 +9,6 @@ export default defineConfig(() => {
     base: '/ArtaGames/',
     plugins: [
       react(),
-      tailwindcss(),
       legacy({
         targets: ['defaults', 'safari >= 12', 'iOS >= 12'],
         modernTargets: ['defaults', 'safari >= 12', 'iOS >= 12'],

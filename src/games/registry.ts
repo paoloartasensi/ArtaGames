@@ -12,7 +12,11 @@ export type GameId =
   | 'reversi'
   | 'morris'
   | 'quarto'
-  | 'ludo';
+  | 'ludo'
+  | 'dotsboxes'
+  | 'gomoku'
+  | 'nim'
+  | 'abalone';
 
 export interface GameMetadata {
   id: GameId;
@@ -297,6 +301,82 @@ export const GAME_REGISTRY: Record<GameId, GameMetadata> = {
     },
     boardDescription: 'Percorso Ludo 15x15 con dadi e pedine',
     iconName: 'Dice5',
+  },
+  dotsboxes: {
+    id: 'dotsboxes',
+    title: 'Punti e Linee',
+    subtitle: 'Chiudi i quadratini e colorali del tuo colore',
+    minAge: '5+ anni',
+    category: 'Strategia',
+    summary: 'A turno traccia una linea tra due puntini. Chi chiude un quadratino lo conquista e gioca di nuovo!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Punti e Linee',
+      steps: [
+        'A turno, tocca una linea tratteggiata tra due puntini per disegnarla.',
+        'Se con la tua linea chiudi un quadratino, lo conquisti (diventa del tuo colore) e giochi ancora!',
+        'Vince chi alla fine ha conquistato più quadratini.',
+      ],
+      tip: 'Consiglio: attento a non lasciare all\'avversario un quadratino con tre lati già disegnati!',
+    },
+    boardDescription: 'Griglia 5x5 di puntini con 16 quadratini',
+    iconName: 'PenLine',
+  },
+  gomoku: {
+    id: 'gomoku',
+    title: 'Gomoku',
+    subtitle: 'Cinque pietre in fila sulla griglia',
+    minAge: '5+ anni',
+    category: 'Strategia',
+    summary: 'Metti le tue pietre sulla griglia: il primo che ne allinea 5 in fila (orizzontale, verticale o diagonale) vince!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Gomoku',
+      steps: [
+        'A turno, tocca un incrocio vuoto per posizionare la tua pietra.',
+        'Cerca di metterne 5 in fila in orizzontale, verticale o diagonale.',
+        'Attenzione: blocca l\'avversario prima che ne faccia 5!',
+      ],
+      tip: 'Consiglio: le pietre vicine tra loro sono più forti: costruisci file sempre più lunghe.',
+    },
+    boardDescription: 'Griglia 9x9 con pietre bianche e nere',
+    iconName: 'Target',
+  },
+  nim: {
+    id: 'nim',
+    title: 'Nim',
+    subtitle: 'Togli i bastoncini... ma non l\'ultimo!',
+    minAge: '5+ anni',
+    category: 'Strategia',
+    summary: 'A turno togli 1, 2 o 3 bastoncini dal mucchio. Chi è costretto a prendere l\'ultimo... perde!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Nim',
+      steps: [
+        'A turno, scegli se togliere 1, 2 o 3 bastoncini.',
+        'I bastoncini tolti spariscono: il mucchio si fa sempre più piccolo.',
+        'Chi prende l\'ultimo bastoncino perde la partita!',
+      ],
+      tip: 'Consiglio: prova a lasciare all\'avversario un numero "magico" di bastoncini... scopri quale!',
+    },
+    boardDescription: 'Mucchio di bastoncini da togliere',
+    iconName: 'Minus',
+  },
+  abalone: {
+    id: 'abalone',
+    title: 'Abalone',
+    subtitle: 'Spingi le biglie nemiche fuori dal bordo',
+    minAge: '7+ anni',
+    category: 'Strategia',
+    summary: 'Muovi 1, 2 o 3 biglie in fila per spingere quelle dell\'avversario. Chi butta fuori 6 biglie nemiche vince!',
+    rulesKidFriendly: {
+      title: 'Come si gioca ad Abalone',
+      steps: [
+        'Tocca una tua biglia per sceglierla, poi tocca una biglia vicina per formare una fila di 2 o 3.',
+        'Tocca una casella vuota per muoverti, o una biglia avversaria per spingerla: ti servono più biglie in fila dell\'avversario!',
+        'Chi spinge 6 biglie nemiche fuori dal bordo vince la partita!',
+      ],
+      tip: 'Consiglio: in gruppo si è più forti! 2 biglie spingono 1, 3 biglie spingono 2.',
+    },
+    boardDescription: 'Tavola esagonale con biglie',
+    iconName: 'Orbit',
   },
 };
 
