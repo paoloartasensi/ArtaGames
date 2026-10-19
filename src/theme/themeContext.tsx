@@ -120,16 +120,22 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [themeId, setThemeIdState] = useState<ThemeId>(() => {
-    const saved = localStorage.getItem('tabletop_theme');
-    if (saved && saved in THEMES) {
-      return saved as ThemeId;
-    }
+    try {
+      const saved = typeof window !== 'undefined' && window.localStorage ? window.localStorage.getItem('tabletop_theme') : null;
+      if (saved && saved in THEMES) {
+        return saved as ThemeId;
+      }
+    } catch {}
     return 'wood';
   });
 
   const setThemeId = (id: ThemeId) => {
     setThemeIdState(id);
-    localStorage.setItem('tabletop_theme', id);
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem('tabletop_theme', id);
+      }
+    } catch {}
   };
 
   const theme = THEMES[themeId] || THEMES.wood;

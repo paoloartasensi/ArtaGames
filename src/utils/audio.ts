@@ -9,10 +9,14 @@ class SoundSystem {
 
   constructor() {
     // AudioContext will be initialized on first user interaction
-    const saved = localStorage.getItem('tabletop_audio_enabled');
-    if (saved !== null) {
-      this.enabled = saved === 'true';
-    }
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = window.localStorage.getItem('tabletop_audio_enabled');
+        if (saved !== null) {
+          this.enabled = saved === 'true';
+        }
+      }
+    } catch {}
   }
 
   private initContext() {
@@ -29,7 +33,11 @@ class SoundSystem {
 
   public toggleMute(): boolean {
     this.enabled = !this.enabled;
-    localStorage.setItem('tabletop_audio_enabled', String(this.enabled));
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem('tabletop_audio_enabled', String(this.enabled));
+      }
+    } catch {}
     if (this.enabled) {
       this.playTick();
     }

@@ -2,5 +2,7 @@
   "name": "TableTop Minimal",
   "description": "Piattaforma minimale per giochi da tavolo 1vs1 (Go, Dama, Scacchi, Battaglia Navale, Forza 4) contro BOT o amico locale, ottimizzata per smartphone e tablet con blocco gesti swipe.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
