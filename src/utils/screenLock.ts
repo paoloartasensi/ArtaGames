@@ -18,11 +18,13 @@ class ScreenShieldService {
   private wakeLockSentinel: unknown = null;
   private listeners: Set<Listener> = new Set();
   private touchMoveHandler: ((e: TouchEvent) => void) | null = null;
+  private autoWakeLockRequested = false;
 
   constructor() {
     if (typeof window !== 'undefined') {
       // Initialize gesture shield by default for seamless game experience
       this.setupGestureShield();
+      this.setupAutoWakeLock();
 
       document.addEventListener('fullscreenchange', () => {
         this.isFullscreen = !!document.fullscreenElement;
@@ -108,6 +110,25 @@ class ScreenShieldService {
 
       window.addEventListener('touchmove', this.touchMoveHandler, { passive: false });
     }
+  }
+
+  /**
+   * Auto-acquire the screen wake lock on the first user interaction,
+   * so the screen stays on during play (restaurant-menu / kiosk feel).
+   * Wake Lock requires a user gesture, hence the one-time listeners.
+   */
+  private setupAutoWakeLock() {
+    if (typeof window === 'undefined') return;
+
+    const tryAcquire = () => {
+      if (this.autoWakeLockRequested) return;
+      this.autoWakeLockRequested = true;
+      this.requestWakeLock();
+    };
+
+    ['pointerdown', 'touchstart', 'keydown'].forEach((evt) => {
+      window.addEventListener(evt, tryAcquire, { once: true, passive: true });
+    });
   }
 
   public toggleGestureShield(): boolean {

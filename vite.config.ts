@@ -24,7 +24,8 @@ export default defineConfig(() => {
           description: 'Piattaforma minimale per giochi da tavolo 1vs1 (Go, Dama, Scacchi, Battaglia Navale, Forza 4) per bambini e ragazzi contro BOT o 1vs1 locale, giocabile offline.',
           theme_color: '#1c1917',
           background_color: '#1c1917',
-          display: 'standalone',
+          display: 'fullscreen',
+          display_override: ['fullscreen', 'standalone'],
           start_url: '/ArtaGames/',
           scope: '/ArtaGames/',
           icons: [

@@ -25,20 +25,18 @@ interface LudoGameProps {
   isTabletFlipped?: boolean;
 }
 
-const CELL_TRACK = '#f5efdf';
-const CELL_EMPTY = '#ece7dc';
-
 // Base slots for the 4 tokens of each player, as [row, col] cells.
 const BASE_SLOTS: [number, number][][] = [
   [[10, 10], [10, 12], [12, 10], [12, 12]], // Blu (bottom-right)
   [[1, 1], [1, 3], [3, 1], [3, 3]], // Rosso (top-left)
 ];
 
+// Spread applied when several tokens of the same player share a cell (SVG units).
 const STACK_OFFSETS = [
-  { dx: -1.6, dy: -1.6 },
-  { dx: 1.6, dy: -1.6 },
-  { dx: -1.6, dy: 1.6 },
-  { dx: 1.6, dy: 1.6 },
+  { dx: -0.26, dy: -0.26 },
+  { dx: 0.26, dy: -0.26 },
+  { dx: -0.26, dy: 0.26 },
+  { dx: 0.26, dy: 0.26 },
 ];
 
 const PIPS: Record<number, number[]> = {
@@ -50,88 +48,23 @@ const PIPS: Record<number, number[]> = {
   6: [0, 2, 3, 5, 6, 8],
 };
 
-type CellKind = 'base0' | 'base1' | 'baseEmpty' | 'track' | 'home0' | 'home1' | 'center';
-
-interface CellInfo {
-  kind: CellKind;
-  index?: number;
-  star?: boolean;
-  startPlayer?: 0 | 1;
-}
-
-function buildGrid(): CellInfo[][] {
-  const grid: CellInfo[][] = Array.from({ length: 15 }, () =>
-    Array.from({ length: 15 }, () => ({ kind: 'track' as CellKind }))
-  );
-
-  // Corner bases (6x6 each).
-  for (let r = 0; r < 6; r++) {
-    for (let c = 0; c < 6; c++) {
-      grid[r][c] = { kind: 'base1' }; // Rosso top-left
-      grid[r][c + 9] = { kind: 'baseEmpty' }; // top-right (unused)
-      grid[r + 9][c] = { kind: 'baseEmpty' }; // bottom-left (unused)
-      grid[r + 9][c + 9] = { kind: 'base0' }; // Blu bottom-right
-    }
-  }
-
-  // Centre 3x3 home area.
-  for (let r = 6; r <= 8; r++) {
-    for (let c = 6; c <= 8; c++) {
-      grid[r][c] = { kind: 'center' };
-    }
-  }
-
-  // Track cells.
-  TRACK.forEach(([r, c], index) => {
-    grid[r][c] = { kind: 'track', index };
-  });
-
-  // Star (safe) cells.
-  STAR_CELLS.forEach((index) => {
-    const [r, c] = TRACK[index];
-    grid[r][c] = { ...grid[r][c], star: true };
-  });
-
-  // Start cells.
-  [0, 1].forEach((p) => {
-    const [r, c] = TRACK[START_INDEX[p]];
-    grid[r][c] = { ...grid[r][c], startPlayer: p as 0 | 1 };
-  });
-
-  // Home columns.
-  HOME_COLUMNS.forEach((cells, p) => {
-    cells.forEach(([r, c]) => {
-      grid[r][c] = { kind: p === 0 ? 'home0' : 'home1' };
-    });
-  });
-
-  return grid;
-}
-
-const GRID = buildGrid();
-
-function cellBackground(info: CellInfo): string {
-  switch (info.kind) {
-    case 'base0':
-      return '#bfdbfe';
-    case 'base1':
-      return '#fecdd3';
-    case 'baseEmpty':
-      return CELL_EMPTY;
-    case 'home0':
-      return '#93c5fd';
-    case 'home1':
-      return '#fda4af';
-    case 'center':
-      return '#e7e0d0';
-    case 'track':
-    default:
-      if (info.star) return '#fde68a';
-      if (info.startPlayer === 0) return '#60a5fa';
-      if (info.startPlayer === 1) return '#fb7185';
-      return CELL_TRACK;
-  }
-}
+// Palette (vibrant, kid-friendly, readable in every theme).
+const C = {
+  track: '#ffffff',
+  base0: '#bfdbfe', // Blu base (light)
+  base1: '#fecdd3', // Rosso base (light)
+  baseEmpty: '#ece4d2',
+  home0: '#93c5fd', // Blu home column
+  home1: '#fda4af', // Rosso home column
+  start0: '#60a5fa', // Blu start cell
+  start1: '#fb7185', // Rosso start cell
+  star: '#fbbf24', // safe star cell
+  centerBg: '#f5efe3',
+  center0: '#60a5fa', // Blu centre triangle
+  center1: '#fb7185', // Rosso centre triangle
+  token0: '#1d4ed8', // Blu token (dark)
+  token1: '#be123c', // Rosso token (dark)
+};
 
 const DiceFace: React.FC<{ value: number | null }> = ({ value }) => {
   const pips = value ? PIPS[value] : [];
@@ -155,6 +88,8 @@ export const LudoGame: React.FC<LudoGameProps> = ({
   const { theme } = useTheme();
   const [gameState, setGameState] = useState<LudoState>(createInitialLudoState());
   const [isBotThinking, setIsBotThinking] = useState(false);
+
+  const frame = theme.boardBg;
 
   // Bot turn: roll first, then pick a token to move.
   useEffect(() => {
@@ -211,36 +146,40 @@ export const LudoGame: React.FC<LudoGameProps> = ({
 
   const handleRestart = () => setGameState(createInitialLudoState());
 
-  // --- Token positions (percent coordinates inside the square board) ---
-  const rawTokens: { player: 0 | 1; tokenIndex: number; r: number; c: number }[] = [];
+  // --- Token positions, in SVG units (0..15) so they align with the cells ---
+  const tokenXY = (p: 0 | 1, i: number, pos: number): { x: number; y: number } => {
+    let r: number;
+    let c: number;
+    if (pos === -1) {
+      [r, c] = BASE_SLOTS[p][i];
+    } else if (pos === FINISH_POS) {
+      r = p === 0 ? 8 : 6;
+      c = p === 0 ? 8 : 6;
+    } else if (pos <= 50) {
+      [r, c] = TRACK[(START_INDEX[p] + pos) % 52];
+    } else {
+      [r, c] = HOME_COLUMNS[p][pos - 51];
+    }
+    return { x: c + 0.5, y: r + 0.5 };
+  };
+
+  const rawTokens: { player: 0 | 1; tokenIndex: number; x: number; y: number }[] = [];
   (([0, 1]) as (0 | 1)[]).forEach((p) => {
     for (let i = 0; i < 4; i++) {
-      const pos = gameState.tokens[p][i];
-      let r: number;
-      let c: number;
-      if (pos === -1) {
-        [r, c] = BASE_SLOTS[p][i];
-      } else if (pos === FINISH_POS) {
-        r = p === 0 ? 8 : 6;
-        c = p === 0 ? 8 : 6;
-      } else if (pos <= 50) {
-        [r, c] = TRACK[(START_INDEX[p] + pos) % 52];
-      } else {
-        [r, c] = HOME_COLUMNS[p][pos - 51];
-      }
-      rawTokens.push({ player: p, tokenIndex: i, r, c });
+      const xy = tokenXY(p, i, gameState.tokens[p][i]);
+      rawTokens.push({ player: p, tokenIndex: i, ...xy });
     }
   });
 
   const counts = new Map<string, number>();
   rawTokens.forEach((t) => {
-    const k = `${t.player}:${t.r}:${t.c}`;
+    const k = `${t.player}:${t.x.toFixed(2)}:${t.y.toFixed(2)}`;
     counts.set(k, (counts.get(k) || 0) + 1);
   });
   const seen = new Map<string, number>();
 
   const renderedTokens = rawTokens.map((t) => {
-    const k = `${t.player}:${t.r}:${t.c}`;
+    const k = `${t.player}:${t.x.toFixed(2)}:${t.y.toFixed(2)}`;
     let dx = 0;
     let dy = 0;
     if ((counts.get(k) || 0) > 1) {
@@ -252,8 +191,8 @@ export const LudoGame: React.FC<LudoGameProps> = ({
     }
     return {
       ...t,
-      x: ((t.c + 0.5) / 15) * 100 + dx,
-      y: ((t.r + 0.5) / 15) * 100 + dy,
+      x: t.x + dx,
+      y: t.y + dy,
       movable:
         gameState.phase === 'move' &&
         gameState.turn === t.player &&
@@ -264,8 +203,11 @@ export const LudoGame: React.FC<LudoGameProps> = ({
   const p1Name = 'Blu (Giocatore 1)';
   const p2Name = playMode === 'bot' ? 'Rosso (BOT)' : 'Rosso (Giocatore 2)';
 
-  const isRolling = gameState.phase === 'roll' && !gameState.gameOver;
-  const canRoll = isRolling && !isBotThinking && !(playMode === 'bot' && gameState.turn === 1);
+  const canRoll =
+    gameState.phase === 'roll' &&
+    !gameState.gameOver &&
+    !isBotThinking &&
+    !(playMode === 'bot' && gameState.turn === 1);
 
   const lastMove = gameState.lastMove;
   const statusText = gameState.gameOver
@@ -285,7 +227,7 @@ export const LudoGame: React.FC<LudoGameProps> = ({
     : 'Premi "Lancia il dado" per giocare';
 
   return (
-    <div className="flex flex-col items-center w-full max-w-xl mx-auto px-2">
+    <div className="flex flex-col items-center w-full max-w-2xl mx-auto px-2">
       {/* Turn indicator */}
       <div className="flex items-center justify-between w-full mb-3 px-2">
         <div
@@ -308,49 +250,132 @@ export const LudoGame: React.FC<LudoGameProps> = ({
 
       {/* Board */}
       <div
-        className={`relative w-full aspect-square rounded-3xl shadow-xl p-1.5 sm:p-2 transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
-        style={{ backgroundColor: theme.boardBg }}
+        className={`relative w-full aspect-square rounded-3xl shadow-xl overflow-hidden p-1.5 sm:p-2 transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
+        style={{ backgroundColor: frame }}
       >
-        <div className="relative w-full h-full">
-          <div className="grid grid-cols-[repeat(15,minmax(0,1fr))] grid-rows-[repeat(15,minmax(0,1fr))] gap-px w-full h-full">
-            {GRID.map((row, r) =>
-              row.map((cell, c) => (
-                <div
-                  key={`${r}-${c}`}
-                  className="rounded-[3px] flex items-center justify-center overflow-hidden"
-                  style={{ backgroundColor: cellBackground(cell) }}
-                >
-                  {cell.star && (
-                    <span className="text-[10px] sm:text-xs leading-none text-amber-600 font-black select-none">★</span>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
+        <svg viewBox="0 0 15 15" className="w-full h-full block" preserveAspectRatio="xMidYMid meet">
+          {/* Corner bases */}
+          <rect x="0" y="0" width="6" height="6" fill={C.base1} stroke={frame} strokeWidth="0.06" />
+          <rect x="9" y="0" width="6" height="6" fill={C.baseEmpty} stroke={frame} strokeWidth="0.06" />
+          <rect x="0" y="9" width="6" height="6" fill={C.baseEmpty} stroke={frame} strokeWidth="0.06" />
+          <rect x="9" y="9" width="6" height="6" fill={C.base0} stroke={frame} strokeWidth="0.06" />
 
-        {/* Tokens overlay */}
-        {renderedTokens.map((t) => {
-          const isBlue = t.player === 0;
-          return (
-            <div
-              key={`${t.player}-${t.tokenIndex}`}
-              onClick={() => handleTokenClick(t.player, t.tokenIndex)}
-              className={`absolute rounded-full shadow transition-all ${
-                t.movable ? 'cursor-pointer ring-2 ring-emerald-400 ring-offset-1 animate-pulse' : ''
-              }`}
-              style={{
-                left: `${t.x}%`,
-                top: `${t.y}%`,
-                width: '5.6%',
-                height: '5.6%',
-                transform: 'translate(-50%, -50%)',
-                backgroundColor: isBlue ? '#3b82f6' : '#f43f5e',
-                border: '2px solid white',
-              }}
-            />
-          );
-        })}
-        </div>
+          {/* Centre home area */}
+          <rect x="6" y="6" width="3" height="3" fill={C.centerBg} stroke={frame} strokeWidth="0.06" />
+          <polygon points="6,6 9,6 6,9" fill={C.center1} />
+          <polygon points="9,9 6,9 9,6" fill={C.center0} />
+
+          {/* Track cells */}
+          {TRACK.map(([r, c], i) => {
+            let fill = C.track;
+            if (STAR_CELLS.has(i)) fill = C.star;
+            else if (START_INDEX[0] === i) fill = C.start0;
+            else if (START_INDEX[1] === i) fill = C.start1;
+            return (
+              <rect
+                key={i}
+                x={c}
+                y={r}
+                width="1"
+                height="1"
+                fill={fill}
+                stroke={frame}
+                strokeWidth="0.06"
+              />
+            );
+          })}
+
+          {/* Home columns */}
+          {HOME_COLUMNS.map((cells, p) =>
+            cells.map(([r, c], j) => (
+              <rect
+                key={`h${p}-${j}`}
+                x={c}
+                y={r}
+                width="1"
+                height="1"
+                fill={p === 0 ? C.home0 : C.home1}
+                stroke={frame}
+                strokeWidth="0.06"
+              />
+            ))
+          )}
+
+          {/* Star glyphs */}
+          {[...STAR_CELLS].map((i) => {
+            const [r, c] = TRACK[i];
+            return (
+              <text
+                key={`star${i}`}
+                x={c + 0.5}
+                y={r + 0.5}
+                fontSize="0.52"
+                textAnchor="middle"
+                dominantBaseline="central"
+                fill="#ffffff"
+                fontWeight="bold"
+              >
+                ★
+              </text>
+            );
+          })}
+
+          {/* Start markers (white dot) */}
+          {[0, 1].map((p) => {
+            const [r, c] = TRACK[START_INDEX[p]];
+            return (
+              <circle
+                key={`start${p}`}
+                cx={c + 0.5}
+                cy={r + 0.5}
+                r="0.16"
+                fill="#ffffff"
+              />
+            );
+          })}
+
+          {/* Base home slots */}
+          {BASE_SLOTS.map((slots, p) =>
+            slots.map(([r, c], j) => (
+              <circle
+                key={`slot${p}-${j}`}
+                cx={c + 0.5}
+                cy={r + 0.5}
+                r="0.44"
+                fill="#ffffff"
+                fillOpacity="0.85"
+                stroke="rgba(0,0,0,0.08)"
+                strokeWidth="0.04"
+              />
+            ))
+          )}
+
+          {/* Tokens */}
+          {renderedTokens.map((t) => {
+            const fill = t.player === 0 ? C.token0 : C.token1;
+            return (
+              <g
+                key={`${t.player}-${t.tokenIndex}`}
+                onClick={() => handleTokenClick(t.player, t.tokenIndex)}
+                style={{ cursor: t.movable ? 'pointer' : 'default' }}
+              >
+                <circle cx={t.x + 0.06} cy={t.y + 0.1} r="0.4" fill="rgba(0,0,0,0.28)" />
+                <circle cx={t.x} cy={t.y} r="0.4" fill={fill} stroke="#ffffff" strokeWidth="0.08" />
+                {t.movable && (
+                  <circle
+                    cx={t.x}
+                    cy={t.y}
+                    r="0.52"
+                    fill="none"
+                    stroke="#10b981"
+                    strokeWidth="0.1"
+                    className="animate-pulse"
+                  />
+                )}
+              </g>
+            );
+          })}
+        </svg>
       </div>
 
       {/* Dice + roll button */}

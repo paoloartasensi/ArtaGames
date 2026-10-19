@@ -34,7 +34,7 @@ import { ArrowLeft, Sparkles } from 'lucide-react';
 function AppContent() {
   const { theme, isDark } = useTheme();
 
-  const [activeGameId, setActiveGameId] = useState<GameId>('connect4');
+  const [activeGameId, setActiveGameId] = useState<GameId>('ludo');
   const [viewMode, setViewMode] = useState<'catalog' | 'game'>('catalog');
   const [playMode, setPlayMode] = useState<PlayMode>('bot');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
