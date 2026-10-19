@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTheme } from '../theme/themeContext';
 import { ScreenLockBanner } from './ScreenLockBanner';
 import { PWAInstallButton } from './PWAInstallButton';
-import { Palette, HelpCircle, LayoutGrid, Gamepad2 } from 'lucide-react';
+import { Palette, HelpCircle, LayoutGrid, Gamepad2, RotateCw } from 'lucide-react';
 import { GameId, GAME_REGISTRY } from '../games/registry';
+import { clearCacheAndReload } from '../utils/cacheManager';
 
 interface HeaderProps {
   activeGameId: GameId;
@@ -21,7 +22,13 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenTheme,
 }) => {
   const { theme, isDark } = useTheme();
+  const [isReloading, setIsReloading] = useState(false);
   const activeGame = GAME_REGISTRY[activeGameId];
+
+  const handleReload = async () => {
+    setIsReloading(true);
+    await clearCacheAndReload();
+  };
 
   return (
     <header
@@ -70,6 +77,21 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Zone 3: 1 primary action / Screen lock toolbar */}
         <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={handleReload}
+            disabled={isReloading}
+            className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 ${
+              isReloading
+                ? 'bg-amber-500/20 text-amber-500 border-amber-500/40 cursor-wait'
+                : 'bg-black/5 dark:bg-white/10 hover:bg-amber-500/15 hover:border-amber-500/40 border-black/5 dark:border-white/10 text-stone-600 dark:text-stone-300'
+            }`}
+            title="Svuota la cache e aggiorna all'ultima versione"
+          >
+            <RotateCw className={`w-3.5 h-3.5 ${isReloading ? 'animate-spin text-amber-500' : ''}`} />
+            <span className="hidden md:inline">
+              {isReloading ? 'Aggiorno...' : 'Aggiorna'}
+            </span>
+          </button>
           <PWAInstallButton />
           <ScreenLockBanner />
         </div>

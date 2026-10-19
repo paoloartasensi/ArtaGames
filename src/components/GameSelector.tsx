@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { GameId, ALL_GAMES } from '../games/registry';
-import { Dices } from 'lucide-react';
+import { Dices, RotateCw } from 'lucide-react';
+import { clearCacheAndReload } from '../utils/cacheManager';
 
 interface GameSelectorProps {
   onSelectGame: (id: GameId) => void;
@@ -53,6 +54,12 @@ const GAME_THEMES: Record<GameId, { bgGradient: string; borderDark: string; sub:
 
 export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, activeGameId }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isReloading, setIsReloading] = useState(false);
+
+  const handleReload = async () => {
+    setIsReloading(true);
+    await clearCacheAndReload();
+  };
 
   const filteredGames = useMemo(() => {
     if (selectedCategory === 'all') return ALL_GAMES;
@@ -174,6 +181,19 @@ export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, active
             </button>
           );
         })}
+      </div>
+
+      {/* Cache reset helper */}
+      <div className="mt-8 mb-16 text-center">
+        <button
+          onClick={handleReload}
+          disabled={isReloading}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 text-xs font-bold border border-black/5 dark:border-white/10 transition-all active:scale-95 cursor-pointer shadow-sm"
+          title="Elimina i file temporanei memorizzati e ricarica"
+        >
+          <RotateCw className={`w-3.5 h-3.5 ${isReloading ? 'animate-spin text-amber-500' : ''}`} />
+          <span>{isReloading ? 'Aggiornamento in corso...' : 'Non vedi le novità? Svuota cache e ricarica'}</span>
+        </button>
       </div>
 
       {/* Floating Bottom Action: "SCEGLI UN GIOCO A CASO" (Caratteristica Offline Games!) */}
