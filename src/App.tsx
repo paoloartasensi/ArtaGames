@@ -40,6 +40,7 @@ function AppContent() {
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   const [isTabletFlipped, setIsTabletFlipped] = useState(false);
+  const [gameKey, setGameKey] = useState(0);
   const [pendingGameId, setPendingGameId] = useState<GameId | null>(null);
   const [isLaunchModalOpen, setIsLaunchModalOpen] = useState(false);
 

@@ -230,7 +230,7 @@ export const LudoGame: React.FC<LudoGameProps> = ({
       {/* Top Player Action Bar (Player 2 or Bot) */}
       <div
         className={`w-full flex items-center justify-center gap-3 transition-transform ${
-          playMode === 'pass-and-play' || isTabletFlipped ? 'rotate-180' : ''
+          playMode === 'local_pvp' || isTabletFlipped ? 'rotate-180' : ''
         }`}
       >
         <button

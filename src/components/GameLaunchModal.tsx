@@ -70,9 +70,9 @@ export const GameLaunchModal: React.FC<GameLaunchModalProps> = ({
 
             <button
               type="button"
-              onClick={() => setPlayMode('pass-and-play')}
+              onClick={() => setPlayMode('local_pvp')}
               className={`p-3.5 rounded-2xl border-2 flex flex-col items-center gap-1.5 transition-all ${
-                playMode === 'pass-and-play'
+                playMode === 'local_pvp'
                   ? 'border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400 shadow-sm'
                   : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-300 hover:border-stone-400'
               }`}
