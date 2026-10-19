@@ -202,6 +202,7 @@ export function applyAbaMove(state: AbaloneState, move: AbaMove): AbaloneState {
     board,
     turn: (1 - state.turn) as AbaPlayer,
     knockedOut,
+    target: state.target,
     gameOver,
     winner: gameOver ? state.turn : null,
     lastMove: { from: move.from, to: move.to, knockedOff: move.knockedOff },
