@@ -386,7 +386,7 @@ export const BattleshipGame: React.FC<BattleshipGameProps> = ({
 
       {/* Handoff overlay (pass-the-device) */}
       {handoff && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/98 px-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 px-6">
           <div className="flex flex-col items-center text-center max-w-sm">
             <div className="w-16 h-16 rounded-2xl bg-amber-500/15 ring-1 ring-amber-500/40 flex items-center justify-center mb-5">
               <Shield className="w-8 h-8 text-amber-400" />

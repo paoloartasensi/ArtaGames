@@ -1,4 +1,17 @@
-export type GameId = 'connect4' | 'checkers' | 'battleship' | 'go' | 'chess' | 'tictactoe';
+export type GameId =
+  | 'connect4'
+  | 'checkers'
+  | 'battleship'
+  | 'go'
+  | 'chess'
+  | 'tictactoe'
+  | 'snakes'
+  | 'memory'
+  | 'mancala'
+  | 'domino'
+  | 'reversi'
+  | 'morris'
+  | 'quarto';
 
 export interface GameMetadata {
   id: GameId;
