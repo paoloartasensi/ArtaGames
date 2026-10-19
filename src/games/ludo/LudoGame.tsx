@@ -88,30 +88,65 @@ export const LudoGame: React.FC<LudoGameProps> = ({
   const { theme } = useTheme();
   const [gameState, setGameState] = useState<LudoState>(createInitialLudoState());
   const [isBotThinking, setIsBotThinking] = useState(false);
+  const [animDice, setAnimDice] = useState<number | null>(null); // face shown while the die is "rolling"
 
   const frame = theme.boardBg;
 
-  // Bot turn: roll first, then pick a token to move.
+  // Colour scheme: blue = Giocatore 1, red = Giocatore 2, yellow = BOT.
+  const botYellow = playMode === 'bot';
+  const base1 = botYellow ? '#fde68a' : C.base1;
+  const home1 = botYellow ? '#fcd34d' : C.home1;
+  const start1 = botYellow ? '#fbbf24' : C.start1;
+  const center1 = botYellow ? '#fbbf24' : C.center1;
+  const token1 = botYellow ? '#a16207' : C.token1;
+  const p2Ring = botYellow ? 'ring-amber-500 bg-amber-500/10' : 'ring-rose-500 bg-rose-500/10';
+  const p2Dot = botYellow ? 'bg-amber-500' : 'bg-rose-500';
+  // Board background tint shows whose turn it is at a glance.
+  const turnColor = gameState.gameOver
+    ? theme.boardBg
+    : gameState.turn === 0
+    ? '#3b82f6'
+    : botYellow
+    ? '#f59e0b'
+    : '#ef4444';
+
+  // Bot turn: animate the die, then roll, then pick a token to move.
   useEffect(() => {
     if (playMode !== 'bot' || gameState.turn !== 1 || gameState.gameOver) return;
 
     setIsBotThinking(true);
-    const t = setTimeout(() => {
-      if (gameState.phase === 'roll') {
+
+    if (gameState.phase === 'roll') {
+      // Animate a rolling die before committing the roll.
+      let face = 1;
+      const interval = setInterval(() => {
+        face = (face % 6) + 1;
+        setAnimDice(face);
+      }, 90);
+      const t = setTimeout(() => {
+        clearInterval(interval);
+        setAnimDice(null);
         const next = rollLudo(gameState);
         if (next) {
           sound.playMove();
           setGameState(next);
         }
-      } else if (gameState.phase === 'move') {
-        const idx = getBotLudoMove(gameState, difficulty);
-        const next = moveLudo(gameState, idx);
-        if (next) {
-          if (next.lastMove?.captured) sound.playCapture();
-          else if (next.lastMove?.finished) sound.playMove();
-          else sound.playStone();
-          setGameState(next);
-        }
+        setIsBotThinking(false);
+      }, 560);
+      return () => {
+        clearInterval(interval);
+        clearTimeout(t);
+      };
+    }
+
+    const t = setTimeout(() => {
+      const idx = getBotLudoMove(gameState, difficulty);
+      const next = moveLudo(gameState, idx);
+      if (next) {
+        if (next.lastMove?.captured) sound.playCapture();
+        else if (next.lastMove?.finished) sound.playMove();
+        else sound.playStone();
+        setGameState(next);
       }
       setIsBotThinking(false);
     }, 700);
@@ -119,14 +154,22 @@ export const LudoGame: React.FC<LudoGameProps> = ({
   }, [gameState, playMode, difficulty]);
 
   const handleRoll = () => {
-    if (gameState.gameOver || isBotThinking) return;
+    if (gameState.gameOver || isBotThinking || animDice !== null) return;
     if (gameState.phase !== 'roll') return;
     if (playMode === 'bot' && gameState.turn === 1) return;
-    const next = rollLudo(gameState);
-    if (next) {
-      sound.playMove();
-      setGameState(next);
-    }
+    setAnimDice(1 + Math.floor(Math.random() * 6));
+    const interval = setInterval(() => {
+      setAnimDice(1 + Math.floor(Math.random() * 6));
+    }, 90);
+    setTimeout(() => {
+      clearInterval(interval);
+      setAnimDice(null);
+      const next = rollLudo(gameState);
+      if (next) {
+        sound.playMove();
+        setGameState(next);
+      }
+    }, 480);
   };
 
   const handleTokenClick = (player: 0 | 1, tokenIndex: number) => {
@@ -197,16 +240,21 @@ export const LudoGame: React.FC<LudoGameProps> = ({
         gameState.phase === 'move' &&
         gameState.turn === t.player &&
         gameState.movable.includes(t.tokenIndex),
+      isLastMoved:
+        gameState.lastMove !== null &&
+        gameState.lastMove.player === t.player &&
+        gameState.lastMove.token === t.tokenIndex,
     };
   });
 
   const p1Name = 'Blu (Giocatore 1)';
-  const p2Name = playMode === 'bot' ? 'Rosso (BOT)' : 'Rosso (Giocatore 2)';
+  const p2Name = playMode === 'bot' ? 'Giallo (BOT)' : 'Rosso (Giocatore 2)';
 
   const canRoll =
     gameState.phase === 'roll' &&
     !gameState.gameOver &&
     !isBotThinking &&
+    animDice === null &&
     !(playMode === 'bot' && gameState.turn === 1);
 
   const lastMove = gameState.lastMove;
@@ -215,7 +263,9 @@ export const LudoGame: React.FC<LudoGameProps> = ({
     : gameState.message
     ? gameState.message
     : isBotThinking
-    ? 'Il BOT sta giocando...'
+    ? gameState.dice !== null
+      ? `Il BOT ha lanciato un ${gameState.dice}!`
+      : 'Il BOT sta lanciando il dado...'
     : gameState.phase === 'move'
     ? playMode === 'bot' && gameState.turn === 1
       ? 'Il BOT sta scegliendo una pedina...'
@@ -240,29 +290,29 @@ export const LudoGame: React.FC<LudoGameProps> = ({
         </div>
         <div
           className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
-            gameState.turn === 1 && !gameState.gameOver ? 'ring-2 ring-rose-500 bg-rose-500/10' : 'opacity-70'
+            gameState.turn === 1 && !gameState.gameOver ? `ring-2 ${p2Ring}` : 'opacity-70'
           }`}
         >
           <span className="text-xs font-semibold">{p2Name}</span>
-          <div className="w-4 h-4 rounded-full bg-rose-500 shadow-sm" />
+          <div className={`w-4 h-4 rounded-full shadow-sm ${p2Dot}`} />
         </div>
       </div>
 
       {/* Board */}
       <div
-        className={`relative w-full aspect-square rounded-3xl shadow-xl overflow-hidden p-1.5 sm:p-2 transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
-        style={{ backgroundColor: frame }}
+        className={`relative w-full aspect-square rounded-3xl shadow-xl overflow-hidden p-1.5 sm:p-2 transition-all ${isTabletFlipped ? 'rotate-180' : ''}`}
+        style={{ backgroundColor: turnColor }}
       >
         <svg viewBox="0 0 15 15" className="w-full h-full block" preserveAspectRatio="xMidYMid meet">
           {/* Corner bases */}
-          <rect x="0" y="0" width="6" height="6" fill={C.base1} stroke={frame} strokeWidth="0.06" />
+          <rect x="0" y="0" width="6" height="6" fill={base1} stroke={frame} strokeWidth="0.06" />
           <rect x="9" y="0" width="6" height="6" fill={C.baseEmpty} stroke={frame} strokeWidth="0.06" />
           <rect x="0" y="9" width="6" height="6" fill={C.baseEmpty} stroke={frame} strokeWidth="0.06" />
           <rect x="9" y="9" width="6" height="6" fill={C.base0} stroke={frame} strokeWidth="0.06" />
 
           {/* Centre home area */}
           <rect x="6" y="6" width="3" height="3" fill={C.centerBg} stroke={frame} strokeWidth="0.06" />
-          <polygon points="6,6 9,6 6,9" fill={C.center1} />
+          <polygon points="6,6 9,6 6,9" fill={center1} />
           <polygon points="9,9 6,9 9,6" fill={C.center0} />
 
           {/* Track cells */}
@@ -270,7 +320,7 @@ export const LudoGame: React.FC<LudoGameProps> = ({
             let fill = C.track;
             if (STAR_CELLS.has(i)) fill = C.star;
             else if (START_INDEX[0] === i) fill = C.start0;
-            else if (START_INDEX[1] === i) fill = C.start1;
+            else if (START_INDEX[1] === i) fill = start1;
             return (
               <rect
                 key={i}
@@ -294,7 +344,7 @@ export const LudoGame: React.FC<LudoGameProps> = ({
                 y={r}
                 width="1"
                 height="1"
-                fill={p === 0 ? C.home0 : C.home1}
+                fill={p === 0 ? C.home0 : home1}
                 stroke={frame}
                 strokeWidth="0.06"
               />
@@ -352,7 +402,7 @@ export const LudoGame: React.FC<LudoGameProps> = ({
 
           {/* Tokens */}
           {renderedTokens.map((t) => {
-            const fill = t.player === 0 ? C.token0 : C.token1;
+            const fill = t.player === 0 ? C.token0 : token1;
             return (
               <g
                 key={`${t.player}-${t.tokenIndex}`}
@@ -361,6 +411,9 @@ export const LudoGame: React.FC<LudoGameProps> = ({
               >
                 <circle cx={t.x + 0.06} cy={t.y + 0.1} r="0.4" fill="rgba(0,0,0,0.28)" />
                 <circle cx={t.x} cy={t.y} r="0.4" fill={fill} stroke="#ffffff" strokeWidth="0.08" />
+                {t.isLastMoved && (
+                  <circle cx={t.x} cy={t.y} r="0.5" fill="none" stroke="#f59e0b" strokeWidth="0.12" />
+                )}
                 {t.movable && (
                   <circle
                     cx={t.x}
