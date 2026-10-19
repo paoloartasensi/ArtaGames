@@ -137,7 +137,7 @@ export function placeMorris(state: MorrisState, point: number): MorrisState | nu
     piecesToPlace,
     phase,
     turn: (1 - state.turn) as MorrisPlayer,
-    lastMove: { to: point, removed: null },
+    lastMove: { from: null, to: point, removed: null },
   };
 }
 
@@ -182,7 +182,7 @@ export function removeMorris(state: MorrisState, point: number): MorrisState | n
     mustRemove: false,
     phase,
     turn: opp,
-    lastMove: { to: state.lastMove.to, removed: point },
+    lastMove: { from: state.lastMove.from, to: state.lastMove.to, removed: point },
   };
 }
 
@@ -234,7 +234,7 @@ export function moveMorris(state: MorrisState, to: number): MorrisState | null {
     board,
     selected: null,
     turn: opp,
-    lastMove: { to, removed: null },
+    lastMove: { from, to, removed: null },
   };
 }
 
