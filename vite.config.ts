@@ -13,6 +13,7 @@ export default defineConfig(() => {
       tailwindcss(),
       legacy({
         targets: ['defaults', 'safari >= 12', 'iOS >= 12'],
+        modernTargets: ['defaults', 'safari >= 12', 'iOS >= 12'],
       }),
       VitePWA({
         registerType: 'autoUpdate',
