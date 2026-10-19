@@ -166,23 +166,28 @@ export function buildAbaMove(state: AbaloneState, group: string[], dir: number):
 export function applyAbaMove(state: AbaloneState, move: AbaMove): AbaloneState {
   const opp = (1 - state.turn) as AbaPlayer;
   const d = ABA_DIRS[move.dir];
-  const board: Record<string, AbaPlayer> = { ...state.board };
 
-  // Move our group.
-  for (const k of move.from) delete board[k];
-  for (const k of move.to) board[k] = state.turn;
-
-  // Shift the pushed opponent group.
   const front = parseAbaKey(move.group[move.group.length - 1]);
   const oppStart = { q: front.q + d.q, r: front.r + d.r };
-  const oppKeys: string[] = [];
+  const oppOrig: string[] = [];
   for (let i = 0; i < move.oppCount; i++) {
-    oppKeys.push(abaKey(oppStart.q + d.q * i, oppStart.r + d.r * i));
+    oppOrig.push(abaKey(oppStart.q + d.q * i, oppStart.r + d.r * i));
   }
+
+  // Rebuild the board without the affected cells to avoid clobbering the contact point.
+  const affected = new Set<string>([...move.from, ...oppOrig]);
+  const board: Record<string, AbaPlayer> = {};
+  for (const [k, v] of Object.entries(state.board)) {
+    if (!affected.has(k)) board[k] = v;
+  }
+
+  // Our moved group.
+  for (const k of move.to) board[k] = state.turn;
+
+  // Shifted opponents (skip the knocked-off marble).
   const knockedSet = new Set(move.knockedOff);
-  for (const k of oppKeys) {
-    delete board[k];
-    if (knockedSet.has(k)) continue; // knocked off, not re-placed
+  for (const k of oppOrig) {
+    if (knockedSet.has(k)) continue;
     const p = parseAbaKey(k);
     board[abaKey(p.q + d.q, p.r + d.r)] = opp;
   }
