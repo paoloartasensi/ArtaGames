@@ -100,7 +100,7 @@ export const SnakesGame: React.FC<SnakesGameProps> = ({
   );
 
   return (
-    <div className="flex flex-col items-center w-full max-w-xl mx-auto px-2">
+    <div className="flex flex-col items-center w-full max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto px-2 sm:px-4">
       {/* Top Player Indicator (Rosso / P2: rotated 180 in local 1v1 tabletop) */}
       <TabletopPlayerBar
         playerNumber={2}

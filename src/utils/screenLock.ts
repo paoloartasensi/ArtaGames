@@ -26,6 +26,36 @@ class ScreenShieldService {
       this.setupGestureShield();
       this.setupAutoWakeLock();
 
+      // Prevent native context menu (Copia, Seleziona tutto, Condividi) on long press / drag
+      window.addEventListener(
+        'contextmenu',
+        (e) => {
+          e.preventDefault();
+          return false;
+        },
+        { passive: false }
+      );
+
+      // Prevent native text selection start on touch/drag
+      window.addEventListener(
+        'selectstart',
+        (e) => {
+          e.preventDefault();
+          return false;
+        },
+        { passive: false }
+      );
+
+      // Immediately cancel any accidental selection
+      document.addEventListener('selectionchange', () => {
+        try {
+          const sel = window.getSelection();
+          if (sel && sel.rangeCount > 0) {
+            sel.removeAllRanges();
+          }
+        } catch {}
+      });
+
       document.addEventListener('fullscreenchange', () => {
         this.isFullscreen = !!document.fullscreenElement;
         this.notify();

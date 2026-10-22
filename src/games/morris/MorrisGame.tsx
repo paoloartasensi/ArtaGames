@@ -144,7 +144,7 @@ export const MorrisGame: React.FC<MorrisGameProps> = ({
     : `${gameState.turn === 0 ? 'Blu' : 'Rosso'}: tocca un tuo pezzo da muovere.`;
 
   return (
-    <div className="flex flex-col items-center w-full max-w-lg mx-auto px-2">
+    <div className="flex flex-col items-center w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-4">
       {/* Top Player Indicator (Rosso / P2: rotated 180 in local 1v1 tabletop) */}
       <TabletopPlayerBar
         playerNumber={2}

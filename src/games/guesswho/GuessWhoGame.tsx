@@ -133,7 +133,7 @@ export const GuessWhoGame: React.FC<GuessWhoGameProps> = ({
   });
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 py-2 flex flex-col items-center select-none pb-28">
+    <div className="w-full max-w-4xl lg:max-w-5xl mx-auto px-2 sm:px-4 py-2 flex flex-col items-center select-none pb-28">
       {/* Top Header Card: Status & Secret Character */}
       <div
         className={`w-full rounded-2xl p-3 sm:p-4 mb-3 border shadow-md flex flex-wrap items-center justify-between gap-3 ${theme.bgSurface} ${theme.borderSubtle}`}
@@ -310,7 +310,7 @@ export const GuessWhoGame: React.FC<GuessWhoGameProps> = ({
                 </div>
 
                 {/* Character Emoji */}
-                <div className="text-3xl sm:text-4xl my-1 transition-transform group-hover:scale-110">
+                <div className="text-4xl sm:text-5xl md:text-6xl my-1 sm:my-2 transition-transform group-hover:scale-110">
                   {char.emoji}
                 </div>
 

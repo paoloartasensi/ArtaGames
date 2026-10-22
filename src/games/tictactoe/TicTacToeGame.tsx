@@ -71,7 +71,7 @@ export const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
   const p2Name = playMode === 'bot' ? 'BOT O' : 'Giocatore O';
 
   return (
-    <div className="flex flex-col items-center w-full max-w-sm mx-auto px-2">
+    <div className="flex flex-col items-center w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto px-2 sm:px-4">
       {/* Top Player Indicator (Player 2: rotated 180 in local 1v1 tabletop) */}
       <TabletopPlayerBar
         playerNumber={2}
@@ -83,12 +83,12 @@ export const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
 
       {/* 3x3 Arena */}
       <div
-        className={`game-board-container relative w-full aspect-square p-3 sm:p-4 rounded-3xl shadow-xl transition-transform ${
+        className={`game-board-container relative w-full aspect-square p-3 sm:p-5 md:p-6 rounded-3xl shadow-xl transition-transform ${
           isTabletFlipped ? 'rotate-180' : ''
         }`}
         style={{ backgroundColor: '#d9a66b' }}
       >
-        <div className="grid grid-cols-3 grid-rows-3 gap-2.5 w-full h-full bg-black/20 p-2.5 rounded-2xl">
+        <div className="grid grid-cols-3 grid-rows-3 gap-3 sm:gap-4 md:gap-5 w-full h-full bg-black/20 p-3 sm:p-4 md:p-5 rounded-2xl">
           {gameState.board.map((cell, idx) => {
             const win = isWinCell(idx);
 
@@ -97,7 +97,7 @@ export const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
                 key={idx}
                 onClick={() => handleClick(idx)}
                 disabled={cell !== null || gameState.gameOver || isBotThinking}
-                className={`rounded-xl flex items-center justify-center transition-all bg-black/30 shadow-inner select-none ${
+                className={`rounded-2xl flex items-center justify-center transition-all bg-black/30 shadow-inner select-none ${
                   cell === null && !gameState.gameOver && !isBotThinking
                     ? 'hover:bg-white/20 active:scale-95'
                     : ''
@@ -105,7 +105,7 @@ export const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
               >
                 {cell === 'X' && (
                   <span
-                    className={`font-black text-4xl sm:text-5xl text-blue-400 drop-shadow ${
+                    className={`font-black text-5xl sm:text-7xl md:text-8xl text-blue-400 drop-shadow ${
                       win ? 'scale-110 animate-pulse text-blue-300' : ''
                     }`}
                   >
@@ -114,7 +114,7 @@ export const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
                 )}
                 {cell === 'O' && (
                   <span
-                    className={`font-black text-4xl sm:text-5xl text-amber-400 drop-shadow ${
+                    className={`font-black text-5xl sm:text-7xl md:text-8xl text-amber-400 drop-shadow ${
                       win ? 'scale-110 animate-pulse text-amber-300' : ''
                     }`}
                   >

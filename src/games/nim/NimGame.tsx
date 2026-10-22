@@ -88,7 +88,7 @@ export const NimGame: React.FC<NimGameProps> = ({ playMode, difficulty, onSelect
   );
 
   return (
-    <div className="flex flex-col items-center w-full max-w-sm mx-auto px-2">
+    <div className="flex flex-col items-center w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto px-2 sm:px-4">
       {/* Top Player Indicator (P2: rotated 180 in local 1v1 tabletop) */}
       <TabletopPlayerBar
         playerNumber={2}

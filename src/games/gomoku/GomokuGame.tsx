@@ -71,7 +71,7 @@ export const GomokuGame: React.FC<GomokuGameProps> = ({
   const p2Name = playMode === 'bot' ? 'BOT (Bianco)' : 'Bianco (Giocatore 2)';
 
   return (
-    <div className="flex flex-col items-center w-full max-w-sm mx-auto px-2">
+    <div className="flex flex-col items-center w-full max-w-sm sm:max-w-md md:max-w-xl lg:max-w-2xl mx-auto px-2 sm:px-4">
       {/* Top Player Indicator (White / P2: rotated 180 in local 1v1 tabletop) */}
       <TabletopPlayerBar
         playerNumber={2}

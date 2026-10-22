@@ -111,7 +111,7 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ playMode, difficulty, on
   const p2Name = playMode === 'bot' ? 'Rosso (BOT)' : 'Rosso (Giocatore 2)';
 
   return (
-    <div className="flex flex-col items-center w-full max-w-md mx-auto px-2">
+    <div className="flex flex-col items-center w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-4">
       {/* Top Player Indicator (Rosso / P2: rotated 180 in local 1v1 tabletop) */}
       <TabletopPlayerBar
         playerNumber={2}
@@ -124,7 +124,7 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ playMode, difficulty, on
 
       {/* Card grid */}
       <div
-        className="grid grid-cols-4 gap-2 w-full my-2 p-3 rounded-3xl shadow-xl transition-transform"
+        className="grid grid-cols-4 gap-2.5 sm:gap-4 md:gap-5 w-full my-3 p-3 sm:p-5 md:p-6 rounded-3xl shadow-xl transition-transform"
         style={{ backgroundColor: '#e8e0d0' }}
       >
         {gameState.cards.map((card, i) => (
@@ -132,18 +132,18 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ playMode, difficulty, on
             key={card.id}
             onClick={() => handleCardClick(i)}
             disabled={card.matched || card.flipped || gameState.gameOver || isBotThinking}
-            className={`aspect-square rounded-xl flex items-center justify-center text-3xl sm:text-4xl transition-all duration-200 shadow-sm border ${
+            className={`aspect-square rounded-2xl sm:rounded-3xl flex items-center justify-center text-4xl sm:text-5xl md:text-6xl transition-all duration-200 shadow-md border ${
               card.matched
                 ? 'bg-emerald-500/20 border-emerald-500/40 opacity-60 scale-95'
                 : card.flipped
                 ? 'bg-white dark:bg-white/90 border-white/40 scale-105'
-                : 'bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-300 hover:scale-105 cursor-pointer'
+                : 'bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-300 hover:scale-105 active:scale-95 cursor-pointer'
             }`}
           >
             {card.matched || card.flipped ? (
               card.emoji
             ) : (
-              <span className="text-white/90 text-xl font-black">?</span>
+              <span className="text-white/90 text-2xl sm:text-4xl md:text-5xl font-black">?</span>
             )}
           </button>
         ))}

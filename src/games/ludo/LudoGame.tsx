@@ -226,7 +226,7 @@ export const LudoGame: React.FC<LudoGameProps> = ({
   const currentDisplayDice = animDice !== null ? animDice : gameState.dice;
 
   return (
-    <div className="w-full h-full max-w-lg mx-auto flex flex-col items-center justify-between py-4 px-3 select-none">
+    <div className="w-full h-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto flex flex-col items-center justify-between py-4 px-3 select-none">
       {/* Top Player Action Bar (Player 2 or Bot) */}
       <div
         className={`w-full flex items-center justify-center gap-3 transition-transform ${

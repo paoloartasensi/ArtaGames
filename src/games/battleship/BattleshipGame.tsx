@@ -165,7 +165,7 @@ export const BattleshipGame: React.FC<BattleshipGameProps> = ({
     : '';
 
   return (
-    <div className="flex flex-col items-center w-full max-w-2xl mx-auto px-2">
+    <div className="flex flex-col items-center w-full max-w-2xl md:max-w-4xl lg:max-w-5xl mx-auto px-2">
       {isPvP && gameState.phase === 'placement' ? (
         /* ===== PLACEMENT VIEW (1vs1) ===== */
         <div className="w-full flex-col items-center">

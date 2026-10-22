@@ -141,7 +141,7 @@ export const AbaloneGame: React.FC<AbaloneGameProps> = ({
   const p2Name = playMode === 'bot' ? 'BOT (Bianco)' : 'Bianco (Giocatore 2)';
 
   return (
-    <div className="flex flex-col items-center w-full max-w-md mx-auto px-2">
+    <div className="flex flex-col items-center w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto px-2 sm:px-4">
       {/* Top Player Indicator (Bianco / P2: rotated 180 in local 1v1 tabletop) */}
       <TabletopPlayerBar
         playerNumber={2}

@@ -141,7 +141,7 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
   const isCapture = !!lastMove && Math.abs(lastMove.toR - lastMove.fromR) === 2;
 
   return (
-    <div className="flex flex-col items-center w-full max-w-lg mx-auto px-2">
+    <div className="flex flex-col items-center w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-4">
       {/* Top Player Indicator (Player 2: inverted in 1vs1 tabletop mode) */}
       <TabletopPlayerBar
         playerNumber={2}
