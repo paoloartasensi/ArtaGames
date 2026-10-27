@@ -111,7 +111,7 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ playMode, difficulty, on
   const p2Name = playMode === 'bot' ? 'Rosso (BOT)' : 'Rosso (Giocatore 2)';
 
   return (
-    <div className="flex flex-col items-center w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-4">
+    <div className="flex flex-col items-center justify-between w-full max-w-5xl md:max-w-6xl xl:max-w-7xl mx-auto px-2 sm:px-4 flex-1 h-full min-h-0">
       {/* Top Player Indicator (Rosso / P2: rotated 180 in local 1v1 tabletop) */}
       <TabletopPlayerBar
         playerNumber={2}
@@ -122,9 +122,9 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ playMode, difficulty, on
         score={`Coppie: ${gameState.scores[1]}`}
       />
 
-      {/* Card grid */}
+      {/* Card grid - Fills widescreen landscape with 8 columns x 2 rows, or portrait with 4 columns x 4 rows */}
       <div
-        className="grid grid-cols-4 gap-2.5 sm:gap-4 md:gap-5 w-full my-3 p-3 sm:p-5 md:p-6 rounded-3xl shadow-xl transition-transform"
+        className="grid grid-cols-4 landscape:grid-cols-8 md:landscape:grid-cols-8 gap-2.5 sm:gap-4 md:gap-5 w-full my-auto p-3 sm:p-5 md:p-6 rounded-3xl shadow-xl transition-all"
         style={{ backgroundColor: '#e8e0d0' }}
       >
         {gameState.cards.map((card, i) => (
@@ -132,18 +132,20 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ playMode, difficulty, on
             key={card.id}
             onClick={() => handleCardClick(i)}
             disabled={card.matched || card.flipped || gameState.gameOver || isBotThinking}
-            className={`aspect-square rounded-2xl sm:rounded-3xl flex items-center justify-center text-4xl sm:text-5xl md:text-6xl transition-all duration-200 shadow-md border ${
+            className={`aspect-square sm:aspect-[4/5] md:aspect-square rounded-2xl sm:rounded-3xl flex items-center justify-center text-5xl sm:text-6xl md:text-7xl lg:text-8xl transition-all duration-200 shadow-lg border-2 ${
               card.matched
-                ? 'bg-emerald-500/20 border-emerald-500/40 opacity-60 scale-95'
+                ? 'bg-emerald-500/25 border-emerald-500/50 opacity-60 scale-95'
                 : card.flipped
-                ? 'bg-white dark:bg-white/90 border-white/40 scale-105'
-                : 'bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-300 hover:scale-105 active:scale-95 cursor-pointer'
+                ? 'bg-white dark:bg-white/95 border-white/60 scale-105 shadow-xl'
+                : 'bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 border-indigo-300 hover:scale-105 active:scale-95 cursor-pointer shadow-indigo-900/30'
             }`}
           >
             {card.matched || card.flipped ? (
-              card.emoji
+              <span className="filter drop-shadow-sm transform hover:scale-110 transition-transform">
+                {card.emoji}
+              </span>
             ) : (
-              <span className="text-white/90 text-2xl sm:text-4xl md:text-5xl font-black">?</span>
+              <span className="text-white/90 text-3xl sm:text-5xl md:text-6xl font-black select-none">?</span>
             )}
           </button>
         ))}

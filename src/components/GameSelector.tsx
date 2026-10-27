@@ -28,6 +28,8 @@ const GAME_EMOJIS: Record<GameId, string> = {
   nim: '🪵',
   abalone: '🎱',
   guesswho: '🕵️',
+  goose: '🪿',
+  simon: '🎶',
 };
 
 const GAME_THEMES: Record<GameId, { bgGradient: string; borderDark: string; sub: string }> = {
@@ -50,6 +52,8 @@ const GAME_THEMES: Record<GameId, { bgGradient: string; borderDark: string; sub:
   nim: { bgGradient: 'from-[#a855f7] to-[#9333ea]', borderDark: '#7e22ce', sub: 'Gioco di Nim' },
   abalone: { bgGradient: 'from-[#f43f5e] to-[#e11d48]', borderDark: '#be123c', sub: 'Biglie Sumo' },
   guesswho: { bgGradient: 'from-[#6366f1] to-[#3b82f6]', borderDark: '#1e40af', sub: 'Indovina Chi' },
+  goose: { bgGradient: 'from-[#10b981] to-[#047857]', borderDark: '#065f46', sub: "Gioco dell'Oca" },
+  simon: { bgGradient: 'from-[#a855f7] to-[#7e22ce]', borderDark: '#6b21a8', sub: 'Simon Dice' },
 };
 
 export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, activeGameId }) => {
@@ -64,13 +68,13 @@ export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, active
   const filteredGames = useMemo(() => {
     if (selectedCategory === 'all') return ALL_GAMES;
     if (selectedCategory === 'classic') {
-      return ALL_GAMES.filter((g) => ['ludo', 'checkers', 'chess', 'snakes', 'domino', 'guesswho'].includes(g.id));
+      return ALL_GAMES.filter((g) => ['ludo', 'checkers', 'chess', 'snakes', 'domino', 'guesswho', 'goose'].includes(g.id));
     }
     if (selectedCategory === 'strategy') {
       return ALL_GAMES.filter((g) => ['connect4', 'go', 'reversi', 'quarto', 'morris', 'abalone'].includes(g.id));
     }
     if (selectedCategory === 'quick') {
-      return ALL_GAMES.filter((g) => ['tictactoe', 'dotsboxes', 'memory', 'nim', 'battleship', 'gomoku'].includes(g.id));
+      return ALL_GAMES.filter((g) => ['tictactoe', 'dotsboxes', 'memory', 'nim', 'battleship', 'gomoku', 'simon'].includes(g.id));
     }
     return ALL_GAMES;
   }, [selectedCategory]);

@@ -71,7 +71,7 @@ export const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
   const p2Name = playMode === 'bot' ? 'BOT O' : 'Giocatore O';
 
   return (
-    <div className="flex flex-col items-center w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto px-2 sm:px-4">
+    <div className="flex flex-col items-center justify-between w-full max-w-[min(94vw,76vh)] mx-auto px-2 sm:px-4 flex-1 h-full min-h-0">
       {/* Top Player Indicator (Player 2: rotated 180 in local 1v1 tabletop) */}
       <TabletopPlayerBar
         playerNumber={2}
@@ -81,9 +81,9 @@ export const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
         isFlipped={playMode === 'local_pvp'}
       />
 
-      {/* 3x3 Arena */}
+      {/* 3x3 Arena - Maximized for iPad */}
       <div
-        className={`game-board-container relative w-full aspect-square p-3 sm:p-5 md:p-6 rounded-3xl shadow-xl transition-transform ${
+        className={`game-board-container relative w-full aspect-square my-auto p-3 sm:p-5 md:p-6 rounded-3xl shadow-2xl transition-transform ${
           isTabletFlipped ? 'rotate-180' : ''
         }`}
         style={{ backgroundColor: '#d9a66b' }}
@@ -105,7 +105,7 @@ export const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
               >
                 {cell === 'X' && (
                   <span
-                    className={`font-black text-5xl sm:text-7xl md:text-8xl text-blue-400 drop-shadow ${
+                    className={`font-black text-6xl sm:text-8xl md:text-9xl lg:text-[10rem] text-blue-400 drop-shadow select-none ${
                       win ? 'scale-110 animate-pulse text-blue-300' : ''
                     }`}
                   >
@@ -114,7 +114,7 @@ export const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
                 )}
                 {cell === 'O' && (
                   <span
-                    className={`font-black text-5xl sm:text-7xl md:text-8xl text-amber-400 drop-shadow ${
+                    className={`font-black text-6xl sm:text-8xl md:text-9xl lg:text-[10rem] text-amber-400 drop-shadow select-none ${
                       win ? 'scale-110 animate-pulse text-amber-300' : ''
                     }`}
                   >

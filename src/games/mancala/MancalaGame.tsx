@@ -92,7 +92,7 @@ export const MancalaGame: React.FC<MancalaGameProps> = ({
   const p2Name = playMode === 'bot' ? 'Rosso (BOT)' : 'Rosso (Giocatore 2)';
 
   return (
-    <div className="flex flex-col items-center w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-4">
+    <div className="flex flex-col items-center justify-between w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto px-2 sm:px-4 flex-1 h-full min-h-0">
       {/* Top Player Indicator (Rosso / P2: rotated 180 in local 1v1 tabletop) */}
       <TabletopPlayerBar
         playerNumber={2}
@@ -103,32 +103,32 @@ export const MancalaGame: React.FC<MancalaGameProps> = ({
         score={`Riserva: ${gameState.pits[13]}`}
       />
 
-      {/* Board */}
+      {/* Board - Maximized for widescreen */}
       <div
-        className={`w-full rounded-3xl p-3 shadow-xl transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
+        className={`w-full rounded-3xl p-3 sm:p-5 md:p-6 my-auto shadow-2xl transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
         style={{ backgroundColor: '#d9a66b' }}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 sm:gap-4">
           {/* P2 store (left) */}
-          <div className="w-12 sm:w-16 self-stretch rounded-full bg-gradient-to-b from-[#7a4a20] to-[#3a2410] border-2 border-[#5a3a18] shadow-inner flex flex-col items-center justify-center text-xl sm:text-2xl font-black text-[#f5d9a0]">
-            <span className="text-[10px] font-semibold text-[#d9b98a]">Rosso</span>
+          <div className="w-14 sm:w-20 md:w-24 self-stretch rounded-full bg-gradient-to-b from-[#7a4a20] to-[#3a2410] border-2 border-[#5a3a18] shadow-inner flex flex-col items-center justify-center text-2xl sm:text-3xl font-black text-[#f5d9a0]">
+            <span className="text-[10px] sm:text-xs font-bold text-[#d9b98a]">Rosso</span>
             {gameState.pits[13]}
           </div>
 
-          <div className="flex-1 grid gap-2">
+          <div className="flex-1 grid gap-2 sm:gap-3">
             {/* Top row (P2 pits 7..12) */}
-            <div className="grid grid-cols-6 gap-2">
+            <div className="grid grid-cols-6 gap-2 sm:gap-3">
               {P2_PITS.map((p) => renderPit(p, clickableP2, true))}
             </div>
             {/* Bottom row (P1 pits 0..5) */}
-            <div className="grid grid-cols-6 gap-2">
+            <div className="grid grid-cols-6 gap-2 sm:gap-3">
               {P1_PITS.map((p) => renderPit(p, clickableP1, false))}
             </div>
           </div>
 
           {/* P1 store (right) */}
-          <div className="w-12 sm:w-16 self-stretch rounded-full bg-gradient-to-b from-[#7a4a20] to-[#3a2410] border-2 border-[#5a3a18] shadow-inner flex flex-col items-center justify-center text-xl sm:text-2xl font-black text-[#f5d9a0]">
-            <span className="text-[10px] font-semibold text-[#d9b98a]">Blu</span>
+          <div className="w-14 sm:w-20 md:w-24 self-stretch rounded-full bg-gradient-to-b from-[#7a4a20] to-[#3a2410] border-2 border-[#5a3a18] shadow-inner flex flex-col items-center justify-center text-2xl sm:text-3xl font-black text-[#f5d9a0]">
+            <span className="text-[10px] sm:text-xs font-bold text-[#d9b98a]">Blu</span>
             {gameState.pits[6]}
           </div>
         </div>

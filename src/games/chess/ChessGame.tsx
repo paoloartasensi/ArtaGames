@@ -54,7 +54,7 @@ const PieceGlyph: React.FC<{ piece: ChessPiece; isSelected: boolean }> = ({
   isSelected,
 }) => (
   <span
-    className={`relative z-20 text-3xl sm:text-5xl md:text-6xl leading-none select-none drop-shadow transition-transform ${
+    className={`relative z-20 text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-none select-none drop-shadow transition-transform ${
       piece.color === 'w' ? 'text-white' : 'text-stone-950 dark:text-stone-900'
     } ${isSelected ? 'scale-115' : 'hover:scale-105'}`}
     style={{
@@ -145,7 +145,7 @@ export const ChessGame: React.FC<ChessGameProps> = ({
   const moveKey = gameState.moveHistory.length;
 
   return (
-    <div className="flex flex-col items-center w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-4">
+    <div className="flex flex-col items-center justify-between w-full max-w-[min(96vw,78vh)] mx-auto px-2 sm:px-4 flex-1 h-full min-h-0">
       {/* Top Player Indicator (Player 2 / Black: rotated 180 in local 1v1 tabletop) */}
       <TabletopPlayerBar
         playerNumber={2}
@@ -172,9 +172,9 @@ export const ChessGame: React.FC<ChessGameProps> = ({
         </div>
       )}
 
-      {/* 8x8 Chessboard */}
+      {/* 8x8 Chessboard - Maximized for iPad */}
       <div
-        className={`game-board-container relative w-full aspect-square p-2.5 sm:p-3.5 rounded-2xl shadow-xl transition-transform ${
+        className={`game-board-container relative w-full aspect-square my-auto p-2.5 sm:p-4 rounded-3xl shadow-2xl transition-transform ${
           isTabletFlipped ? 'rotate-180' : ''
         }`}
         style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn === 'w' ? 0 : 1, playMode) }}

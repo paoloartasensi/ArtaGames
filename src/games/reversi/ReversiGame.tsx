@@ -88,7 +88,7 @@ export const ReversiGame: React.FC<ReversiGameProps> = ({
   const p2Name = playMode === 'bot' ? 'Bianco (BOT)' : 'Bianco (Giocatore 2)';
 
   return (
-    <div className="flex flex-col items-center w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-4">
+    <div className="flex flex-col items-center justify-between w-full max-w-[min(96vw,78vh)] mx-auto px-2 sm:px-4 flex-1 h-full min-h-0">
       {/* Top Player Indicator (White / P2: rotated 180 in local 1v1 tabletop) */}
       <TabletopPlayerBar
         playerNumber={2}
@@ -100,9 +100,9 @@ export const ReversiGame: React.FC<ReversiGameProps> = ({
         score={`Dischi: ${white}`}
       />
 
-      {/* Board */}
+      {/* Board - Maximized for iPad */}
       <div
-        className={`w-full aspect-square rounded-3xl p-2 sm:p-3 shadow-xl transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
+        className={`w-full aspect-square my-auto rounded-3xl p-2.5 sm:p-4 shadow-2xl transition-transform ${isTabletFlipped ? 'rotate-180' : ''}`}
         style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn === 'black' ? 0 : 1, playMode) }}
       >
         <div className="grid grid-cols-8 gap-0.5 h-full w-full bg-black/20 rounded-xl p-1">

@@ -35,7 +35,7 @@ const PieceDisc: React.FC<{ piece: CheckersPieceNonNull; isSelected: boolean }> 
     {/* Inner concentric ring for traditional tactile feel */}
     <div className="w-[65%] h-[65%] rounded-full border border-white/20 flex items-center justify-center">
       {(piece === 'R' || piece === 'B') && (
-        <Crown className="w-4 h-4 text-amber-300 fill-amber-300 drop-shadow" />
+        <Crown className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-amber-300 fill-amber-300 drop-shadow" />
       )}
     </div>
   </div>
@@ -141,7 +141,7 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
   const isCapture = !!lastMove && Math.abs(lastMove.toR - lastMove.fromR) === 2;
 
   return (
-    <div className="flex flex-col items-center w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-4">
+    <div className="flex flex-col items-center justify-between w-full max-w-[min(96vw,78vh)] mx-auto px-2 sm:px-4 flex-1 h-full min-h-0">
       {/* Top Player Indicator (Player 2: inverted in 1vs1 tabletop mode) */}
       <TabletopPlayerBar
         playerNumber={2}
@@ -152,9 +152,9 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
         score={`Pedine: ${12 - gameState.redCaptured}`}
       />
 
-      {/* 8x8 Board Container */}
+      {/* 8x8 Board Container - Maximized to full screen viewport */}
       <div
-        className={`game-board-container relative w-full aspect-square p-2.5 sm:p-3.5 rounded-2xl shadow-xl transition-transform ${
+        className={`game-board-container relative w-full aspect-square my-auto p-2.5 sm:p-4 rounded-3xl shadow-2xl transition-transform ${
           isTabletFlipped ? 'rotate-180' : ''
         }`}
         style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn === 'r' ? 0 : 1, playMode) }}

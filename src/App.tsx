@@ -30,6 +30,8 @@ import { GomokuGame } from './games/gomoku/GomokuGame';
 import { NimGame } from './games/nim/NimGame';
 import { AbaloneGame } from './games/abalone/AbaloneGame';
 import { GuessWhoGame } from './games/guesswho/GuessWhoGame';
+import { GooseGame } from './games/goose/GooseGame';
+import { SimonGame } from './games/simon/SimonGame';
 
 function AppContent() {
   const { theme } = useTheme();
@@ -271,6 +273,28 @@ function AppContent() {
                   isTabletFlipped={isTabletFlipped}
                 />
               )}
+
+              {activeGameId === 'goose' && (
+                <GooseGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'simon' && (
+                <SimonGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
     </>
   );
 
@@ -281,7 +305,7 @@ function AppContent() {
         <ExitButton onExit={() => setViewMode('catalog')} />
 
         {/* Board Container */}
-        <div className="w-full h-full flex flex-col items-center justify-start overflow-y-auto pt-2 sm:pt-4 pb-4 sm:pb-8 px-1 sm:px-3">
+        <div className="w-full h-full flex flex-col items-center justify-center overflow-y-auto py-2 sm:py-3 px-1 sm:px-3">
           {renderActiveGameBoard()}
         </div>
 

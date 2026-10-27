@@ -75,7 +75,7 @@ export const Connect4Game: React.FC<Connect4GameProps> = ({
   const p2Name = playMode === 'bot' ? 'Giallo (BOT)' : 'Giallo (Giocatore 2)';
 
   return (
-    <div className="flex flex-col items-center w-full max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto px-2 sm:px-4">
+    <div className="flex flex-col items-center justify-between w-full max-w-[min(96vw,84vh*7/6)] mx-auto px-2 sm:px-4 flex-1 h-full min-h-0">
       {/* Top Player Status Indicator (Player 2: inverted in 1vs1 tabletop mode) */}
       <TabletopPlayerBar
         playerNumber={2}
@@ -87,7 +87,7 @@ export const Connect4Game: React.FC<Connect4GameProps> = ({
 
       {/* Interactive Board Arena */}
       <div
-        className={`game-board-container relative w-full aspect-[7/6] p-2.5 sm:p-4 rounded-3xl shadow-xl transition-transform ${
+        className={`game-board-container relative w-full aspect-[7/6] my-auto p-2.5 sm:p-4 rounded-3xl shadow-2xl transition-transform ${
           isTabletFlipped ? 'rotate-180' : ''
         }`}
         style={{ backgroundColor: gameState.gameOver ? theme.boardBg : getTurnColor(gameState.turn === 'red' ? 0 : 1, playMode) }}

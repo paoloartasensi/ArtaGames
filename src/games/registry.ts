@@ -17,7 +17,9 @@ export type GameId =
   | 'gomoku'
   | 'nim'
   | 'abalone'
-  | 'guesswho';
+  | 'guesswho'
+  | 'goose'
+  | 'simon';
 
 export interface GameMetadata {
   id: GameId;
@@ -398,6 +400,47 @@ export const GAME_REGISTRY: Record<GameId, GameMetadata> = {
     },
     boardDescription: 'Tabellone 3D con tessere ribaltabili',
     iconName: 'HelpCircle',
+  },
+  goose: {
+    id: 'goose',
+    title: "Il Gioco dell'Oca",
+    subtitle: 'Lancia il dado e vola verso il Giardino delle Oche',
+    minAge: '4+ anni',
+    category: 'Classici',
+    summary: 'Il grande classico per bambini: lancia il dado, salta da una casella all\'altra, sfrutta le oche fortunate e il ponte magico per arrivare per primo alla coppa!',
+    rulesKidFriendly: {
+      title: "Come si gioca al Gioco dell'Oca",
+      steps: [
+        'A turno, tocca il grande dado per lanciarlo e vedere quanti passi fare.',
+        'La tua paperella avanza sul prato colorato casella dopo casella.',
+        'Se atterri su un\'Oca fortunata fai un salto doppio! Se atterri sul Ponte voli avanti!',
+        'Attento alla Locanda e al Pozzo: ti fermi per una merenda e riposi un turno.',
+        'Chi arriva esattamente alla casella 30 vince la coppa dorata!',
+      ],
+      tip: 'Consiglio: tieni le dita incrociate sul dado per fare un salto doppio sull\'Oca fortunata!',
+    },
+    boardDescription: 'Percorso nel prato a 30 caselle illustrate con grande dado 3D',
+    iconName: 'Sparkles',
+  },
+  simon: {
+    id: 'simon',
+    title: 'Simon Dice',
+    subtitle: 'Ricorda e ripeti la sequenza musicale di colori',
+    minAge: '4+ anni',
+    category: 'Rapidi',
+    summary: 'Il maestro dei suoni accende i colori in sequenza con note musicali: ascolta con attenzione e tocca i tasti nello stesso ordine per superare tutti i livelli!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Simon Dice',
+      steps: [
+        'Premi INIZIA per ascoltare e vedere il primo colore che si illumina.',
+        'Tocca lo stesso colore per ripetere la sequenza.',
+        'A ogni livello si aggiunge una nuova nota musicale e un nuovo colore!',
+        'Cerca di superare il tuo record personale di stelle!',
+      ],
+      tip: 'Consiglio: canticchia le note dei colori mentre si accendono per ricordarle più facilmente!',
+    },
+    boardDescription: 'Console circolare a 4 quadranti luminosi con note musicali',
+    iconName: 'Music',
   },
 };
 
