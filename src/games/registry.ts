@@ -19,7 +19,10 @@ export type GameId =
   | 'abalone'
   | 'guesswho'
   | 'goose'
-  | 'simon';
+  | 'simon'
+  | 'uno'
+  | 'tetris'
+  | 'pacman';
 
 export interface GameMetadata {
   id: GameId;
@@ -441,6 +444,68 @@ export const GAME_REGISTRY: Record<GameId, GameMetadata> = {
     },
     boardDescription: 'Console circolare a 4 quadranti luminosi con note musicali',
     iconName: 'Music',
+  },
+  uno: {
+    id: 'uno',
+    title: 'UNO! Carte Colorate',
+    subtitle: 'Abbina colore o numero e grida UNO!',
+    minAge: '5+ anni',
+    category: 'Classici',
+    summary: 'Il gioco di carte più famoso al mondo: scarta le tue carte abbinando colore o numero, usa i salti, i +2 e i Jolly per mettere in difficoltà l\'avversario e resta con 1 sola carta!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a UNO!',
+      steps: [
+        'A turno gioca una carta dalla tua mano che abbia lo stesso colore o lo stesso numero della carta in cima agli scarti.',
+        'Se hai un Jolly 🌈 puoi giocarlo sempre e scegliere il nuovo colore!',
+        'Usa le carte speciali: +2 fa pescare 2 carte all\'avversario, 🚫 salta il suo turno!',
+        'Se non hai carte giocabili, tocca il mazzo per pescarne una.',
+        'Quando rimani con 1 sola carta, grida "UNO!" toccando il pulsante rosso!',
+        'Il primo che finisce tutte le carte vince la partita!',
+      ],
+      tip: 'Consiglio: conserva un Jolly o un +2 per il finale di partita per sorprendere l\'avversario!',
+    },
+    boardDescription: 'Tavolo verde con mazzo di scarto, pesca e carte animate',
+    iconName: 'Layers',
+  },
+  tetris: {
+    id: 'tetris',
+    title: 'Tetris Classico',
+    subtitle: 'Incastra i blocchi colorati e completa le righe',
+    minAge: '5+ anni',
+    category: 'Classici',
+    summary: 'Il leggendario puzzle arcade: ruota e fai cadere i tetramini colorati per completare le righe orizzontali ed eliminarle prima che la torre raggiunga la cima!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Tetris',
+      steps: [
+        'I blocchi geometrici cadono dall\'alto uno alla volta.',
+        'Usa le frecce per spostare il blocco a destra o sinistra, e il pulsante per ruotarlo.',
+        'Quando riempi un\'intera riga orizzontale, la riga scompare regalandoti tanti punti!',
+        'Non far accumulare i blocchi fino alla cima dello schermo!',
+      ],
+      tip: 'Consiglio: cerca di tenere il fondo il più piatto possibile per preparare un colpo da 4 righe!',
+    },
+    boardDescription: 'Matrice arcade 10x20 con blocchi colorati al neon e controlli touch',
+    iconName: 'Box',
+  },
+  pacman: {
+    id: 'pacman',
+    title: 'Pac-Man Arcade',
+    subtitle: 'Mangia tutti i pallini ed evita i fantasmini',
+    minAge: '5+ anni',
+    category: 'Rapidi',
+    summary: 'Guida Pac-Man nel labirinto per mangiare tutti i pallini luminosi. Prendi le pillole magiche per spaventare i fantasmini e fare una scorpacciata di punti!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Pac-Man',
+      steps: [
+        'Guida la pallina gialla usando le frecce o toccando lo schermo per cambiare direzione.',
+        'Mangia tutti i piccoli pallini luminosi sparsi per il labirinto.',
+        'Attento ai 4 fantasmini colorati: se ti toccano perdi una vita!',
+        'Mangia le 4 grandi pillole negli angoli: i fantasmi diventeranno blu e potrai mangiarli!',
+      ],
+      tip: 'Consiglio: usa i tunnel laterali per scappare rapidamente dall\'altra parte del labirinto!',
+    },
+    boardDescription: 'Labirinto classico con pareti al neon, pallini, ciliegie e fantasmi',
+    iconName: 'Circle',
   },
 };
 

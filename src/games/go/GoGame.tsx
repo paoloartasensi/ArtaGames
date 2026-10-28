@@ -109,7 +109,7 @@ export const GoGame: React.FC<GoGameProps> = ({
   const p2Name = playMode === 'bot' ? 'Bianco (BOT)' : 'Bianco (Giocatore 2)';
 
   return (
-    <div className="flex flex-col items-center w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-4">
+    <div className="flex flex-col items-center justify-between w-full max-w-[min(96vw,78vh)] mx-auto px-2 sm:px-4 flex-1 h-full min-h-0 select-none">
       {/* Top Player Indicator (Bianco / P2: rotated 180 in local 1v1 tabletop) */}
       <TabletopPlayerBar
         playerNumber={2}
@@ -133,7 +133,7 @@ export const GoGame: React.FC<GoGameProps> = ({
       />
 
       {/* Board Size Toggle for Kids (9x9 standard vs 13x13) & hint */}
-      <div className="flex items-center justify-between w-full my-1.5 px-1 text-xs">
+      <div className="flex items-center justify-between w-full my-1 px-1 text-xs">
         <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/10 dark:bg-white/10">
           <button
             onClick={() => handleRestart(9)}
@@ -170,52 +170,61 @@ export const GoGame: React.FC<GoGameProps> = ({
 
       {/* Go Goban Board */}
       <div
-        className={`game-board-container relative w-full aspect-square p-4 sm:p-6 rounded-2xl shadow-xl transition-transform ${
+        className={`game-board-container relative w-full aspect-square my-auto p-3 sm:p-5 rounded-3xl shadow-2xl transition-transform border-4 border-[#b87d37] ${
           isTabletFlipped ? 'rotate-180' : ''
         }`}
         style={{
-          backgroundColor: '#e0b069',
+          background: 'linear-gradient(135deg, #eec27e 0%, #e5b367 50%, #d49e52 100%)',
         }}
       >
         {/* Goban Grid lines container */}
         <div className="relative w-full h-full">
-          {/* SVG Grid Lines */}
+          {/* SVG Grid Lines - Exactly aligned with button grid cells */}
           <svg
             className="absolute inset-0 w-full h-full pointer-events-none"
-            viewBox={`0 0 ${boardSize - 1} ${boardSize - 1}`}
+            viewBox={`0 0 ${boardSize} ${boardSize}`}
           >
             {/* Horizontal lines */}
             {Array.from({ length: boardSize }).map((_, i) => (
               <line
                 key={`h-${i}`}
-                x1={0}
-                y1={i}
-                x2={boardSize - 1}
-                y2={i}
+                x1={0.5}
+                y1={i + 0.5}
+                x2={boardSize - 0.5}
+                y2={i + 0.5}
                 stroke="#3a2a18"
-                strokeWidth={0.06}
+                strokeWidth={0.045}
               />
             ))}
             {/* Vertical lines */}
             {Array.from({ length: boardSize }).map((_, i) => (
               <line
                 key={`v-${i}`}
-                x1={i}
-                y1={0}
-                x2={i}
-                y2={boardSize - 1}
+                x1={i + 0.5}
+                y1={0.5}
+                x2={i + 0.5}
+                y2={boardSize - 0.5}
                 stroke="#3a2a18"
-                strokeWidth={0.06}
+                strokeWidth={0.045}
               />
             ))}
-            {/* Star points (Hoshi) */}
+            {/* Star points (Hoshi) positioned exactly on intersection centers */}
             {boardSize === 9 && (
               <>
-                <circle cx={2} cy={2} r={0.15} fill="#3a2a18" />
-                <circle cx={6} cy={2} r={0.15} fill="#3a2a18" />
-                <circle cx={4} cy={4} r={0.15} fill="#3a2a18" />
-                <circle cx={2} cy={6} r={0.15} fill="#3a2a18" />
-                <circle cx={6} cy={6} r={0.15} fill="#3a2a18" />
+                <circle cx={2.5} cy={2.5} r={0.12} fill="#3a2a18" />
+                <circle cx={6.5} cy={2.5} r={0.12} fill="#3a2a18" />
+                <circle cx={4.5} cy={4.5} r={0.14} fill="#3a2a18" />
+                <circle cx={2.5} cy={6.5} r={0.12} fill="#3a2a18" />
+                <circle cx={6.5} cy={6.5} r={0.12} fill="#3a2a18" />
+              </>
+            )}
+            {boardSize === 13 && (
+              <>
+                <circle cx={3.5} cy={3.5} r={0.12} fill="#3a2a18" />
+                <circle cx={9.5} cy={3.5} r={0.12} fill="#3a2a18" />
+                <circle cx={6.5} cy={6.5} r={0.14} fill="#3a2a18" />
+                <circle cx={3.5} cy={9.5} r={0.12} fill="#3a2a18" />
+                <circle cx={9.5} cy={9.5} r={0.12} fill="#3a2a18" />
               </>
             )}
           </svg>
@@ -252,7 +261,7 @@ export const GoGame: React.FC<GoGameProps> = ({
                     {/* Placed Stone */}
                     {stone && (
                       <div
-                        className={`w-[85%] h-[85%] rounded-full shadow-lg transition-transform ${
+                        className={`w-[88%] h-[88%] rounded-full shadow-lg transition-transform flex items-center justify-center ${
                           stone === 'B'
                             ? 'bg-gradient-to-br from-stone-800 to-stone-950 border border-stone-700'
                             : 'bg-gradient-to-br from-white to-stone-200 border border-stone-300'
@@ -262,7 +271,7 @@ export const GoGame: React.FC<GoGameProps> = ({
                       >
                         {/* Highlight dot for last placed stone */}
                         {isLastMove && (
-                          <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mx-auto mt-1" />
+                          <div className={`w-2 h-2 rounded-full ${stone === 'B' ? 'bg-amber-400' : 'bg-amber-500'} shadow-sm`} />
                         )}
                       </div>
                     )}

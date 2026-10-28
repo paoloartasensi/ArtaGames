@@ -132,51 +132,104 @@ export const GooseGame: React.FC<GooseGameProps> = ({
     }, 80);
   };
 
-  const applyRoll = (dice: number) => {
+  const applyRoll = async (dice: number) => {
     setIsMoving(true);
-    const currentPos = gameState.positions[activeTurn];
-    const { finalPos, message, specialType } = calculateGooseMove(currentPos, dice);
+    const startPos = gameState.positions[activeTurn];
 
-    // Play hop sound
-    sound.playMove();
+    // Build the sequential list of tiles to step on
+    const steps: number[] = [];
+    let curr = startPos;
+    let forward = true;
 
-    setTimeout(() => {
-      sound.playStone();
-      if (specialType === 'goose' || specialType === 'spring' || specialType === 'bridge') {
-        sound.playCapture();
-      } else if (specialType === 'inn' || specialType === 'well') {
-        sound.playMiss();
+    for (let i = 0; i < dice; i++) {
+      if (forward) {
+        if (curr < GOOSE_BOARD_SIZE) {
+          curr += 1;
+        } else {
+          // Bounced off end
+          curr -= 1;
+          forward = false;
+        }
+      } else {
+        curr -= 1;
+      }
+      steps.push(curr);
+    }
+
+    // Step-by-step animation for initial dice roll
+    for (const stepTile of steps) {
+      await new Promise((r) => setTimeout(r, 220));
+      sound.playMove();
+      setGameState((prev) => {
+        const nextPos = [...prev.positions] as [number, number];
+        nextPos[activeTurn] = stepTile;
+        return { ...prev, positions: nextPos };
+      });
+    }
+
+    const firstLanding = steps[steps.length - 1];
+
+    // Check special tile at first landing
+    const { finalPos, message, specialType } = calculateGooseMove(startPos, dice);
+
+    if (finalPos !== firstLanding) {
+      // Need a second movement (e.g. Oca double jump, Bridge to 12, Spring +3)
+      await new Promise((r) => setTimeout(r, 450));
+      sound.playCapture();
+      setGameState((prev) => ({ ...prev, lastSpecialMessage: message }));
+
+      // Animate secondary jump step-by-step
+      const secondarySteps: number[] = [];
+      let sCurr = firstLanding;
+      const sDir = finalPos > firstLanding ? 1 : -1;
+      while (sCurr !== finalPos) {
+        sCurr += sDir;
+        secondarySteps.push(sCurr);
       }
 
-      setGameState((prev) => {
-        const newPositions = [...prev.positions] as [number, number];
-        const newSkips = [...prev.skipTurns] as [number, number];
-        newPositions[activeTurn] = finalPos;
+      for (const sTile of secondarySteps) {
+        await new Promise((r) => setTimeout(r, 180));
+        sound.playMove();
+        setGameState((prev) => {
+          const nextPos = [...prev.positions] as [number, number];
+          nextPos[activeTurn] = sTile;
+          return { ...prev, positions: nextPos };
+        });
+      }
+    } else {
+      if (specialType === 'inn' || specialType === 'well') {
+        sound.playMiss();
+      } else if (finalPos === GOOSE_BOARD_SIZE) {
+        sound.playWin();
+      } else {
+        sound.playStone();
+      }
+    }
 
-        if (specialType === 'inn' || specialType === 'well') {
-          newSkips[activeTurn] = 1;
-        }
+    const isWin = finalPos === GOOSE_BOARD_SIZE;
+    if (isWin) {
+      sound.playWin();
+    }
 
-        const isWin = finalPos === GOOSE_BOARD_SIZE;
-        if (isWin) {
-          sound.playWin();
-        }
+    setGameState((prev) => {
+      const newSkips = [...prev.skipTurns] as [number, number];
+      if (specialType === 'inn' || specialType === 'well') {
+        newSkips[activeTurn] = 1;
+      }
 
-        return {
-          ...prev,
-          positions: newPositions,
-          skipTurns: newSkips,
-          lastDice: dice,
-          turn: isWin ? activeTurn : activeTurn === 0 ? 1 : 0,
-          gameOver: isWin,
-          winner: isWin ? activeTurn : null,
-          lastSpecialMessage: message,
-        };
-      });
+      return {
+        ...prev,
+        skipTurns: newSkips,
+        lastDice: dice,
+        turn: isWin ? activeTurn : activeTurn === 0 ? 1 : 0,
+        gameOver: isWin,
+        winner: isWin ? activeTurn : null,
+        lastSpecialMessage: message,
+      };
+    });
 
-      setIsMoving(false);
-      isBotThinkingRef.current = false;
-    }, 600);
+    setIsMoving(false);
+    isBotThinkingRef.current = false;
   };
 
   const handleRestart = () => {

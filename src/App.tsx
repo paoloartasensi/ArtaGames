@@ -32,6 +32,9 @@ import { AbaloneGame } from './games/abalone/AbaloneGame';
 import { GuessWhoGame } from './games/guesswho/GuessWhoGame';
 import { GooseGame } from './games/goose/GooseGame';
 import { SimonGame } from './games/simon/SimonGame';
+import { UnoGame } from './games/uno/UnoGame';
+import { TetrisGame } from './games/tetris/TetrisGame';
+import { PacmanGame } from './games/pacman/PacmanGame';
 
 function AppContent() {
   const { theme } = useTheme();
@@ -287,6 +290,39 @@ function AppContent() {
 
               {activeGameId === 'simon' && (
                 <SimonGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'uno' && (
+                <UnoGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'tetris' && (
+                <TetrisGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'pacman' && (
+                <PacmanGame
                   key={gameKey}
                   playMode={playMode}
                   difficulty={difficulty}
