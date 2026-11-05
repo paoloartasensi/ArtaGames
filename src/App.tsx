@@ -356,7 +356,7 @@ function AppContent() {
   }
 
   return (
-    <div className={`min-h-screen flex flex-col ${theme.bgMain} ${theme.textPrimary}`}>
+    <div className={`fixed inset-0 overflow-hidden flex flex-col ${theme.bgMain} ${theme.textPrimary}`}>
       {/* Top Bar Header */}
       <Header
         activeGameId={activeGameId}
@@ -367,7 +367,7 @@ function AppContent() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-5xl mx-auto px-3 sm:px-6 py-4 flex flex-col justify-start">
+      <main className="flex-1 min-h-0 w-full max-w-6xl mx-auto px-3 sm:px-6 pt-1 pb-safe flex flex-col">
         <GameSelector
           onSelectGame={handleSelectGame}
           activeGameId={activeGameId}

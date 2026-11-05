@@ -56,10 +56,12 @@ class ScreenShieldService {
         } catch {}
       });
 
-      document.addEventListener('fullscreenchange', () => {
-        this.isFullscreen = !!document.fullscreenElement;
+      const onFsChange = () => {
+        this.isFullscreen = !!this.getFullscreenElement();
         this.notify();
-      });
+      };
+      document.addEventListener('fullscreenchange', onFsChange);
+      document.addEventListener('webkitfullscreenchange', onFsChange);
 
       // Handle visibility change to re-acquire wake lock if page was backgrounded
       document.addEventListener('visibilitychange', () => {
@@ -172,11 +174,23 @@ class ScreenShieldService {
     return this.gestureShieldActive;
   }
 
+  private getFullscreenElement(): Element | null {
+    const doc = document as Document & { webkitFullscreenElement?: Element | null };
+    return document.fullscreenElement || doc.webkitFullscreenElement || null;
+  }
+
+  /** True when the browser can go fullscreen (iPhone Safari and iOS < 12 cannot). */
+  public isFullscreenSupported(): boolean {
+    if (typeof document === 'undefined') return false;
+    const root = document.documentElement as HTMLElement & { webkitRequestFullscreen?: unknown };
+    return typeof root.requestFullscreen === 'function' || typeof root.webkitRequestFullscreen === 'function';
+  }
+
   public async toggleFullscreen(): Promise<boolean> {
     if (typeof document === 'undefined') return false;
 
     try {
-      if (!document.fullscreenElement) {
+      if (!this.getFullscreenElement()) {
         const root = document.documentElement as unknown as {
           requestFullscreen?: () => Promise<void>;
           webkitRequestFullscreen?: () => Promise<void>;
@@ -188,8 +202,11 @@ class ScreenShieldService {
         }
         this.isFullscreen = true;
       } else {
+        const doc = document as Document & { webkitExitFullscreen?: () => Promise<void> };
         if (document.exitFullscreen) {
           await document.exitFullscreen();
+        } else if (doc.webkitExitFullscreen) {
+          await doc.webkitExitFullscreen();
         }
         this.isFullscreen = false;
       }

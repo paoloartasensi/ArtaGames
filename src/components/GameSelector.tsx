@@ -1,7 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useLayoutEffect } from 'react';
 import { GameId, ALL_GAMES } from '../games/registry';
-import { Dices, RotateCw } from 'lucide-react';
-import { clearCacheAndReload } from '../utils/cacheManager';
+import { Dices } from 'lucide-react';
 
 interface GameSelectorProps {
   onSelectGame: (id: GameId) => void;
@@ -62,161 +61,156 @@ const GAME_THEMES: Record<GameId, { bgGradient: string; borderDark: string; sub:
   pacman: { bgGradient: 'from-[#eab308] to-[#ca8a04]', borderDark: '#a16207', sub: 'Pac-Man Arcade' },
 };
 
+const CATEGORIES: { id: string; label: string; ids?: GameId[] }[] = [
+  { id: 'all', label: 'TUTTI' },
+  { id: 'classic', label: 'CLASSICI', ids: ['ludo', 'checkers', 'chess', 'snakes', 'domino', 'guesswho', 'goose', 'uno', 'tetris'] },
+  { id: 'strategy', label: 'STRATEGIA', ids: ['connect4', 'go', 'reversi', 'quarto', 'morris', 'abalone'] },
+  { id: 'quick', label: 'RAPIDI 1v1', ids: ['tictactoe', 'dotsboxes', 'memory', 'nim', 'battleship', 'gomoku', 'simon', 'pacman'] },
+];
+
+const GAP = 10;
+
+/**
+ * Picks the column count that makes every tile as large as possible while
+ * keeping ALL tiles visible in the available area (no page scroll).
+ */
+function computeLayout(count: number, width: number, height: number) {
+  let best = { cols: 1, tileW: 0, tileH: 0 };
+  let bestScore = -1;
+  for (let cols = 1; cols <= count; cols++) {
+    const rows = Math.ceil(count / cols);
+    const tileW = (width - (cols - 1) * GAP) / cols;
+    const tileH = (height - (rows - 1) * GAP) / rows;
+    if (tileW <= 0 || tileH <= 0) continue;
+    // Prefer tiles close to square: each side is only useful up to ~1.15x the other
+    const score = Math.min(tileW, tileH * 1.15) * Math.min(tileH, tileW * 1.15);
+    if (score > bestScore) {
+      bestScore = score;
+      best = { cols, tileW, tileH };
+    }
+  }
+  return best;
+}
+
 export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, activeGameId }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [isReloading, setIsReloading] = useState(false);
-
-  const handleReload = async () => {
-    setIsReloading(true);
-    await clearCacheAndReload();
-  };
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [area, setArea] = useState({ w: 0, h: 0 });
 
   const filteredGames = useMemo(() => {
-    if (selectedCategory === 'all') return ALL_GAMES;
-    if (selectedCategory === 'classic') {
-      return ALL_GAMES.filter((g) => ['ludo', 'checkers', 'chess', 'snakes', 'domino', 'guesswho', 'goose', 'uno', 'tetris'].includes(g.id));
-    }
-    if (selectedCategory === 'strategy') {
-      return ALL_GAMES.filter((g) => ['connect4', 'go', 'reversi', 'quarto', 'morris', 'abalone'].includes(g.id));
-    }
-    if (selectedCategory === 'quick') {
-      return ALL_GAMES.filter((g) => ['tictactoe', 'dotsboxes', 'memory', 'nim', 'battleship', 'gomoku', 'simon', 'pacman'].includes(g.id));
-    }
-    return ALL_GAMES;
+    const cat = CATEGORIES.find((c) => c.id === selectedCategory);
+    if (!cat || !cat.ids) return ALL_GAMES;
+    const ids = cat.ids;
+    return ALL_GAMES.filter((g) => ids.indexOf(g.id) !== -1);
   }, [selectedCategory]);
+
+  // Measure the tile area on resize/rotation (no ResizeObserver: old iPads lack it)
+  useLayoutEffect(() => {
+    const measure = () => {
+      const el = gridRef.current;
+      if (!el) return;
+      setArea({ w: el.clientWidth, h: el.clientHeight });
+    };
+    measure();
+    const delayed = () => {
+      measure();
+      setTimeout(measure, 250);
+    };
+    window.addEventListener('resize', delayed);
+    window.addEventListener('orientationchange', delayed);
+    return () => {
+      window.removeEventListener('resize', delayed);
+      window.removeEventListener('orientationchange', delayed);
+    };
+  }, []);
 
   const handleRandomGame = () => {
     const randomIndex = Math.floor(Math.random() * ALL_GAMES.length);
     onSelectGame(ALL_GAMES[randomIndex].id);
   };
 
+  const { cols, tileW, tileH } = computeLayout(filteredGames.length, area.w, area.h);
+  const side = Math.min(tileW, tileH);
+  const emojiSize = Math.max(18, Math.min(side * 0.42, 84));
+  const titleSize = Math.max(10, Math.min(side * 0.13, 22));
+  const showSub = tileH >= 120 && tileW >= 110;
+  const showBadges = tileH >= 150 && tileW >= 130;
+  const radius = Math.max(12, Math.min(side * 0.16, 30));
+
   return (
-    <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 pt-2 pb-28 select-none">
-      
-      {/* Category Pills (Offline Games horizontal filter) */}
-      <div className="flex items-center gap-2 overflow-x-auto py-3 px-1 no-scrollbar mb-4">
-        <button
-          onClick={() => setSelectedCategory('all')}
-          className={`px-4 py-2 rounded-2xl text-xs font-black tracking-wide shrink-0 transition-all border-2 ${
-            selectedCategory === 'all'
-              ? 'bg-amber-500 border-stone-900 text-stone-950 shadow-md scale-105'
-              : 'bg-white/10 dark:bg-white/5 border-transparent text-stone-600 dark:text-stone-300 hover:bg-white/20'
-          }`}
-        >
-          TUTTI ({ALL_GAMES.length})
-        </button>
-
-        <button
-          onClick={() => setSelectedCategory('classic')}
-          className={`px-4 py-2 rounded-2xl text-xs font-black tracking-wide shrink-0 transition-all border-2 ${
-            selectedCategory === 'classic'
-              ? 'bg-amber-500 border-stone-900 text-stone-950 shadow-md scale-105'
-              : 'bg-white/10 dark:bg-white/5 border-transparent text-stone-600 dark:text-stone-300 hover:bg-white/20'
-          }`}
-        >
-          CLASSICI
-        </button>
-
-        <button
-          onClick={() => setSelectedCategory('strategy')}
-          className={`px-4 py-2 rounded-2xl text-xs font-black tracking-wide shrink-0 transition-all border-2 ${
-            selectedCategory === 'strategy'
-              ? 'bg-amber-500 border-stone-900 text-stone-950 shadow-md scale-105'
-              : 'bg-white/10 dark:bg-white/5 border-transparent text-stone-600 dark:text-stone-300 hover:bg-white/20'
-          }`}
-        >
-          STRATEGIA
-        </button>
-
-        <button
-          onClick={() => setSelectedCategory('quick')}
-          className={`px-4 py-2 rounded-2xl text-xs font-black tracking-wide shrink-0 transition-all border-2 ${
-            selectedCategory === 'quick'
-              ? 'bg-amber-500 border-stone-900 text-stone-950 shadow-md scale-105'
-              : 'bg-white/10 dark:bg-white/5 border-transparent text-stone-600 dark:text-stone-300 hover:bg-white/20'
-          }`}
-        >
-          RAPIDI 1v1
-        </button>
-      </div>
-
-      {/* Chunky Toy-Box 2-Column Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-5">
-        {filteredGames.map((game) => {
-          const theme = GAME_THEMES[game.id] || {
-            bgGradient: 'from-sky-500 to-blue-600',
-            borderDark: '#0369a1',
-            sub: game.title,
-          };
-          const isSelected = activeGameId === game.id;
-
-          return (
-            <button
-              key={game.id}
-              onClick={() => onSelectGame(game.id)}
-              style={{
-                borderColor: theme.borderDark,
-              }}
-              className={`relative flex flex-col items-center justify-between p-4 sm:p-5 rounded-[30px] bg-gradient-to-b ${theme.bgGradient} text-white shadow-xl border-b-[6px] border-x border-t border-black/15 active:border-b-0 active:translate-y-1.5 transition-all overflow-hidden cursor-pointer group min-h-[190px] sm:min-h-[220px] ${
-                isSelected ? 'ring-4 ring-amber-300' : ''
-              }`}
-            >
-              {/* Badges bar */}
-              <div className="w-full flex justify-between items-center z-10">
-                <span className="text-[11px] font-black uppercase px-2.5 py-0.5 rounded-full bg-black/25 text-white/90 shadow-inner">
-                  {game.minAge}
-                </span>
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-black/20 text-white/90">
-                  2P
-                </span>
-              </div>
-
-              {/* Giant 3D Toy Emoji */}
-              <span className="text-6xl sm:text-7xl drop-shadow-lg my-1 group-hover:scale-110 transition-transform select-none">
-                {GAME_EMOJIS[game.id]}
-              </span>
-
-              {/* Giant Title & Subtitle */}
-              <div className="text-center w-full z-10">
-                <h3 className="text-lg sm:text-xl font-black tracking-tight text-white drop-shadow-md leading-tight">
-                  {game.title}
-                </h3>
-                <p className="text-[11px] sm:text-xs font-bold text-white/80 line-clamp-1 mt-0.5">
-                  {theme.sub}
-                </p>
-              </div>
-
-              {/* Subtle top shine overlay */}
-              <div className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/20 to-transparent pointer-events-none rounded-t-[30px]" />
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Cache reset helper */}
-      <div className="mt-8 mb-16 text-center">
-        <button
-          onClick={handleReload}
-          disabled={isReloading}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 text-xs font-bold border border-black/5 dark:border-white/10 transition-all active:scale-95 cursor-pointer shadow-sm"
-          title="Elimina i file temporanei memorizzati e ricarica"
-        >
-          <RotateCw className={`w-3.5 h-3.5 ${isReloading ? 'animate-spin text-amber-500' : ''}`} />
-          <span>{isReloading ? 'Aggiornamento in corso...' : 'Non vedi le novità? Svuota cache e ricarica'}</span>
-        </button>
-      </div>
-
-      {/* Floating Bottom Action: "SCEGLI UN GIOCO A CASO" (Caratteristica Offline Games!) */}
-      <div className="fixed bottom-5 left-0 right-0 z-40 px-4 max-w-sm mx-auto pointer-events-none">
+    <div className="w-full h-full flex flex-col min-h-0 select-none">
+      {/* Category pills + random game */}
+      <div className="flex items-center gap-2 overflow-x-auto py-2 px-1 no-scrollbar shrink-0">
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => setSelectedCategory(cat.id)}
+            className={`px-3 sm:px-4 py-2 rounded-2xl text-xs font-black tracking-wide shrink-0 transition-all border-2 ${
+              selectedCategory === cat.id
+                ? 'bg-amber-500 border-stone-900 text-stone-950 shadow-md'
+                : 'bg-white/10 dark:bg-white/5 border-transparent text-stone-600 dark:text-stone-300 hover:bg-white/20'
+            }`}
+          >
+            {cat.id === 'all' ? `${cat.label} (${ALL_GAMES.length})` : cat.label}
+          </button>
+        ))}
         <button
           onClick={handleRandomGame}
-          className="w-full pointer-events-auto py-4 px-6 rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:brightness-110 border-b-[5px] border-stone-900 border-2 shadow-2xl flex items-center justify-center gap-2.5 text-stone-950 font-black text-base tracking-wider active:border-b-2 active:translate-y-1 transition-all cursor-pointer"
+          className="ml-auto shrink-0 px-3 sm:px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 border-2 border-stone-900 text-stone-950 font-black text-xs tracking-wide shadow-md flex items-center gap-1.5 active:scale-95 transition-transform"
         >
-          <Dices className="w-6 h-6 stroke-[2.5]" />
-          <span>GIOCO A CASO</span>
+          <Dices className="w-4 h-4 stroke-[2.5]" />
+          <span>A CASO</span>
         </button>
       </div>
 
+      {/* Fit-to-screen tile area: every game always visible, no scrolling */}
+      <div ref={gridRef} className="flex-1 min-h-0 w-full overflow-hidden mt-1">
+        {area.w > 0 && (
+          <div className="flex flex-wrap content-start" style={{ margin: -GAP / 2 }}>
+            {filteredGames.map((game) => {
+              const theme = GAME_THEMES[game.id] || {
+                bgGradient: 'from-sky-500 to-blue-600',
+                borderDark: '#0369a1',
+                sub: game.title,
+              };
+              const isSelected = activeGameId === game.id;
+
+              return (
+                <div key={game.id} style={{ width: `${100 / cols}%`, height: tileH + GAP, padding: GAP / 2 }}>
+                  <button
+                    onClick={() => onSelectGame(game.id)}
+                    style={{ borderColor: theme.borderDark, borderRadius: radius }}
+                    className={`relative w-full h-full flex flex-col items-center justify-center p-1.5 bg-gradient-to-b ${theme.bgGradient} text-white shadow-lg border-b-4 border-x border-t border-black/15 active:border-b-0 active:translate-y-1 transition-all overflow-hidden cursor-pointer ${
+                      isSelected ? 'ring-4 ring-amber-300' : ''
+                    }`}
+                  >
+                    {showBadges && (
+                      <span className="absolute top-2 left-2 text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-black/25 text-white/90">
+                        {game.minAge}
+                      </span>
+                    )}
+                    <span className="drop-shadow-lg leading-none select-none" style={{ fontSize: emojiSize }}>
+                      {GAME_EMOJIS[game.id]}
+                    </span>
+                    <span
+                      className="font-black tracking-tight text-white drop-shadow-md leading-tight text-center w-full truncate mt-1"
+                      style={{ fontSize: titleSize }}
+                    >
+                      {game.title}
+                    </span>
+                    {showSub && (
+                      <span className="text-[11px] font-bold text-white/80 truncate w-full text-center">
+                        {theme.sub}
+                      </span>
+                    )}
+                    <div className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

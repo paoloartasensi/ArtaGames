@@ -75,8 +75,8 @@ export function createInitialUnoState(): UnoState {
   const p1Hand = fullDeck.splice(0, 7);
   const p2Hand = fullDeck.splice(0, 7);
 
-  // Find a non-wild starting card for top of discard pile
-  let starterIndex = fullDeck.findIndex((c) => c.color !== 'wild');
+  // Find a plain number card as starter (no action/wild effects at start) for top of discard pile
+  let starterIndex = fullDeck.findIndex((c) => c.color !== 'wild' && NUMBERS.includes(c.value));
   if (starterIndex === -1) starterIndex = 0;
   const starterCard = fullDeck.splice(starterIndex, 1)[0];
 
@@ -141,7 +141,6 @@ export function playCardAction(
   if (state.gameOver || state.currentColorChooser !== null) return null;
 
   const currentPlayer = state.turn;
-  const nextPlayer: 0 | 1 = currentPlayer === 0 ? 1 : 0;
   const hand = state.hands[currentPlayer];
   const cardIndex = hand.findIndex((c) => c.id === cardId);
   if (cardIndex === -1) return null;
@@ -157,87 +156,110 @@ export function playCardAction(
   const newHand = [...hand];
   newHand.splice(cardIndex, 1);
 
-  const newHands: [UnoCard[], UnoCard[]] = [...state.hands];
+  const newHands: [UnoCard[], UnoCard[]] = [state.hands[0], state.hands[1]];
   newHands[currentPlayer] = newHand;
 
-  const newDiscard = [...state.discardPile, card];
+  const afterPlay: UnoState = {
+    ...state,
+    hands: newHands,
+    discardPile: [...state.discardPile, card],
+  };
 
   // Check victory!
   if (newHand.length === 0) {
     return {
-      ...state,
-      hands: newHands,
-      discardPile: newDiscard,
+      ...afterPlay,
       gameOver: true,
       winner: currentPlayer,
       lastActionMessage: `🏆 ${currentPlayer === 0 ? 'Hai vinto la partita!' : "L'avversario ha vinto la partita!"}`,
     };
   }
 
-  // Handle Wild cards needing color choice
+  // Wild cards need a color choice before their effect is applied
   if (card.color === 'wild' && !chosenColor) {
     return {
-      ...state,
-      hands: newHands,
-      discardPile: newDiscard,
+      ...afterPlay,
       currentColorChooser: currentPlayer,
       lastActionMessage: 'Hai giocato una carta speciale! Scegli il nuovo colore!',
     };
   }
 
-  let activeColor = chosenColor || (card.color as 'red' | 'yellow' | 'green' | 'blue');
-  let nextTurn = nextPlayer;
-  let message = '';
-  let updatedDeck = [...state.deck];
-  const otherHand = [...newHands[nextPlayer]];
+  return applyCardEffect(afterPlay, card, chosenColor);
+}
 
-  // Action cards effect
+/**
+ * Completes a wild card played without a color: sets the color and applies its effect
+ * (a +4 makes the opponent draw 4 and skip the turn).
+ */
+export function chooseColorAction(
+  state: UnoState,
+  chosenColor: 'red' | 'yellow' | 'green' | 'blue'
+): UnoState {
+  if (state.currentColorChooser === null) return state;
+  return applyCardEffect({ ...state, currentColorChooser: null }, getTopCard(state), chosenColor);
+}
+
+function drawInto(state: UnoState, player: 0 | 1, count: number): UnoState {
+  const refilled = ensureDeckHasCards(state, count);
+  const deck = [...refilled.deck];
+  const drawn = deck.splice(0, count);
+  const hands: [UnoCard[], UnoCard[]] = [refilled.hands[0], refilled.hands[1]];
+  hands[player] = [...hands[player], ...drawn];
+  return { ...refilled, deck, hands };
+}
+
+/**
+ * Applies the effect of `card` (already moved to the discard pile) for the current player.
+ */
+function applyCardEffect(
+  state: UnoState,
+  card: UnoCard,
+  chosenColor?: 'red' | 'yellow' | 'green' | 'blue'
+): UnoState {
+  const currentPlayer = state.turn;
+  const nextPlayer: 0 | 1 = currentPlayer === 0 ? 1 : 0;
+  const activeColor = card.color === 'wild' ? chosenColor || state.activeColor : card.color;
+  const opponentLabel = nextPlayer === 0 ? 'Il Giocatore 1' : "L'avversario";
+
+  let next = state;
+  let nextTurn: 0 | 1 = nextPlayer;
+  let message: string;
+
   if (card.value === 'draw2') {
-    // Next player draws 2 and is skipped
-    state = ensureDeckHasCards({ ...state, deck: updatedDeck, discardPile: newDiscard }, 2);
-    updatedDeck = [...state.deck];
-    const drawn = updatedDeck.splice(0, 2);
-    otherHand.push(...drawn);
-    newHands[nextPlayer] = otherHand;
+    next = drawInto(next, nextPlayer, 2);
     nextTurn = currentPlayer; // skipped, so turn returns to current
-    message = `+2! ${nextPlayer === 0 ? 'Il Giocatore 1' : "L'avversario"} pesca 2 carte e salta il turno!`;
+    message = `+2! ${opponentLabel} pesca 2 carte e salta il turno!`;
   } else if (card.value === 'skip') {
     nextTurn = currentPlayer; // in 2 players, skip gives turn back to current player
-    message = `🚫 Salto turno! Tocca di nuovo a te!`;
+    message = `🚫 Salto turno! Si gioca ancora!`;
   } else if (card.value === 'reverse') {
     nextTurn = currentPlayer; // in 2 players, reverse acts like a skip
-    message = `🔁 Cambio giro! Giochi ancora tu!`;
+    message = `🔁 Cambio giro! Si gioca ancora!`;
   } else if (card.value === 'wild4') {
-    // Next player draws 4 and is skipped
-    state = ensureDeckHasCards({ ...state, deck: updatedDeck, discardPile: newDiscard }, 4);
-    updatedDeck = [...state.deck];
-    const drawn = updatedDeck.splice(0, 4);
-    otherHand.push(...drawn);
-    newHands[nextPlayer] = otherHand;
+    next = drawInto(next, nextPlayer, 4);
     nextTurn = currentPlayer; // skipped
-    message = `🌈 +4! ${nextPlayer === 0 ? 'Il Giocatore 1' : "L'avversario"} pesca 4 carte e il colore diventa ${colorName(activeColor)}!`;
+    message = `🌈 +4! ${opponentLabel} pesca 4 carte e salta il turno. Colore: ${colorName(activeColor)}!`;
   } else if (card.value === 'wild') {
     message = `🌈 Colore cambiato in ${colorName(activeColor)}!`;
   } else {
-    message = `${currentPlayer === 0 ? 'Hai giocato' : "L'avversario ha giocato"} ${cardName(card)}.`;
+    message = `${currentPlayer === 0 ? 'Giocatore 1 ha giocato' : "L'avversario ha giocato"} ${cardName(card)}.`;
   }
 
-  // Check UNO announcement
-  const calledUno = [...state.calledUno] as [boolean, boolean];
-  let unoAlert = state.unoAlert;
-
-  if (newHand.length === 1) {
+  // UNO announcement (automatic for kids) and reset when hands grow again
+  const calledUno = [...next.calledUno] as [boolean, boolean];
+  let unoAlert = next.unoAlert;
+  const myCount = next.hands[currentPlayer].length;
+  if (myCount === 1) {
     calledUno[currentPlayer] = true;
-    unoAlert = `🎉 ${currentPlayer === 0 ? 'Hai gridato' : "L'avversario grida"} UNO! Ultima carta!`;
-  } else if (newHand.length > 1) {
+    unoAlert = `🎉 ${currentPlayer === 0 ? 'Giocatore 1 grida' : "L'avversario grida"} UNO! Ultima carta!`;
+  } else {
     calledUno[currentPlayer] = false;
   }
+  if (next.hands[nextPlayer].length > 1) calledUno[nextPlayer] = false;
+  if (!calledUno[0] && !calledUno[1]) unoAlert = null;
 
   return {
-    ...state,
-    deck: updatedDeck,
-    discardPile: newDiscard,
-    hands: newHands,
+    ...next,
     turn: nextTurn,
     activeColor,
     currentColorChooser: null,
@@ -253,25 +275,21 @@ export function playCardAction(
 export function drawCardAction(state: UnoState): UnoState {
   if (state.gameOver || state.currentColorChooser !== null) return state;
 
-  state = ensureDeckHasCards(state, 1);
-  if (state.deck.length === 0) return state;
-
   const currentPlayer = state.turn;
   const nextPlayer: 0 | 1 = currentPlayer === 0 ? 1 : 0;
-  const newDeck = [...state.deck];
-  const drawnCard = newDeck.shift()!;
+  const after = drawInto(state, currentPlayer, 1);
+  if (after.hands[currentPlayer].length === state.hands[currentPlayer].length) return state;
 
-  const newHand = [...state.hands[currentPlayer], drawnCard];
-  const newHands: [UnoCard[], UnoCard[]] = [...state.hands];
-  newHands[currentPlayer] = newHand;
+  const calledUno = [...after.calledUno] as [boolean, boolean];
+  calledUno[currentPlayer] = false;
 
   // Pass turn to next player
   return {
-    ...state,
-    deck: newDeck,
-    hands: newHands,
+    ...after,
     turn: nextPlayer,
-    lastActionMessage: `${currentPlayer === 0 ? 'Hai pescato' : "L'avversario ha pescato"} una carta.`,
+    calledUno,
+    unoAlert: calledUno[0] || calledUno[1] ? after.unoAlert : null,
+    lastActionMessage: `${currentPlayer === 0 ? 'Giocatore 1 ha pescato' : "L'avversario ha pescato"} una carta.`,
   };
 }
 

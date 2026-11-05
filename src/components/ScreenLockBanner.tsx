@@ -58,12 +58,12 @@ export const ScreenLockBanner: React.FC = () => {
       </AnimatePresence>
 
       {/* Floating Mini Controls for Tablet / Mobile */}
-      <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/10 dark:bg-white/10 backdrop-blur-md border border-white/10 text-xs">
+      <div className="flex items-center gap-1 p-1 rounded-xl shrink-0 bg-black/10 dark:bg-white/10 backdrop-blur-md border border-white/10 text-xs">
         {/* Gesture Shield Button */}
         <button
           onClick={handleToggleShield}
           title={shieldState.isGestureShieldActive ? 'Blocco swipe attivo (protegge da uscite involontarie)' : 'Attiva blocco swipe'}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-medium transition-all min-h-[36px] ${
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-medium transition-all min-h-[40px] ${
             shieldState.isGestureShieldActive
               ? 'bg-emerald-600 text-white shadow-sm'
               : isDark
@@ -85,7 +85,7 @@ export const ScreenLockBanner: React.FC = () => {
         <button
           onClick={handleToggleWakeLock}
           title={shieldState.isWakeLocked ? 'Schermo Sempre Acceso ATTIVO' : 'Mantieni Schermo Acceso'}
-          className={`p-1.5 rounded-lg transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center ${
+          className={`p-1.5 rounded-lg transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center ${
             shieldState.isWakeLocked
               ? 'bg-amber-600 text-white'
               : isDark
@@ -96,16 +96,24 @@ export const ScreenLockBanner: React.FC = () => {
           <Eye className="w-4 h-4" />
         </button>
 
-        {/* Fullscreen Button */}
-        <button
-          onClick={handleToggleFullscreen}
-          title="Schermo Intero"
-          className={`p-1.5 rounded-lg transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center ${
-            isDark ? 'text-slate-400 hover:text-white' : 'text-stone-600 hover:text-black'
-          }`}
-        >
-          {shieldState.isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-        </button>
+        {/* Fullscreen Button (hidden where the Fullscreen API is missing, e.g. iPhone / old iPad) */}
+        {screenShield.isFullscreenSupported() && (
+          <button
+            onClick={handleToggleFullscreen}
+            title="Schermo Intero"
+            aria-label="Schermo Intero"
+            className={`px-2.5 rounded-lg transition-colors min-h-[40px] min-w-[44px] flex items-center justify-center gap-1.5 font-bold ${
+              shieldState.isFullscreen
+                ? isDark
+                  ? 'bg-slate-700 text-white'
+                  : 'bg-stone-700 text-white'
+                : 'bg-amber-500 text-stone-950 shadow-sm'
+            }`}
+          >
+            {shieldState.isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+            <span className="hidden md:inline">{shieldState.isFullscreen ? 'Esci' : 'Schermo intero'}</span>
+          </button>
+        )}
       </div>
     </>
   );

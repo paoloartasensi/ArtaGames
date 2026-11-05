@@ -9,6 +9,7 @@ import {
   applyCheckersMove,
   getBotCheckersMove,
   isPieceOfCurrentPlayer,
+  getForcedCapturePieces,
 } from './checkersEngine';
 import { useTheme } from '../../theme/themeContext';
 import { getTurnColor } from '../../utils/turnColor';
@@ -139,6 +140,8 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
   const lastMove = gameState.moveHistory[gameState.moveHistory.length - 1];
   const moveKey = gameState.moveHistory.length;
   const isCapture = !!lastMove && Math.abs(lastMove.toR - lastMove.fromR) === 2;
+  const humanTurn = !gameState.gameOver && !(playMode === 'bot' && gameState.turn === 'b');
+  const forcedPieces = humanTurn ? getForcedCapturePieces(gameState) : [];
 
   return (
     <div className="flex flex-col items-center justify-between w-full max-w-[min(96vw,78vh)] mx-auto px-2 sm:px-4 flex-1 h-full min-h-0">
@@ -149,7 +152,7 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
         color="#1c1917"
         isCurrentTurn={gameState.turn === 'b' && !gameState.gameOver}
         isFlipped={playMode === 'local_pvp'}
-        score={`Pedine: ${12 - gameState.redCaptured}`}
+        score={`Pedine: ${12 - gameState.blackCaptured}`}
       />
 
       {/* 8x8 Board Container - Maximized to full screen viewport */}
@@ -166,6 +169,7 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
               const isSelected = gameState.selectedPiece?.r === r && gameState.selectedPiece?.c === c;
               const isValidTarget = gameState.validMoves.find((m) => m.toR === r && m.toC === c);
               const isCaptureTarget = isValidTarget?.captures;
+              const mustCapture = forcedPieces.some((p) => p.r === r && p.c === c);
 
               return (
                 <button
@@ -180,6 +184,11 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
                   {/* Selected square highlight */}
                   {isSelected && (
                     <div className="absolute inset-0 bg-amber-500/30 ring-2 ring-amber-400 inset-ring" />
+                  )}
+
+                  {/* Forced capture hint: pieces that must capture this turn */}
+                  {mustCapture && !isSelected && (
+                    <div className="absolute inset-0 z-30 pointer-events-none ring-4 ring-inset ring-red-500 animate-pulse" />
                   )}
 
                   {/* Valid move target dot / capture ring */}
@@ -248,8 +257,15 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
         color="#ef4444"
         isCurrentTurn={gameState.turn === 'r' && !gameState.gameOver}
         isFlipped={false}
-        score={`Pedine: ${12 - gameState.blackCaptured}`}
+        score={`Pedine: ${12 - gameState.redCaptured}`}
       />
+
+      {/* Mandatory capture hint */}
+      {forcedPieces.length > 0 && !gameState.activeJumpPiece && (
+        <div className="mt-1 text-xs font-black text-red-400 animate-pulse">
+          Devi mangiare! Tocca una pedina evidenziata in rosso.
+        </div>
+      )}
 
       {/* Bot Thinking indicator */}
       {isBotThinking && (
@@ -261,9 +277,17 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
       {/* Victory Modal */}
       <VictoryModal
         isOpen={gameState.gameOver}
-        winnerTitle={gameState.winner === 'r' ? 'Vince il Rosso! 🏆' : 'Vince il Nero! 🏆'}
+        winnerTitle={
+          gameState.winner === 'draw'
+            ? 'Patta! 🤝'
+            : gameState.winner === 'r'
+            ? 'Vince il Rosso! 🏆'
+            : 'Vince il Nero! 🏆'
+        }
         winnerSubtitle={
-          gameState.winner === 'r'
+          gameState.winner === 'draw'
+            ? 'Troppe mosse di sole dame senza catture: nessuno vince questa volta.'
+            : gameState.winner === 'r'
             ? playMode === 'bot'
               ? 'Bravissimo! Hai catturato tutte le pedine del BOT!'
               : 'Grandissima partita per il Giocatore 1!'

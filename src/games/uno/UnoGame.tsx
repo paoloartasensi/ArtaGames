@@ -11,6 +11,7 @@ import {
   createInitialUnoState,
   playCardAction,
   drawCardAction,
+  chooseColorAction,
   botPickMove,
   canPlayCard,
   getTopCard,
@@ -192,7 +193,7 @@ export const UnoGame: React.FC<UnoGameProps> = ({
 
       return () => clearTimeout(timer);
     }
-  }, [activeTurn, playMode, gameState.gameOver, gameState.currentColorChooser]);
+  }, [gameState, playMode]);
 
   // Player 1 or 2 plays card
   const handlePlayCard = (cardId: string) => {
@@ -219,29 +220,11 @@ export const UnoGame: React.FC<UnoGameProps> = ({
     }
   };
 
-  // Color picker selection for Wild cards
+  // Color picker selection for Wild cards (applies the card effect, e.g. +4)
   const handleSelectWildColor = (chosenColor: 'red' | 'yellow' | 'green' | 'blue') => {
     if (gameState.currentColorChooser === null) return;
     sound.playTick();
-
-    const chooser = gameState.currentColorChooser;
-    const nextPlayer: 0 | 1 = chooser === 0 ? 1 : 0;
-    const top = getTopCard(gameState);
-
-    let nextTurn = nextPlayer;
-    let message = `🌈 Colore cambiato in ${colorName(chosenColor)}!`;
-
-    if (top.value === 'wild4') {
-      message = `🌈 +4! ${nextPlayer === 0 ? 'Il Giocatore 1' : "L'avversario"} pesca 4 carte e il colore diventa ${colorName(chosenColor)}!`;
-    }
-
-    setGameState((prev) => ({
-      ...prev,
-      activeColor: chosenColor,
-      currentColorChooser: null,
-      turn: nextTurn,
-      lastActionMessage: message,
-    }));
+    setGameState((prev) => chooseColorAction(prev, chosenColor));
   };
 
   // Draw card from deck

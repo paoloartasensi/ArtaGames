@@ -36,47 +36,47 @@ export const Header: React.FC<HeaderProps> = ({
         isDark ? 'bg-black/60 border-white/10' : 'bg-white/80 border-black/10'
       }`}
     >
-      <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4 sm:gap-8">
+      <div className="max-w-6xl mx-auto px-2 sm:px-4 h-14 flex items-center justify-between gap-2 sm:gap-6 min-w-0">
         {/* Zone 1: Single text element wordmark */}
         <button
           onClick={onGoToCatalog}
           className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100 whitespace-nowrap shrink-0 flex items-center gap-2 text-left"
         >
           <Gamepad2 className="w-5 h-5 text-amber-500" />
-          <span>ArtaGames</span>
+          <span className="hidden sm:inline">ArtaGames</span>
         </button>
 
         {/* Zone 2: Concise single-line navigation links */}
-        <nav className="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
+        <nav className="flex items-center gap-1 sm:gap-4 min-w-0 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
           <button
             onClick={onGoToCatalog}
-            className={`hover:text-amber-500 transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+            className={`hover:text-amber-500 transition-colors whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 min-w-[40px] min-h-[40px] ${
               viewMode === 'catalog' ? 'text-amber-500 font-bold' : ''
             }`}
           >
-            <LayoutGrid className="w-3.5 h-3.5" />
-            <span>Catalogo Giochi</span>
+            <LayoutGrid className="w-5 h-5 lg:w-4 lg:h-4" />
+            <span className="hidden lg:inline">Catalogo Giochi</span>
           </button>
 
           <button
             onClick={onOpenRules}
-            className="hover:text-amber-500 transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5"
+            className="hover:text-amber-500 transition-colors whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 min-w-[40px] min-h-[40px]"
           >
-            <HelpCircle className="w-3.5 h-3.5" />
-            <span>Regole</span>
+            <HelpCircle className="w-5 h-5 lg:w-4 lg:h-4" />
+            <span className="hidden lg:inline">Regole</span>
           </button>
 
           <button
             onClick={onOpenTheme}
-            className="hover:text-amber-500 transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5"
+            className="hover:text-amber-500 transition-colors whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 min-w-[40px] min-h-[40px]"
           >
-            <Palette className="w-3.5 h-3.5" />
-            <span>Temi</span>
+            <Palette className="w-5 h-5 lg:w-4 lg:h-4" />
+            <span className="hidden lg:inline">Temi</span>
           </button>
         </nav>
 
         {/* Zone 3: 1 primary action / Screen lock toolbar */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           <button
             onClick={handleReload}
             disabled={isReloading}

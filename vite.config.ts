@@ -17,6 +17,35 @@ function fixLegacySafariSystemPlugin() {
   };
 }
 
+// Il chunk dei polyfill legacy viene costruito da plugin-legacy con rolldown, il cui
+// runtime CommonJS usa arrow function: Safari 9 (iPad datati, iOS 9) va in SyntaxError
+// e di conseguenza SystemJS non viene mai definito. Lo ritraspiliamo in ES5.
+const LEGACY_TARGETS = ['defaults', 'not IE 11', 'ios_saf >= 9', 'safari >= 9'];
+
+function transpileLegacyPolyfillsPlugin() {
+  return {
+    name: 'transpile-legacy-polyfills',
+    enforce: 'post' as const,
+    apply: 'build' as const,
+    async generateBundle(_opts: unknown, bundle: Record<string, any>) {
+      const { transformAsync } = await import('@babel/core');
+      for (const file of Object.values(bundle)) {
+        if (file.type !== 'chunk' || !/polyfills-legacy/.test(file.fileName)) continue;
+        const result = await transformAsync(file.code, {
+          babelrc: false,
+          configFile: false,
+          sourceType: 'script',
+          compact: true,
+          minified: true,
+          comments: false,
+          presets: [['@babel/preset-env', { targets: LEGACY_TARGETS, modules: false, useBuiltIns: false }]],
+        });
+        if (result?.code) file.code = result.code;
+      }
+    },
+  };
+}
+
 export default defineConfig(() => {
   return {
     base: '/ArtaGames/',
@@ -29,9 +58,10 @@ export default defineConfig(() => {
     plugins: [
       react(),
       legacy({
-        targets: ['defaults', 'not IE 11', 'ios_saf >= 10', 'safari >= 10'],
+        targets: LEGACY_TARGETS,
       }),
       fixLegacySafariSystemPlugin(),
+      transpileLegacyPolyfillsPlugin(),
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['icon.svg'],

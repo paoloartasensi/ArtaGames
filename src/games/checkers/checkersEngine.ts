@@ -22,7 +22,11 @@ export interface CheckersState {
   winner: 'r' | 'b' | 'draw' | null;
   activeJumpPiece: { r: number; c: number } | null; // For forced continuous jumps
   moveHistory: { fromR: number; fromC: number; toR: number; toC: number }[];
+  quietMoves: number; // consecutive king moves without captures (draw rule)
 }
+
+// Patta: 40 mosse consecutive (20 per giocatore) di sole dame senza catture.
+export const CHECKERS_DRAW_QUIET_MOVES = 40;
 
 export function createInitialCheckersState(): CheckersState {
   const board: CheckersPiece[][] = Array(8)
@@ -58,6 +62,7 @@ export function createInitialCheckersState(): CheckersState {
     winner: null,
     activeJumpPiece: null,
     moveHistory: [],
+    quietMoves: 0,
   };
 }
 
@@ -207,9 +212,16 @@ export function applyCheckersMove(state: CheckersState, move: CheckersMove): Che
   let gameOver = false;
   let winner: 'r' | 'b' | 'draw' | null = null;
 
+  // Captures and pawn moves reset the draw counter; king-only shuffling increments it
+  const isKingMove = piece === 'R' || piece === 'B';
+  const quietMoves = move.captures || !isKingMove ? 0 : state.quietMoves + 1;
+
   if (opponentMoves.length === 0) {
     gameOver = true;
     winner = state.turn;
+  } else if (quietMoves >= CHECKERS_DRAW_QUIET_MOVES) {
+    gameOver = true;
+    winner = 'draw';
   }
 
   return {
@@ -222,8 +234,25 @@ export function applyCheckersMove(state: CheckersState, move: CheckersMove): Che
     activeJumpPiece: null,
     gameOver,
     winner,
+    quietMoves,
     moveHistory: [...state.moveHistory, { fromR: move.fromR, fromC: move.fromC, toR: move.toR, toC: move.toC }],
   };
+}
+
+/** Pieces of the current player that are forced to capture (empty if no capture is available). */
+export function getForcedCapturePieces(state: CheckersState): { r: number; c: number }[] {
+  if (state.activeJumpPiece) return [state.activeJumpPiece];
+  const seen = new Set<string>();
+  const out: { r: number; c: number }[] = [];
+  for (const m of getAllMovesForPlayer(state.board, state.turn)) {
+    if (!m.captures) return [];
+    const k = `${m.fromR},${m.fromC}`;
+    if (!seen.has(k)) {
+      seen.add(k);
+      out.push({ r: m.fromR, c: m.fromC });
+    }
+  }
+  return out;
 }
 
 export function getBotCheckersMove(state: CheckersState, difficulty: Difficulty): CheckersMove | null {
