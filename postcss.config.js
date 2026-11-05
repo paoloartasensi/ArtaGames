@@ -19,10 +19,40 @@ const legacySafariCss = () => ({
 });
 legacySafariCss.postcss = true;
 
+/**
+ * Old WebKit (Safari 9) can't resolve Tailwind's nested gradient variables
+ * (`linear-gradient(..., var(--tw-gradient-stops))`), so gradient backgrounds vanish.
+ * For browsers without CSS grid (Safari <= 10.0) give every `from-*` class a solid
+ * background-color fallback equal to its start color.
+ */
+const legacyGradientFallback = (postcss) => ({
+  postcssPlugin: 'legacy-gradient-fallback',
+  OnceExit(root) {
+    const fallbacks = [];
+    root.walkRules((rule) => {
+      if (rule.parent && rule.parent.type === 'atrule') return; // skip responsive/hover variants
+      rule.each((d) => {
+        if (d.type === 'decl' && d.prop === '--tw-gradient-from') {
+          const color = d.value.trim();
+          // Solid hex colors only: rgba/transparent starts are overlays, not backgrounds
+          if (/^#[0-9a-fA-F]{3,8}$/.test(color)) {
+            fallbacks.push(postcss.rule({ selector: rule.selector }).append({ prop: 'background-color', value: color }));
+          }
+        }
+      });
+    });
+    if (fallbacks.length) {
+      root.append(postcss.atRule({ name: 'supports', params: 'not (display: grid)' }).append(fallbacks));
+    }
+  },
+});
+legacyGradientFallback.postcss = true;
+
 export default {
   plugins: [
     (await import('tailwindcss')).default(),
     legacySafariCss(),
+    legacyGradientFallback((await import('postcss')).default),
     (await import('autoprefixer')).default({
       overrideBrowserslist: ['defaults', 'not IE 11', 'ios_saf >= 9', 'safari >= 9'],
     }),

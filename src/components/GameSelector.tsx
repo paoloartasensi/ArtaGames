@@ -207,7 +207,7 @@ export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, active
                         {game.minAge}
                       </span>
                     )}
-                    <span className="drop-shadow-lg leading-none select-none" style={{ fontSize: emojiSize }}>
+                    <span className="leading-none select-none" style={{ fontSize: emojiSize }}>
                       {GAME_EMOJIS[game.id]}
                     </span>
                     <span
