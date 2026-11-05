@@ -299,8 +299,12 @@ export const UnoGame: React.FC<UnoGameProps> = ({
             ))}
           </div>
         ) : (
-          // In 1v1 local, show privacy toggle button or flipped hand
-          <div className="flex flex-col items-center w-full">
+          // In 1v1 local, show privacy toggle button or flipped hand.
+          // Rotated 180° so Player 2, sitting on the other side of the table, reads it upright.
+          <div
+            className="flex flex-col items-center w-full"
+            style={{ transform: 'rotate(180deg)', WebkitTransform: 'rotate(180deg)' }}
+          >
             <div className="flex items-center gap-2 mb-1">
               <button
                 onClick={() => setP2ShowCards(!p2ShowCards)}

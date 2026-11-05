@@ -44,52 +44,38 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ playMode, difficulty, on
     }
   }, [gameState.mismatchPair]);
 
-  // BOT turn: reveal two cards with a pause between them.
+  // BOT turn: reveal two cards with a pause between them. Each flip is one step:
+  // the effect re-runs after every state change, so the second card is chosen with
+  // pickBotSecondCard (using the bot's memory) once the first one is face up.
   useEffect(() => {
     if (playMode !== 'bot' || gameState.turn !== 1 || gameState.gameOver) return;
     if (gameState.mismatchPair) return;
     setIsBotThinking(true);
 
-    let cancelled = false;
-    const first = pickBotFirstCard(gameState, memoryRef.current, difficulty);
-    if (first < 0) {
-      setIsBotThinking(false);
-      return;
-    }
-
-    const t0 = setTimeout(() => {
-      if (cancelled) return;
-      const s1 = flipMemoryCard(gameState, first);
-      if (!s1) {
-        setIsBotThinking(false);
-        return;
-      }
-      sound.playTick();
-      setGameState(s1);
-
-      const t1 = setTimeout(() => {
-        if (cancelled) return;
-        const second = pickBotSecondCard(s1, memoryRef.current, first, difficulty);
-        if (second < 0) {
+    const first = gameState.firstPick;
+    const t = setTimeout(() => {
+      if (first === null) {
+        const pick = pickBotFirstCard(gameState, memoryRef.current, difficulty);
+        const s1 = pick >= 0 ? flipMemoryCard(gameState, pick) : null;
+        if (!s1) {
           setIsBotThinking(false);
           return;
         }
-        const s2 = flipMemoryCard(s1, second);
+        sound.playTick();
+        setGameState(s1);
+      } else {
+        const pick = pickBotSecondCard(gameState, memoryRef.current, first, difficulty);
+        const s2 = pick >= 0 ? flipMemoryCard(gameState, pick) : null;
         if (s2) {
           if (s2.mismatchPair) sound.playMiss();
           else sound.playCapture();
           setGameState(s2);
         }
         setIsBotThinking(false);
-      }, 700);
-      return () => clearTimeout(t1);
-    }, 600);
+      }
+    }, first === null ? 600 : 700);
 
-    return () => {
-      cancelled = true;
-      clearTimeout(t0);
-      setIsBotThinking(false);
-    };
+    return () => clearTimeout(t);
   }, [gameState, playMode, difficulty]);
 
   const handleCardClick = (i: number) => {

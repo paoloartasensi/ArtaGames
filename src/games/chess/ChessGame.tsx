@@ -3,7 +3,7 @@ import { PlayMode, Difficulty } from '../../types/game';
 import {
   ChessState,
   createInitialChessState,
-  getPieceMoves,
+  getLegalPieceMoves,
   applyChessMove,
   getBotChessMove,
   ChessPiece,
@@ -49,10 +49,17 @@ const PIECE_NAMES: Record<string, string> = {
   p: 'Pedone',
 };
 
-const PieceGlyph: React.FC<{ piece: ChessPiece; isSelected: boolean }> = ({
+const PieceGlyph: React.FC<{ piece: ChessPiece; isSelected: boolean; upsideDown?: boolean }> = ({
   piece,
   isSelected,
+  upsideDown = false,
 }) => (
+  // Outer wrapper rotates the piece 180° for the player sitting on the other side of the
+  // table (own element, so it doesn't fight with the scale transform below).
+  <span
+    className="relative z-20 inline-block leading-none"
+    style={upsideDown ? { transform: 'rotate(180deg)', WebkitTransform: 'rotate(180deg)' } : undefined}
+  >
   <span
     className={`relative z-20 text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-none select-none drop-shadow transition-transform ${
       piece.color === 'w' ? 'text-white' : 'text-stone-950 dark:text-stone-900'
@@ -66,6 +73,7 @@ const PieceGlyph: React.FC<{ piece: ChessPiece; isSelected: boolean }> = ({
   >
     {PIECE_GLYPHS[`${piece.color}-${piece.type}`]}
   </span>
+  </span>
 );
 
 export const ChessGame: React.FC<ChessGameProps> = ({
@@ -75,6 +83,8 @@ export const ChessGame: React.FC<ChessGameProps> = ({
   isTabletFlipped,
 }) => {
   const { theme, isDark } = useTheme();
+  // 2 giocatori uno di fronte all'altro: i pezzi neri sono girati verso il Nero
+  const faceToFace = playMode === 'local_pvp';
   const [gameState, setGameState] = useState<ChessState>(createInitialChessState());
   const [isBotThinking, setIsBotThinking] = useState(false);
 
@@ -105,7 +115,7 @@ export const ChessGame: React.FC<ChessGameProps> = ({
     // Case 1: Clicked friendly piece -> select and show available moves
     if (clickedPiece && clickedPiece.color === gameState.turn) {
       sound.playTick();
-      const moves = getPieceMoves(gameState.board, r, c);
+      const moves = getLegalPieceMoves(gameState.board, r, c);
       setGameState({
         ...gameState,
         selectedPos: { r, c },
@@ -222,10 +232,10 @@ export const ChessGame: React.FC<ChessGameProps> = ({
                         toRow={r}
                         toCol={c}
                       >
-                        <PieceGlyph piece={piece} isSelected={isSelected} />
+                        <PieceGlyph piece={piece} isSelected={isSelected} upsideDown={faceToFace && piece.color === 'b'} />
                       </GridSlidePiece>
                     ) : (
-                      <PieceGlyph piece={piece} isSelected={isSelected} />
+                      <PieceGlyph piece={piece} isSelected={isSelected} upsideDown={faceToFace && piece.color === 'b'} />
                     ))}
                 </button>
               );
@@ -248,7 +258,7 @@ export const ChessGame: React.FC<ChessGameProps> = ({
               animate={{ opacity: 0, scale: 0.7 }}
               transition={{ ...FADE, delay: 0.1 }}
             >
-              <PieceGlyph piece={lastMove.captured} isSelected={false} />
+              <PieceGlyph piece={lastMove.captured} isSelected={false} upsideDown={faceToFace && lastMove.captured.color === 'b'} />
             </motion.div>
           )}
         </div>
@@ -275,14 +285,22 @@ export const ChessGame: React.FC<ChessGameProps> = ({
       {/* Victory modal */}
       <VictoryModal
         isOpen={gameState.gameOver}
-        winnerTitle={gameState.winner === 'w' ? 'Vittoria del Bianco! 👑' : 'Vittoria del Nero! 👑'}
+        winnerTitle={
+          gameState.winner === 'draw'
+            ? 'Stallo: patta! 🤝'
+            : gameState.winner === 'w'
+            ? 'Scacco matto! Vince il Bianco 👑'
+            : 'Scacco matto! Vince il Nero 👑'
+        }
         winnerSubtitle={
-          gameState.winner === 'w'
+          gameState.winner === 'draw'
+            ? 'Il Re non è sotto scacco ma non può muoversi: nessuno vince.'
+            : gameState.winner === 'w'
             ? playMode === 'bot'
-              ? 'Complimenti grandissimo scacchista! Hai catturato il Re del BOT!'
+              ? 'Complimenti grandissimo scacchista! Hai dato scacco matto al BOT!'
               : 'Grandissima partita per il Giocatore Bianco!'
             : playMode === 'bot'
-            ? 'Il BOT è riuscito a catturare il tuo Re. Vuoi la rivincita?'
+            ? 'Il BOT ti ha dato scacco matto. Vuoi la rivincita?'
             : 'Grandissima partita per il Giocatore Nero!'
         }
         onRematch={handleRestart}

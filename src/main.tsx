@@ -3,8 +3,10 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { installLegacyShims } from './utils/legacyShims';
+import { installTapShim } from './utils/tapShim';
 
 installLegacyShims();
+installTapShim();
 
 interface Props {
   children: ReactNode;

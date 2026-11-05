@@ -15,6 +15,7 @@ import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
 import { SkipForward, Eye } from 'lucide-react';
+import { legacyCellStyle } from '../../utils/legacyLayout';
 
 interface GoGameProps {
   playMode: PlayMode;
@@ -248,6 +249,7 @@ export const GoGame: React.FC<GoGameProps> = ({
                     onClick={() => handleIntersectionClick(r, c)}
                     disabled={gameState.gameOver || isBotThinking}
                     className="relative flex items-center justify-center p-0 focus:outline-none group"
+                    style={legacyCellStyle(gameState.size, gameState.size)}
                   >
                     {/* Hover ghost stone indicator */}
                     {!stone && !gameState.gameOver && !isBotThinking && (

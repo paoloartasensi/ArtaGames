@@ -252,6 +252,42 @@ export function calculateGoScore(state: GoState): { scoreB: number; scoreW: numb
   return { scoreB: totalB, scoreW: totalW };
 }
 
+/** Owner of each empty point whose region is bordered by a single colour (territory/eyes). */
+function territoryOwners(board: (Stone | null)[][]): Map<string, Stone> {
+  const size = board.length;
+  const owners = new Map<string, Stone>();
+  const visited = new Set<string>();
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (board[r][c] !== null || visited.has(`${r},${c}`)) continue;
+      const region: string[] = [];
+      const borders = new Set<Stone>();
+      const queue: GoPoint[] = [{ r, c }];
+      visited.add(`${r},${c}`);
+      while (queue.length) {
+        const pt = queue.shift()!;
+        region.push(`${pt.r},${pt.c}`);
+        for (const nb of getNeighbors(pt.r, pt.c, size)) {
+          const v = board[nb.r][nb.c];
+          const k = `${nb.r},${nb.c}`;
+          if (v === null) {
+            if (!visited.has(k)) {
+              visited.add(k);
+              queue.push(nb);
+            }
+          } else borders.add(v);
+        }
+      }
+      // Only small enclosed regions count (the empty board is not anyone's territory)
+      if (borders.size === 1 && region.length < (size * size) / 3) {
+        const owner = Array.from(borders)[0];
+        for (const k of region) owners.set(k, owner);
+      }
+    }
+  }
+  return owners;
+}
+
 /**
  * Smart Bot AI for Go with 4 scalable difficulty tiers
  */
@@ -290,6 +326,7 @@ export function getBotGoMove(state: GoState, difficulty: Difficulty): GoPoint | 
 
   // Medium / Hard / Master: Evaluate tactical heuristics
   const center = (size - 1) / 2;
+  const owners = territoryOwners(state.board);
 
   legalMoves.forEach((move) => {
     let score = 0;
@@ -347,6 +384,12 @@ export function getBotGoMove(state: GoState, difficulty: Difficulty): GoPoint | 
       score -= distFromCenter * 0.5;
     }
 
+    // Never fill our own territory / eyes (it only kills our own groups),
+    // and playing inside the opponent's closed area is usually wasted too.
+    const owner = owners.get(`${move.pt.r},${move.pt.c}`);
+    if (owner === player && move.captures === 0) score -= 60;
+    else if (owner === opponent && move.captures === 0) score -= 12;
+
     // Small randomness to prevent identical repetitive games
     score += Math.random() * 2;
     move.score = score;
@@ -354,7 +397,9 @@ export function getBotGoMove(state: GoState, difficulty: Difficulty): GoPoint | 
 
   legalMoves.sort((a, b) => b.score - a.score);
 
-  if (legalMoves[0].score < -15 && state.history.length > 20) {
+  // Pass when nothing useful is left (or the opponent passed and we have no good move),
+  // so the game can end and be scored.
+  if (state.history.length > 10 && (legalMoves[0].score < 0 || (state.passCount > 0 && legalMoves[0].score < 10))) {
     return 'pass';
   }
 

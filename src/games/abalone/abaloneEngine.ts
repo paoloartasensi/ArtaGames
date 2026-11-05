@@ -47,11 +47,11 @@ export function createInitialAbaloneState(target = 6): AbaloneState {
   // Black (0) at the top: 5 + 6 + 3 = 14 marbles.
   for (let q = 0; q <= 4; q++) board[abaKey(q, -4)] = 0;
   for (let q = -1; q <= 4; q++) board[abaKey(q, -3)] = 0;
-  for (let q = 1; q <= 3; q++) board[abaKey(q, -2)] = 0;
+  for (let q = 0; q <= 2; q++) board[abaKey(q, -2)] = 0; // centred 3 of 7
   // White (1) at the bottom (180° mirror).
   for (let q = -4; q <= 0; q++) board[abaKey(q, 4)] = 1;
   for (let q = -4; q <= 1; q++) board[abaKey(q, 3)] = 1;
-  for (let q = -3; q <= -1; q++) board[abaKey(q, 2)] = 1;
+  for (let q = -2; q <= 0; q++) board[abaKey(q, 2)] = 1; // centred 3 of 7
   return {
     board,
     turn: 0,

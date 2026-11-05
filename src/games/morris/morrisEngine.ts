@@ -46,7 +46,8 @@ export const MORRIS_ADJ: number[][] = [
   [15, 22, 16],       // 23
 ];
 
-// The 16 possible mills (three collinear points).
+// The 20 possible mills (three collinear points): 4 per square + 8 lines across the
+// squares, including the corner diagonals drawn on this board variant.
 export const MORRIS_MILLS: number[][] = [
   [0, 1, 2], [2, 3, 4], [4, 5, 6], [6, 7, 0],
   [8, 9, 10], [10, 11, 12], [12, 13, 14], [14, 15, 8],
@@ -102,6 +103,17 @@ export function getMorrisLegalMoves(
   return moves;
 }
 
+/** In the moving phase, a player who cannot move loses. */
+function blockedWinner(
+  board: MorrisCell[],
+  phase: 'placing' | 'moving',
+  next: MorrisPlayer,
+  piecesOnBoard: [number, number]
+): MorrisPlayer | null {
+  if (phase !== 'moving') return null;
+  return getMorrisLegalMoves(board, next, piecesOnBoard[next]).length === 0 ? ((1 - next) as MorrisPlayer) : null;
+}
+
 export function placeMorris(state: MorrisState, point: number): MorrisState | null {
   if (state.gameOver || state.phase !== 'placing' || state.mustRemove) return null;
   if (point < 0 || point >= MORRIS_POINTS || state.board[point] !== null) return null;
@@ -130,13 +142,17 @@ export function placeMorris(state: MorrisState, point: number): MorrisState | nu
     };
   }
 
+  const next = (1 - state.turn) as MorrisPlayer;
+  const blocked = blockedWinner(board, phase, next, piecesOnBoard);
   return {
     ...state,
     board,
     piecesOnBoard,
     piecesToPlace,
     phase,
-    turn: (1 - state.turn) as MorrisPlayer,
+    turn: next,
+    gameOver: blocked !== null,
+    winner: blocked,
     lastMove: { from: null, to: point, removed: null },
   };
 }
@@ -175,6 +191,7 @@ export function removeMorris(state: MorrisState, point: number): MorrisState | n
     };
   }
 
+  const blocked = blockedWinner(board, phase, opp, piecesOnBoard);
   return {
     ...state,
     board,
@@ -182,6 +199,8 @@ export function removeMorris(state: MorrisState, point: number): MorrisState | n
     mustRemove: false,
     phase,
     turn: opp,
+    gameOver: blocked !== null,
+    winner: blocked,
     lastMove: { from: state.lastMove.from, to: state.lastMove.to, removed: point },
   };
 }

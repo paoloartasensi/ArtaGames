@@ -253,21 +253,32 @@ export function fireBotShot(
   if (difficulty === 'easy' || state.botHits.length === 0) {
     target = available[Math.floor(Math.random() * available.length)];
   } else {
-    // Medium / Hard / Master: Hunt around previous hits
-    const lastHit = state.botHits[state.botHits.length - 1];
-    const neighbors: { r: number; c: number }[] = [
-      { r: lastHit.r - 1, c: lastHit.c },
-      { r: lastHit.r + 1, c: lastHit.c },
-      { r: lastHit.r, c: lastHit.c - 1 },
-      { r: lastHit.r, c: lastHit.c + 1 },
-    ].filter(
-      (p) =>
-        p.r >= 0 &&
-        p.r < size &&
-        p.c >= 0 &&
-        p.c < size &&
-        (board[p.r][p.c] === 'empty' || board[p.r][p.c] === 'ship'),
-    );
+    // Medium / Hard / Master: hunt around hits on ships that are not sunk yet
+    // (most recent first), so the bot doesn't waste shots around sunk ships.
+    const isOnSunkShip = (h: { r: number; c: number }) =>
+      state.p1Ships.some(
+        (s) =>
+          s.sunk &&
+          (s.horizontal ? h.r === s.r && h.c >= s.c && h.c < s.c + s.size : h.c === s.c && h.r >= s.r && h.r < s.r + s.size),
+      );
+    const openHits = state.botHits.filter((h) => !isOnSunkShip(h)).reverse();
+    let neighbors: { r: number; c: number }[] = [];
+    for (const hit of openHits) {
+      neighbors = [
+        { r: hit.r - 1, c: hit.c },
+        { r: hit.r + 1, c: hit.c },
+        { r: hit.r, c: hit.c - 1 },
+        { r: hit.r, c: hit.c + 1 },
+      ].filter(
+        (p) =>
+          p.r >= 0 &&
+          p.r < size &&
+          p.c >= 0 &&
+          p.c < size &&
+          (board[p.r][p.c] === 'empty' || board[p.r][p.c] === 'ship'),
+      );
+      if (neighbors.length > 0) break;
+    }
 
     if (neighbors.length > 0) {
       target = neighbors[Math.floor(Math.random() * neighbors.length)];

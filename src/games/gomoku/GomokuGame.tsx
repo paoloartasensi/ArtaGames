@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PlayMode, Difficulty } from '../../types/game';
+import { legacyCellStyle } from '../../utils/legacyLayout';
 import {
   GomokuState,
   createInitialGomokuState,
@@ -120,7 +121,7 @@ export const GomokuGame: React.FC<GomokuGameProps> = ({
                   className={`relative flex items-center justify-center aspect-square rounded-[6px] transition-colors ${
                     playable ? 'hover:bg-white/20 cursor-pointer active:scale-95' : ''
                   }`}
-                  style={{ backgroundColor: '#e0b069' }}
+                  style={{ backgroundColor: '#e0b069', ...legacyCellStyle(gameState.size) }}
                 >
                   {cell !== null && (
                     <span

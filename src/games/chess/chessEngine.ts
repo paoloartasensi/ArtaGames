@@ -28,6 +28,7 @@ export interface ChessState {
   gameOver: boolean;
   winner: ChessColor | 'draw' | null;
   moveHistory: ChessMove[];
+  quietPlies?: number; // plies since the last capture or pawn move (50-move rule)
 }
 
 export function createInitialChessState(): ChessState {
@@ -59,6 +60,7 @@ export function createInitialChessState(): ChessState {
     gameOver: false,
     winner: null,
     moveHistory: [],
+    quietPlies: 0,
   };
 }
 
@@ -229,6 +231,33 @@ export function isKingInCheck(board: (ChessPiece | null)[][], color: ChessColor)
   return oppMoves.some((m) => m.toR === kingR && m.toC === kingC);
 }
 
+/** Only kings, or king + one bishop/knight against a lone king: nobody can checkmate. */
+function insufficientMaterial(board: (ChessPiece | null)[][]): boolean {
+  const others: ChessPiece[] = [];
+  for (const row of board) for (const p of row) if (p && p.type !== 'k') others.push(p);
+  return others.length === 0 || (others.length === 1 && (others[0].type === 'b' || others[0].type === 'n'));
+}
+
+function boardAfter(board: (ChessPiece | null)[][], m: ChessMove): (ChessPiece | null)[][] {
+  const nb = board.map((row) => [...row]);
+  const piece = nb[m.fromR][m.fromC];
+  nb[m.fromR][m.fromC] = null;
+  nb[m.toR][m.toC] =
+    piece && piece.type === 'p' && (m.toR === 0 || m.toR === 7) ? { type: 'q', color: piece.color } : piece;
+  return nb;
+}
+
+/** Legal moves of one piece: moves that would leave your own King in check are not allowed. */
+export function getLegalPieceMoves(board: (ChessPiece | null)[][], r: number, c: number): ChessMove[] {
+  const piece = board[r][c];
+  if (!piece) return [];
+  return getPieceMoves(board, r, c).filter((m) => !isKingInCheck(boardAfter(board, m), piece.color));
+}
+
+export function getLegalMovesForColor(board: (ChessPiece | null)[][], color: ChessColor): ChessMove[] {
+  return getAllMovesForColor(board, color).filter((m) => !isKingInCheck(boardAfter(board, m), color));
+}
+
 export function applyChessMove(state: ChessState, move: ChessMove): ChessState {
   const newBoard = state.board.map((row) => [...row]);
   const piece = newBoard[move.fromR][move.fromC];
@@ -256,11 +285,25 @@ export function applyChessMove(state: ChessState, move: ChessMove): ChessState {
 
   // Check victory condition: King captured (fun for 5-7 yo!)
   let gameOver = false;
-  let winner: ChessColor | null = null;
 
+  let winnerOrDraw: ChessColor | 'draw' | null = null;
   if (capturedPiece && capturedPiece.type === 'k') {
     gameOver = true;
-    winner = state.turn;
+    winnerOrDraw = state.turn;
+  }
+
+  const quietPlies = capturedPiece || piece.type === 'p' ? 0 : (state.quietPlies || 0) + 1;
+
+  if (gameOver) {
+    // king captured (cannot happen with legal moves, kept as a safety net)
+  } else if (getLegalMovesForColor(newBoard, nextTurn).length === 0) {
+    // No legal move: checkmate if in check, otherwise stalemate (draw)
+    gameOver = true;
+    winnerOrDraw = isKingInCheck(newBoard, nextTurn) ? state.turn : 'draw';
+  } else if (quietPlies >= 100 || insufficientMaterial(newBoard)) {
+    // 50 moves each without captures or pawn moves, or not enough pieces to checkmate
+    gameOver = true;
+    winnerOrDraw = 'draw';
   }
 
   const inCheck = isKingInCheck(newBoard, nextTurn);
@@ -274,7 +317,8 @@ export function applyChessMove(state: ChessState, move: ChessMove): ChessState {
     blackCaptured: newBlackCaptured,
     inCheck,
     gameOver,
-    winner,
+    winner: winnerOrDraw,
+    quietPlies,
     moveHistory: [...state.moveHistory, move],
   };
 }
@@ -289,7 +333,7 @@ const PIECE_VALUES: Record<ChessPieceType, number> = {
 };
 
 export function getBotChessMove(state: ChessState, difficulty: Difficulty): ChessMove | null {
-  const allMoves = getAllMovesForColor(state.board, state.turn);
+  const allMoves = getLegalMovesForColor(state.board, state.turn);
   if (allMoves.length === 0) return null;
 
   if (difficulty === 'easy') {
@@ -322,6 +366,18 @@ export function getBotChessMove(state: ChessState, difficulty: Difficulty): Ches
       if (movingPiece && movingPiece.type === 'k') {
         score -= 2; // don't wander with king early
       }
+    }
+
+    const after = boardAfter(state.board, m);
+    const opp: ChessColor = state.turn === 'w' ? 'b' : 'w';
+    if (isKingInCheck(after, opp)) {
+      score += getLegalMovesForColor(after, opp).length === 0 ? 10000 : 6; // mate / check
+    }
+    if (difficulty === 'hard' || difficulty === 'master') {
+      // Don't leave the moved piece where it can be taken for free
+      const attacked = getAllMovesForColor(after, opp).some((x) => x.toR === m.toR && x.toC === m.toC);
+      const mover = state.board[m.fromR][m.fromC];
+      if (attacked && mover) score -= PIECE_VALUES[mover.type] * 0.8;
     }
 
     score += Math.random() * 2;

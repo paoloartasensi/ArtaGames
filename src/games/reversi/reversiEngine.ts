@@ -189,7 +189,8 @@ export function getBotReversiMove(
   for (const m of moves) {
     let score = WEIGHTS[m.r][m.c];
     const res = placeReversi(state, m.r, m.c);
-    if (res) score += res.legalMoves.length * 0.5;
+    // Fewer replies for the opponent is better (bonus if the opponent must pass)
+    if (res) score += res.turn === state.turn ? 6 : -res.legalMoves.length * 0.5;
     score += Math.random() * 0.5;
     if (score > bestScore) {
       bestScore = score;

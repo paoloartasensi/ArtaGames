@@ -52,7 +52,8 @@ export function sowMancala(state: MancalaState, pit: number): MancalaState | nul
   let captured = false;
 
   if (!extraTurn && ownPits.includes(i) && pits[i] === 1) {
-    const opposite = 12 - i;
+    // Top row is shown left→right as 7..12, so pit i (bottom) faces i + 7 (top).
+    const opposite = i < 6 ? i + 7 : i - 7;
     if (pits[opposite] > 0) {
       pits[ownStore] += pits[i] + pits[opposite];
       pits[i] = 0;

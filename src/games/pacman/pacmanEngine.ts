@@ -43,6 +43,17 @@ export const PACMAN_MAZE: number[][] = [
 export const MAZE_ROWS = PACMAN_MAZE.length;
 export const MAZE_COLS = PACMAN_MAZE[0].length;
 
+// Start positions on free cells (Pac-Man below the ghost house, ghosts inside it).
+export const PACMAN_START = { x: 9, y: 16 };
+export function createStartGhosts(): Ghost[] {
+  return [
+    { id: 'blinky', name: 'Blinky', color: '#ef4444', x: 9, y: 8, dir: 'LEFT', isScared: false, isEaten: false },
+    { id: 'pinky', name: 'Pinky', color: '#f472b6', x: 8, y: 10, dir: 'UP', isScared: false, isEaten: false },
+    { id: 'inky', name: 'Inky', color: '#38bdf8', x: 10, y: 10, dir: 'UP', isScared: false, isEaten: false },
+    { id: 'clyde', name: 'Clyde', color: '#fb923c', x: 9, y: 9, dir: 'UP', isScared: false, isEaten: false },
+  ];
+}
+
 export interface PacmanState {
   maze: number[][];
   pacman: {
@@ -76,18 +87,13 @@ export function createInitialPacmanState(): PacmanState {
   return {
     maze: PACMAN_MAZE.map((row) => [...row]),
     pacman: {
-      x: 9,
-      y: 14,
+      x: PACMAN_START.x,
+      y: PACMAN_START.y,
       dir: 'LEFT',
       nextDir: 'LEFT',
       mouthOpen: true,
     },
-    ghosts: [
-      { id: 'blinky', name: 'Blinky', color: '#ef4444', x: 9, y: 8, dir: 'UP', isScared: false, isEaten: false },
-      { id: 'pinky', name: 'Pinky', color: '#f472b6', x: 8, y: 9, dir: 'UP', isScared: false, isEaten: false },
-      { id: 'inky', name: 'Inky', color: '#38bdf8', x: 10, y: 9, dir: 'UP', isScared: false, isEaten: false },
-      { id: 'clyde', name: 'Clyde', color: '#fb923c', x: 9, y: 10, dir: 'UP', isScared: false, isEaten: false },
-    ],
+    ghosts: createStartGhosts(),
     score: 0,
     lives: 3,
     scaredTimer: 0,

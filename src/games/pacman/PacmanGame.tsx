@@ -11,7 +11,10 @@ import {
   getNextCoord,
   MAZE_ROWS,
   MAZE_COLS,
+  PACMAN_START,
+  createStartGhosts,
 } from './pacmanEngine';
+import { legacyCellStyle } from '../../utils/legacyLayout';
 import {
   ArrowUp,
   ArrowDown,
@@ -198,7 +201,9 @@ export const PacmanGame: React.FC<PacmanGameProps> = ({
               x: nextG.nextX,
               y: nextG.nextY,
               dir: chosenDir,
-              isScared: newScaredTimer > 0,
+              // An eaten ghost stays normal until the power pellet wears off
+              isScared: newScaredTimer > 0 && !ghost.isEaten,
+              isEaten: ghost.isEaten && newScaredTimer > 0,
             };
           });
 
@@ -208,7 +213,12 @@ export const PacmanGame: React.FC<PacmanGameProps> = ({
 
           for (let i = 0; i < newGhosts.length; i++) {
             const g = newGhosts[i];
-            if (g.x === newPacX && g.y === newPacY) {
+            const old = current.ghosts[i];
+            // Same cell, or Pac-Man and ghost swapped cells in this step (passed through each other)
+            const sameCell = g.x === newPacX && g.y === newPacY;
+            const swapped =
+              g.x === current.pacman.x && g.y === current.pacman.y && old.x === newPacX && old.y === newPacY;
+            if (sameCell || swapped) {
               if (g.isScared) {
                 // Eat ghost!
                 sound.playCapture();
@@ -217,6 +227,7 @@ export const PacmanGame: React.FC<PacmanGameProps> = ({
                   ...g,
                   x: 9,
                   y: 9,
+                  dir: 'UP',
                   isScared: false,
                   isEaten: true,
                 };
@@ -242,14 +253,13 @@ export const PacmanGame: React.FC<PacmanGameProps> = ({
               // Reset positions
               setGameState((prev) => ({
                 ...prev,
+                maze: newMaze,
+                score: newScore,
+                dotsRemaining: newDotsRemaining,
+                scaredTimer: 0,
                 lives: newLives,
-                pacman: { ...prev.pacman, x: 9, y: 14, dir: 'LEFT', nextDir: 'LEFT' },
-                ghosts: [
-                  { id: 'blinky', name: 'Blinky', color: '#ef4444', x: 9, y: 8, dir: 'UP', isScared: false, isEaten: false },
-                  { id: 'pinky', name: 'Pinky', color: '#f472b6', x: 8, y: 9, dir: 'UP', isScared: false, isEaten: false },
-                  { id: 'inky', name: 'Inky', color: '#38bdf8', x: 10, y: 9, dir: 'UP', isScared: false, isEaten: false },
-                  { id: 'clyde', name: 'Clyde', color: '#fb923c', x: 9, y: 10, dir: 'UP', isScared: false, isEaten: false },
-                ],
+                pacman: { ...prev.pacman, x: PACMAN_START.x, y: PACMAN_START.y, dir: 'LEFT', nextDir: 'LEFT' },
+                ghosts: createStartGhosts(),
               }));
               return;
             }
@@ -370,6 +380,7 @@ export const PacmanGame: React.FC<PacmanGameProps> = ({
                   <div
                     key={`${r}-${c}`}
                     className="relative w-full h-full flex items-center justify-center"
+                    style={legacyCellStyle(MAZE_COLS, MAZE_ROWS)}
                   >
                     {/* Maze Wall */}
                     {cell === 1 && (

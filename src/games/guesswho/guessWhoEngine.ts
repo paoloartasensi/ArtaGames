@@ -266,6 +266,9 @@ export function executeBotTurn(
       return {
         newState: {
           ...state,
+          // A wrong guess rules that character out (otherwise the bot would repeat it forever
+          // when two characters can't be told apart by any question)
+          botEliminatedIds: isCorrect ? state.botEliminatedIds : [...state.botEliminatedIds, target.id],
           gameOver: isCorrect,
           winner: isCorrect ? 'bot' : null,
           winnerReason: isCorrect

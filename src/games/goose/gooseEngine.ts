@@ -131,88 +131,64 @@ export interface MoveStep {
 }
 
 /**
- * Calculates final landing position and effects according to classic Goose rules
+ * Calculates final landing position and effects according to classic Goose rules.
+ * Special tiles are resolved in chain: a goose can land on another goose, the bridge,
+ * the spring or a rest tile, and a bounce back from the finish can land on one too.
  */
 export function calculateGooseMove(
   currentPos: number,
   diceRoll: number
 ): { finalPos: number; message: string; specialType?: SpecialTile['type'] } {
-  let target = currentPos + diceRoll;
+  const bounce = (t: number) => (t > GOOSE_BOARD_SIZE ? GOOSE_BOARD_SIZE - (t - GOOSE_BOARD_SIZE) : t);
+  const messages: string[] = [];
+  let specialType: SpecialTile['type'] | undefined;
 
-  // Exact arrival rule: if overshooting 30, bounce backwards
-  if (target > GOOSE_BOARD_SIZE) {
-    const overshoot = target - GOOSE_BOARD_SIZE;
-    target = GOOSE_BOARD_SIZE - overshoot;
-    const msg = `Hai superato il traguardo di ${overshoot} passi: rimbalzi alla casella ${target}!`;
-    return { finalPos: target, message: msg };
+  let pos = currentPos + diceRoll;
+  if (pos > GOOSE_BOARD_SIZE) {
+    const overshoot = pos - GOOSE_BOARD_SIZE;
+    pos = bounce(pos);
+    messages.push(`Hai superato il traguardo di ${overshoot} passi: rimbalzi alla casella ${pos}!`);
+  } else {
+    messages.push(`Hai fatto ${diceRoll}! Avanzi alla casella ${pos}.`);
   }
 
-  // Exact victory!
-  if (target === GOOSE_BOARD_SIZE) {
-    return {
-      finalPos: 30,
-      message: "🏆 VITTORIA! Sei arrivato dritto al Giardino dell'Oca!",
-      specialType: 'finish',
-    };
-  }
-
-  // Check special tiles
-  const special = SPECIAL_TILES[target];
-  if (!special) {
-    return {
-      finalPos: target,
-      message: `Hai fatto ${diceRoll}! Avanzi alla casella ${target}.`,
-    };
-  }
-
-  if (special.type === 'goose') {
-    // Goose tile: forward again by the same dice roll!
-    let nextTarget = target + diceRoll;
-    if (nextTarget > GOOSE_BOARD_SIZE) {
-      const overshoot = nextTarget - GOOSE_BOARD_SIZE;
-      nextTarget = GOOSE_BOARD_SIZE - overshoot;
+  for (let guard = 0; guard < 8; guard++) {
+    if (pos === GOOSE_BOARD_SIZE) {
+      return { finalPos: pos, message: "🏆 VITTORIA! Sei arrivato dritto al Giardino dell'Oca!", specialType: 'finish' };
     }
-    return {
-      finalPos: nextTarget,
-      message: `🪿 Oca fortunata alla casella ${target}! Fai un salto doppio di altri ${diceRoll} passi fino alla ${nextTarget}!`,
-      specialType: 'goose',
-    };
+    const special = SPECIAL_TILES[pos];
+    if (!special) break;
+
+    if (special.type === 'goose') {
+      const from = pos;
+      pos = bounce(pos + diceRoll);
+      specialType = 'goose';
+      messages.push(`🪿 Oca fortunata alla casella ${from}! Salti di altri ${diceRoll} passi fino alla ${pos}!`);
+      continue;
+    }
+    if (special.type === 'bridge') {
+      pos = 12;
+      specialType = 'bridge';
+      messages.push('🌉 Ponte Magico! Salti il fiume e atterri alla casella 12!');
+      continue;
+    }
+    if (special.type === 'spring') {
+      pos = Math.min(GOOSE_BOARD_SIZE, pos + 3);
+      specialType = 'spring';
+      messages.push(`🪜 Boing! Il trampolino ti spinge fino alla casella ${pos}!`);
+      continue;
+    }
+    if (special.type === 'inn') {
+      specialType = 'inn';
+      messages.push('🏠 Merenda alla Locanda! Salti il prossimo turno!');
+    } else if (special.type === 'well') {
+      specialType = 'well';
+      messages.push('🐌 Lumachina stanca! Ti fermi a riposare per il prossimo turno!');
+    }
+    break;
   }
 
-  if (special.type === 'bridge') {
-    return {
-      finalPos: 12,
-      message: '🌉 Sei sul Ponte Magico alla casella 6! Salti il fiume e atterri alla casella 12!',
-      specialType: 'bridge',
-    };
-  }
-
-  if (special.type === 'spring') {
-    return {
-      finalPos: Math.min(GOOSE_BOARD_SIZE, target + 3),
-      message: '🪜 Boing! Il trampolino ti spinge avanti di altre 3 caselle!',
-      specialType: 'spring',
-    };
-  }
-
-  if (special.type === 'inn') {
-    return {
-      finalPos: target,
-      message: '🏠 Merenda alla Locanda! Mangi una torta e salti il prossimo turno!',
-      specialType: 'inn',
-    };
-  }
-
-  if (special.type === 'well') {
-    return {
-      finalPos: target,
-      message: '🐌 Lumachina stanca! Ti fermi a riposare per il prossimo turno!',
-      specialType: 'well',
-    };
-  }
-
-  return {
-    finalPos: target,
-    message: `Avanzi alla casella ${target}.`,
-  };
+  // Show only the most relevant part when a special tile was involved
+  const message = specialType ? messages.slice(1).join(' ') || messages[0] : messages[0];
+  return { finalPos: pos, message, specialType };
 }
