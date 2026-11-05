@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PlayMode, Difficulty } from '../../types/game';
 import {
   LudoState,
@@ -6,6 +6,7 @@ import {
   rollLudo,
   moveLudo,
   getBotLudoMove,
+  movesAreEquivalent,
   TRACK,
   START_INDEX,
   HOME_COLUMNS,
@@ -15,8 +16,6 @@ import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 import { InGameMenuModal } from '../../components/InGameMenuModal';
 import { ScorePill } from '../../components/ScorePill';
-import { motion } from '../../utils/motion';
-import { SLIDE } from '../../utils/animations';
 import { Sparkles } from 'lucide-react';
 
 interface LudoGameProps {
@@ -64,6 +63,47 @@ const MiniDice: React.FC<{ value: number }> = ({ value }) => {
   );
 };
 
+/**
+ * Pawn positioned with a plain SVG transform attribute (CSS transforms on SVG are unreliable
+ * on old Safari), sliding to its new place with a small requestAnimationFrame tween.
+ */
+const AnimatedPawn: React.FC<{ x: number; y: number; onTap: () => void; movable: boolean; children: React.ReactNode }> = ({
+  x,
+  y,
+  onTap,
+  movable,
+  children,
+}) => {
+  const [pos, setPos] = useState({ x, y });
+  const posRef = useRef({ x, y });
+
+  useEffect(() => {
+    const from = { ...posRef.current };
+    if (from.x === x && from.y === y) return;
+    const start = Date.now();
+    const DURATION = 260;
+    let raf = 0;
+    const step = () => {
+      const t = Math.min(1, (Date.now() - start) / DURATION);
+      const e = 1 - (1 - t) * (1 - t);
+      const next = { x: from.x + (x - from.x) * e, y: from.y + (y - from.y) * e };
+      posRef.current = next;
+      setPos(next);
+      if (t < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [x, y]);
+
+  return (
+    <g transform={`translate(${pos.x} ${pos.y})`} onClick={onTap} style={{ cursor: movable ? 'pointer' : 'default' }}>
+      {/* Big invisible touch target, much easier for small fingers than the pawn itself */}
+      <circle cx="0" cy="0" r={movable ? 0.75 : 0.45} fill="rgba(0,0,0,0)" />
+      {children}
+    </g>
+  );
+};
+
 export const LudoGame: React.FC<LudoGameProps> = ({
   playMode,
   difficulty,
@@ -75,6 +115,14 @@ export const LudoGame: React.FC<LudoGameProps> = ({
   const [isBotThinking, setIsBotThinking] = useState(false);
   const [animDice, setAnimDice] = useState<number | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const rollingRef = useRef(false);
+
+  const applyMove = (next: LudoState) => {
+    if (next.lastMove?.captured) sound.playCapture();
+    else if (next.lastMove?.finished) sound.playMove();
+    else sound.playStone();
+    setGameState(next);
+  };
 
   // Bot logic
   useEffect(() => {
@@ -84,13 +132,18 @@ export const LudoGame: React.FC<LudoGameProps> = ({
 
     if (gameState.phase === 'roll') {
       let face = 1;
-      const interval = setInterval(() => {
-        face = (face % 6) + 1;
-        setAnimDice(face);
-      }, 90);
+      // Give the human time to read the last message before the bot throws
+      const wait = gameState.message ? 1400 : 700;
+      let interval: ReturnType<typeof setInterval> | null = null;
+      const t0 = setTimeout(() => {
+        interval = setInterval(() => {
+          face = (face % 6) + 1;
+          setAnimDice(face);
+        }, 90);
+      }, wait - 500);
 
       const t = setTimeout(() => {
-        clearInterval(interval);
+        if (interval) clearInterval(interval);
         setAnimDice(null);
         const next = rollLudo(gameState);
         if (next) {
@@ -98,34 +151,49 @@ export const LudoGame: React.FC<LudoGameProps> = ({
           setGameState(next);
         }
         setIsBotThinking(false);
-      }, 600);
+      }, wait);
 
       return () => {
-        clearInterval(interval);
+        clearTimeout(t0);
+        if (interval) clearInterval(interval);
         clearTimeout(t);
+        setAnimDice(null);
+        setIsBotThinking(false);
       };
     }
 
     const t = setTimeout(() => {
       const idx = getBotLudoMove(gameState, difficulty);
       const next = moveLudo(gameState, idx);
-      if (next) {
-        if (next.lastMove?.captured) sound.playCapture();
-        else if (next.lastMove?.finished) sound.playMove();
-        else sound.playStone();
-        setGameState(next);
-      }
+      if (next) applyMove(next);
       setIsBotThinking(false);
     }, 700);
 
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t);
+      setIsBotThinking(false);
+    };
   }, [gameState, playMode, difficulty]);
 
+  // Human turn: when every choice gives the same result (only one pawn can move, or all
+  // movable pawns are still in base) move it automatically so the game never feels stuck.
+  useEffect(() => {
+    if (gameState.gameOver || gameState.phase !== 'move') return;
+    if (playMode === 'bot' && gameState.turn === 1) return;
+    if (!movesAreEquivalent(gameState)) return;
+    const t = setTimeout(() => {
+      const next = moveLudo(gameState, gameState.movable[0]);
+      if (next) applyMove(next);
+    }, 650);
+    return () => clearTimeout(t);
+  }, [gameState, playMode]);
+
   const handleRoll = () => {
-    if (gameState.gameOver || isBotThinking || animDice !== null) return;
+    if (gameState.gameOver || isBotThinking || animDice !== null || rollingRef.current) return;
     if (gameState.phase !== 'roll') return;
     if (playMode === 'bot' && gameState.turn === 1) return;
 
+    rollingRef.current = true;
     setAnimDice(1 + Math.floor(Math.random() * 6));
     const interval = setInterval(() => {
       setAnimDice(1 + Math.floor(Math.random() * 6));
@@ -134,6 +202,7 @@ export const LudoGame: React.FC<LudoGameProps> = ({
     setTimeout(() => {
       clearInterval(interval);
       setAnimDice(null);
+      rollingRef.current = false;
       const next = rollLudo(gameState);
       if (next) {
         sound.playMove();
@@ -150,12 +219,7 @@ export const LudoGame: React.FC<LudoGameProps> = ({
     if (!gameState.movable.includes(tokenIndex)) return;
 
     const next = moveLudo(gameState, tokenIndex);
-    if (next) {
-      if (next.lastMove?.captured) sound.playCapture();
-      else if (next.lastMove?.finished) sound.playMove();
-      else sound.playStone();
-      setGameState(next);
-    }
+    if (next) applyMove(next);
   };
 
   const handleRestart = () => {
@@ -223,7 +287,40 @@ export const LudoGame: React.FC<LudoGameProps> = ({
   const p1Score = gameState.tokens[0].filter((p) => p === FINISH_POS).length;
   const p2Score = gameState.tokens[1].filter((p) => p === FINISH_POS).length;
 
-  const currentDisplayDice = animDice !== null ? animDice : gameState.dice;
+  const diceButtonContent = (p: 0 | 1) => {
+    if (animDice !== null && gameState.turn === p) {
+      return <MiniDice value={animDice} />;
+    }
+    if (gameState.turn === p && gameState.phase === 'move' && gameState.dice) {
+      return (
+        <div className="flex items-center gap-2">
+          <MiniDice value={gameState.dice} />
+          <span className="text-xl">{gameState.dice}</span>
+        </div>
+      );
+    }
+    const last = gameState.lastRoll && gameState.lastRoll.player === p ? gameState.lastRoll.value : null;
+    if (gameState.turn === p) {
+      // My turn to throw (again): show what I got last time next to TIRA
+      return (
+        <div className="flex items-center gap-3">
+          {last !== null && <span className="opacity-60"><MiniDice value={last} /></span>}
+          <span>TIRA</span>
+        </div>
+      );
+    }
+    // Not my turn: keep my last throw visible so I can see why the turn passed
+    return last !== null ? (
+      <div className="flex items-center gap-2">
+        <MiniDice value={last} />
+        <span className="text-xl">{last}</span>
+      </div>
+    ) : (
+      <span>TIRA</span>
+    );
+  };
+
+  const isTopPlayerTurn = gameState.turn === 1 && (playMode === 'local_pvp' || isTabletFlipped);
 
   return (
     <div className="w-full h-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto flex flex-col items-center justify-between py-4 px-3 select-none">
@@ -242,18 +339,7 @@ export const LudoGame: React.FC<LudoGameProps> = ({
               : 'bg-[#186b97]/80 opacity-70'
           }`}
         >
-          {gameState.turn === 1 && gameState.phase === 'move' && currentDisplayDice ? (
-            <div className="flex items-center gap-2">
-              <MiniDice value={currentDisplayDice} />
-              <span className="text-xl">{currentDisplayDice}</span>
-            </div>
-          ) : animDice !== null && gameState.turn === 1 ? (
-            <div className="flex items-center gap-2">
-              <MiniDice value={animDice} />
-            </div>
-          ) : (
-            <span>TIRA</span>
-          )}
+          {diceButtonContent(1)}
         </button>
 
         <button
@@ -353,13 +439,12 @@ export const LudoGame: React.FC<LudoGameProps> = ({
           {renderedTokens.map((t) => {
             const fillColor = t.player === 0 ? '#00afee' : '#ff5757';
             return (
-              <motion.g
+              <AnimatedPawn
                 key={`pawn-${t.player}-${t.tokenIndex}`}
-                onClick={() => handleTokenClick(t.player, t.tokenIndex)}
-                style={{ cursor: t.movable ? 'pointer' : 'default' }}
-                initial={false}
-                animate={{ x: t.x, y: t.y }}
-                transition={SLIDE}
+                x={t.x}
+                y={t.y}
+                movable={t.movable}
+                onTap={() => handleTokenClick(t.player, t.tokenIndex)}
               >
                 {/* Pawn base shadow */}
                 <ellipse cx="0" cy="0.32" rx="0.36" ry="0.14" fill="rgba(0,0,0,0.35)" />
@@ -391,10 +476,22 @@ export const LudoGame: React.FC<LudoGameProps> = ({
                     className="animate-pulse"
                   />
                 )}
-              </motion.g>
+              </AnimatedPawn>
             );
           })}
         </svg>
+
+        {gameState.message && !gameState.gameOver && (
+          <div className="absolute left-0 right-0 bottom-0 flex justify-center p-3 pointer-events-none" style={{ top: 0, alignItems: 'center' }}>
+            <div
+              className={`max-w-[85%] px-4 py-2 rounded-2xl bg-stone-900/85 text-white font-bold text-center text-base sm:text-lg shadow-xl ${
+                isTopPlayerTurn ? 'rotate-180' : ''
+              }`}
+            >
+              {gameState.message}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Bottom Player Action Bar (Player 1) */}
@@ -408,18 +505,7 @@ export const LudoGame: React.FC<LudoGameProps> = ({
               : 'bg-[#186b97]/80 opacity-70'
           }`}
         >
-          {gameState.turn === 0 && gameState.phase === 'move' && currentDisplayDice ? (
-            <div className="flex items-center gap-2">
-              <MiniDice value={currentDisplayDice} />
-              <span className="text-xl">{currentDisplayDice}</span>
-            </div>
-          ) : animDice !== null && gameState.turn === 0 ? (
-            <div className="flex items-center gap-2">
-              <MiniDice value={animDice} />
-            </div>
-          ) : (
-            <span>TIRA</span>
-          )}
+          {diceButtonContent(0)}
         </button>
 
         <button

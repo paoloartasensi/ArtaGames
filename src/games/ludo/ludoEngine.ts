@@ -8,6 +8,10 @@ export interface LudoState {
   turn: LudoPlayer;
   phase: 'roll' | 'move';
   dice: number | null;
+  /** The last die thrown and by whom (kept visible after the turn passes). */
+  lastRoll: { player: LudoPlayer; value: number } | null;
+  /** Failed throws in a row while every piece is still in base (3 tries to get a 6). */
+  failedTries: number;
   movable: number[];
   gameOver: boolean;
   winner: LudoPlayer | null;
@@ -70,6 +74,8 @@ export function createInitialLudoState(): LudoState {
     turn: 0,
     phase: 'roll',
     dice: null,
+    lastRoll: null,
+    failedTries: 0,
     movable: [],
     gameOver: false,
     winner: null,
@@ -77,6 +83,8 @@ export function createInitialLudoState(): LudoState {
     message: null,
   };
 }
+
+export const MAX_TRIES_FROM_BASE = 3;
 
 function computeMovable(tokens: [number[], number[]], player: LudoPlayer, dice: number): number[] {
   const res: number[] = [];
@@ -92,25 +100,52 @@ function computeMovable(tokens: [number[], number[]], player: LudoPlayer, dice: 
   return res;
 }
 
-export function rollLudo(state: LudoState): LudoState | null {
+export function rollLudo(state: LudoState, forcedValue?: number): LudoState | null {
   if (state.gameOver || state.phase !== 'roll') return null;
 
-  const dice = rollDie();
-  const movable = computeMovable(state.tokens, state.turn, dice);
+  const player = state.turn;
+  const dice = forcedValue ?? rollDie();
+  const movable = computeMovable(state.tokens, player, dice);
+  const lastRoll = { player, value: dice };
 
   if (movable.length === 0) {
+    // With no piece on the board (all in base or already home) you get 3 tries to roll a 6.
+    const allInBase = state.tokens[player].every((p) => p === -1 || p === FINISH_POS);
+    const tries = state.failedTries + 1;
+    if (allInBase && tries < MAX_TRIES_FROM_BASE) {
+      return {
+        ...state,
+        dice: null,
+        lastRoll,
+        failedTries: tries,
+        movable: [],
+        phase: 'roll',
+        lastMove: null,
+        message: `Serve un 6 per uscire! Riprova (${tries + 1}° tiro di ${MAX_TRIES_FROM_BASE})`,
+      };
+    }
     return {
       ...state,
-      dice,
+      dice: null,
+      lastRoll,
+      failedTries: 0,
       movable: [],
       phase: 'roll',
-      turn: other(state.turn),
+      turn: other(player),
       lastMove: null,
-      message: 'Nessuna pedina può muoversi: passa il turno!',
+      message: allInBase ? "Niente 6... tocca all'altro giocatore!" : 'Nessuna pedina può muoversi: passa il turno!',
     };
   }
 
-  return { ...state, dice, movable, phase: 'move', lastMove: null, message: null };
+  return { ...state, dice, lastRoll, failedTries: 0, movable, phase: 'move', lastMove: null, message: null };
+}
+
+/** True when every movable piece would end up in the same place (e.g. all still in base). */
+export function movesAreEquivalent(state: LudoState): boolean {
+  if (state.phase !== 'move' || state.movable.length === 0) return false;
+  const tokens = state.tokens[state.turn];
+  const first = tokens[state.movable[0]];
+  return state.movable.every((i) => tokens[i] === first);
 }
 
 export function moveLudo(state: LudoState, tokenIndex: number): LudoState | null {
@@ -153,6 +188,7 @@ export function moveLudo(state: LudoState, tokenIndex: number): LudoState | null
     turn: gameOver ? player : extraTurn ? player : other(player),
     phase: 'roll',
     dice: null,
+    failedTries: 0,
     movable: [],
     gameOver,
     winner: gameOver ? player : null,
@@ -165,7 +201,13 @@ export function moveLudo(state: LudoState, tokenIndex: number): LudoState | null
       extraTurn,
       finished: to === FINISH_POS,
     },
-    message: null,
+    message: gameOver
+      ? null
+      : captured > 0
+      ? 'Mangiata! Rimandata in base: tira ancora!'
+      : dice === 6
+      ? 'Hai fatto 6: tira ancora!'
+      : null,
   };
 }
 
