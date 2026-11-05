@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ShieldCheck, ShieldAlert, Maximize2, Minimize2, Eye } from 'lucide-react';
 import { screenShield, ScreenLockState } from '../utils/screenLock';
 import { useTheme } from '../theme/themeContext';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion } from '../utils/motion';
 
 export const ScreenLockBanner: React.FC = () => {
   const { theme, isDark } = useTheme();

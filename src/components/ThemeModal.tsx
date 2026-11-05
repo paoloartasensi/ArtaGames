@@ -2,7 +2,7 @@ import React from 'react';
 import { X, Check, Palette } from 'lucide-react';
 import { useTheme, THEMES } from '../theme/themeContext';
 import { ThemeId } from '../types/game';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion } from '../utils/motion';
 
 interface ThemeModalProps {
   isOpen: boolean;

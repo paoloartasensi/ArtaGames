@@ -2,7 +2,7 @@ import React from 'react';
 import { X, BookOpen, Lightbulb } from 'lucide-react';
 import { GameMetadata } from '../games/registry';
 import { useTheme } from '../theme/themeContext';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion } from '../utils/motion';
 
 interface KidsRulesModalProps {
   game: GameMetadata;

@@ -3,7 +3,7 @@ import confetti from 'canvas-confetti';
 import { Trophy, RotateCcw, LayoutGrid } from 'lucide-react';
 import { useTheme } from '../theme/themeContext';
 import { sound } from '../utils/audio';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion } from '../utils/motion';
 
 interface VictoryModalProps {
   isOpen: boolean;

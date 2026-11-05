@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { motion, type Transition } from 'motion/react';
+import { motion, type Transition } from './motion';
 
 // Short + subtle for a kids game.
 export const SLIDE: Transition = { duration: 0.25, ease: 'easeOut' };

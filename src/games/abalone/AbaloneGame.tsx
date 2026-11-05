@@ -16,7 +16,7 @@ import { getTurnColor } from '../../utils/turnColor';
 import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 import { TabletopPlayerBar } from '../../components/TabletopPlayerBar';
-import { motion } from 'motion/react';
+import { motion } from '../../utils/motion';
 import { SLIDE, FADE, useMoveKey } from '../../utils/animations';
 
 interface AbaloneGameProps {

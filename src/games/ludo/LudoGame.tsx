@@ -15,7 +15,7 @@ import { sound } from '../../utils/audio';
 import { VictoryModal } from '../../components/VictoryModal';
 import { InGameMenuModal } from '../../components/InGameMenuModal';
 import { ScorePill } from '../../components/ScorePill';
-import { motion } from 'motion/react';
+import { motion } from '../../utils/motion';
 import { SLIDE } from '../../utils/animations';
 import { Sparkles } from 'lucide-react';
 

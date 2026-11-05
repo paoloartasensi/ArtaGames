@@ -16,6 +16,7 @@ import {
   canPlayCard,
   getTopCard,
   colorName,
+  cardName,
 } from './unoEngine';
 import { Sparkles, RotateCw, Eye, EyeOff, Check, AlertCircle } from 'lucide-react';
 
@@ -99,7 +100,7 @@ export const UnoCardView: React.FC<{
     <button
       type="button"
       onClick={onClick}
-      disabled={!onClick || !isPlayable}
+      disabled={!onClick}
       className={`relative aspect-[2/3] rounded-xl sm:rounded-2xl p-1 sm:p-1.5 shadow-lg border-2 ${bgGradient} ${borderColor} select-none transition-all duration-200 flex flex-col justify-between items-center ${widthClass} ${
         isPlayable
           ? 'hover:-translate-y-3 cursor-pointer ring-4 ring-amber-300/80 scale-105 active:scale-95 shadow-amber-400/40'
@@ -206,6 +207,11 @@ export const UnoGame: React.FC<UnoGameProps> = ({
 
     if (!canPlayCard(card, topCard, gameState.activeColor)) {
       sound.playMiss();
+      const need =
+        topCard.color === 'wild'
+          ? `una carta ${colorName(gameState.activeColor)}`
+          : `una carta ${colorName(gameState.activeColor)} o un ${cardName(topCard).split(' ')[0]}`;
+      setGameState((prev) => ({ ...prev, lastActionMessage: `❌ Questa no! Serve ${need} (o un Jolly 🌈).` }));
       return;
     }
 
