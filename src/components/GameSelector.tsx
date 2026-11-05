@@ -69,6 +69,8 @@ const CATEGORIES: { id: string; label: string; ids?: GameId[] }[] = [
 ];
 
 const GAP = 10;
+const BOTTOM_PAD = 16;
+const MIN_TILE = 84; // below this, tiles get too small: fall back to scrolling
 
 /**
  * Picks the column count that makes every tile as large as possible while
@@ -109,9 +111,14 @@ export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, active
     const measure = () => {
       const el = gridRef.current;
       if (!el) return;
-      setArea({ w: el.clientWidth, h: el.clientHeight });
+      // Height from the viewport, not from CSS: Safari 9 can't resolve % heights
+      // inside flex items, so clientHeight would be 0 there.
+      const top = el.getBoundingClientRect().top;
+      const h = Math.floor(window.innerHeight - top - BOTTOM_PAD);
+      setArea({ w: el.clientWidth || window.innerWidth - 24, h });
     };
     measure();
+    const t = setTimeout(measure, 300);
     const delayed = () => {
       measure();
       setTimeout(measure, 250);
@@ -121,6 +128,7 @@ export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, active
     return () => {
       window.removeEventListener('resize', delayed);
       window.removeEventListener('orientationchange', delayed);
+      clearTimeout(t);
     };
   }, []);
 
@@ -129,7 +137,13 @@ export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, active
     onSelectGame(ALL_GAMES[randomIndex].id);
   };
 
-  const { cols, tileW, tileH } = computeLayout(filteredGames.length, area.w, area.h);
+  const fitted = computeLayout(filteredGames.length, area.w, Math.max(area.h, 0));
+  const tooSmall = Math.min(fitted.tileW, fitted.tileH) < MIN_TILE;
+  // Fallback (very small screens / failed measure): fixed-size tiles in a scrollable area
+  const fallbackCols = Math.max(2, Math.floor((area.w + GAP) / (120 + GAP)));
+  const cols = tooSmall ? fallbackCols : fitted.cols;
+  const tileW = tooSmall ? (area.w - (cols - 1) * GAP) / cols : fitted.tileW;
+  const tileH = tooSmall ? Math.max(MIN_TILE, Math.min(tileW, 140)) : fitted.tileH;
   const side = Math.min(tileW, tileH);
   const emojiSize = Math.max(18, Math.min(side * 0.42, 84));
   const titleSize = Math.max(10, Math.min(side * 0.13, 22));
@@ -138,7 +152,7 @@ export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, active
   const radius = Math.max(12, Math.min(side * 0.16, 30));
 
   return (
-    <div className="w-full h-full flex flex-col min-h-0 select-none">
+    <div className="w-full flex-1 flex flex-col min-h-0 select-none">
       {/* Category pills + random game */}
       <div className="flex items-center gap-2 overflow-x-auto py-2 px-1 no-scrollbar shrink-0">
         {CATEGORIES.map((cat) => (
@@ -164,7 +178,11 @@ export const GameSelector: React.FC<GameSelectorProps> = ({ onSelectGame, active
       </div>
 
       {/* Fit-to-screen tile area: every game always visible, no scrolling */}
-      <div ref={gridRef} className="flex-1 min-h-0 w-full overflow-hidden mt-1">
+      <div
+        ref={gridRef}
+        className={`w-full mt-1 ${tooSmall ? 'overflow-y-auto allow-scroll' : 'overflow-hidden'}`}
+        style={{ height: area.h > 0 ? area.h : undefined, WebkitOverflowScrolling: 'touch' }}
+      >
         {area.w > 0 && (
           <div className="flex flex-wrap content-start" style={{ margin: -GAP / 2 }}>
             {filteredGames.map((game) => {
