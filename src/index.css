@@ -129,3 +129,14 @@
   }
   @media (orientation: landscape) { .landscape\:grid-cols-8 > * { width: 12.5%; } }
 }
+
+/* Centra un elemento dimensionato in % dentro la sua casella (genitore posizionato).
+ * Necessario su Safari 9: le altezze in % dentro elementi flex non vengono risolte. */
+.fit-center {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+}

@@ -28,14 +28,14 @@ const PieceDisc: React.FC<{ piece: CheckersPieceNonNull; isSelected: boolean }> 
   isSelected,
 }) => (
   <div
-    className={`relative z-20 w-[82%] h-[82%] rounded-full shadow-md flex items-center justify-center transition-transform ${
+    className={`fit-center z-20 w-[82%] h-[82%] rounded-full shadow-md flex items-center justify-center transition-transform ${
       piece.toLowerCase() === 'r'
         ? 'bg-gradient-to-tr from-red-600 to-red-400 border border-red-300'
         : 'bg-gradient-to-tr from-stone-900 to-stone-700 border border-stone-600 text-stone-200'
     } ${isSelected ? 'scale-110 ring-2 ring-white shadow-lg' : ''}`}
   >
     {/* Inner concentric ring for traditional tactile feel */}
-    <div className="w-[65%] h-[65%] rounded-full border border-white/20 flex items-center justify-center">
+    <div className="fit-center w-[65%] h-[65%] rounded-full border border-white/20 flex items-center justify-center">
       {(piece === 'R' || piece === 'B') && (
         <Crown className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-amber-300 fill-amber-300 drop-shadow" />
       )}

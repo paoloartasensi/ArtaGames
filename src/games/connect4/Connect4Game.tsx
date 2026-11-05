@@ -138,7 +138,7 @@ export const Connect4Game: React.FC<Connect4GameProps> = ({
                 >
                   {cell && (
                     <div
-                      className={`w-[85%] h-[85%] rounded-full shadow-md transition-all duration-200 transform scale-100 ${
+                      className={`fit-center w-[85%] h-[85%] rounded-full shadow-md transition-all duration-200 transform scale-100 ${
                         cell === 'red'
                           ? 'bg-gradient-to-tr from-red-600 to-red-400'
                           : 'bg-gradient-to-tr from-amber-500 to-amber-300'

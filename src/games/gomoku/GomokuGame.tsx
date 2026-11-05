@@ -117,14 +117,14 @@ export const GomokuGame: React.FC<GomokuGameProps> = ({
                   key={`${r}-${c}`}
                   onClick={() => handleClick(r, c)}
                   disabled={!playable}
-                  className={`flex items-center justify-center aspect-square rounded-[6px] transition-colors ${
+                  className={`relative flex items-center justify-center aspect-square rounded-[6px] transition-colors ${
                     playable ? 'hover:bg-white/20 cursor-pointer active:scale-95' : ''
                   }`}
                   style={{ backgroundColor: '#e0b069' }}
                 >
                   {cell !== null && (
                     <span
-                      className={`block rounded-full w-[74%] h-[74%] shadow-md ${
+                      className={`fit-center rounded-full w-[74%] h-[74%] shadow-md ${
                         cell === 0
                           ? 'bg-gradient-to-br from-stone-500 to-stone-900 ring-1 ring-black/50'
                           : 'bg-gradient-to-br from-white to-stone-300 ring-1 ring-black/30'

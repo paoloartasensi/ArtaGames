@@ -373,7 +373,7 @@ export const PacmanGame: React.FC<PacmanGameProps> = ({
                   >
                     {/* Maze Wall */}
                     {cell === 1 && (
-                      <div className="w-full h-full bg-blue-700/60 rounded-[3px] border border-blue-500/80 shadow-[0_0_6px_rgba(59,130,246,0.5)]" />
+                      <div className="fit-center w-full h-full bg-blue-700/60 rounded-[3px] border border-blue-500/80 shadow-[0_0_6px_rgba(59,130,246,0.5)]" />
                     )}
 
                     {/* Small Dot */}
@@ -394,7 +394,7 @@ export const PacmanGame: React.FC<PacmanGameProps> = ({
                     {/* Pacman */}
                     {isPacman && (
                       <div
-                        className={`w-[85%] h-[85%] rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,1)] transition-transform flex items-center justify-center font-black text-xs sm:text-base leading-none select-none ${
+                        className={`fit-center w-[85%] h-[85%] rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,1)] transition-transform flex items-center justify-center font-black text-xs sm:text-base leading-none select-none ${
                           gameState.pacman.dir === 'UP'
                             ? '-rotate-90'
                             : gameState.pacman.dir === 'DOWN'
@@ -411,7 +411,7 @@ export const PacmanGame: React.FC<PacmanGameProps> = ({
                     {/* Ghost */}
                     {ghost && !isPacman && (
                       <div
-                        className={`w-[85%] h-[85%] rounded-t-full flex items-center justify-center text-xs sm:text-base transition-transform select-none ${
+                        className={`fit-center w-[85%] h-[85%] rounded-t-full flex items-center justify-center text-xs sm:text-base transition-transform select-none ${
                           ghost.isScared ? 'animate-pulse' : ''
                         }`}
                         style={{

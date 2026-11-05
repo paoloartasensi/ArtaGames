@@ -252,7 +252,7 @@ export const GoGame: React.FC<GoGameProps> = ({
                     {/* Hover ghost stone indicator */}
                     {!stone && !gameState.gameOver && !isBotThinking && (
                       <div
-                        className={`w-[60%] h-[60%] rounded-full opacity-0 group-hover:opacity-40 transition-opacity ${
+                        className={`fit-center w-[60%] h-[60%] rounded-full opacity-0 group-hover:opacity-40 transition-opacity ${
                           gameState.turn === 'B' ? 'bg-stone-900' : 'bg-white'
                         }`}
                       />
@@ -261,7 +261,7 @@ export const GoGame: React.FC<GoGameProps> = ({
                     {/* Placed Stone */}
                     {stone && (
                       <div
-                        className={`w-[88%] h-[88%] rounded-full shadow-lg transition-transform flex items-center justify-center ${
+                        className={`fit-center w-[88%] h-[88%] rounded-full shadow-lg transition-transform flex items-center justify-center ${
                           stone === 'B'
                             ? 'bg-gradient-to-br from-stone-800 to-stone-950 border border-stone-700'
                             : 'bg-gradient-to-br from-white to-stone-200 border border-stone-300'

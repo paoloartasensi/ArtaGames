@@ -114,11 +114,11 @@ export const ReversiGame: React.FC<ReversiGameProps> = ({
                   key={`${r}-${c}`}
                   onClick={() => handleCellClick(r, c)}
                   disabled={!legal || gameState.gameOver || isBotThinking}
-                  className="aspect-square rounded-sm flex items-center justify-center transition-colors bg-emerald-700/70 dark:bg-emerald-900/50"
+                  className="relative aspect-square rounded-sm flex items-center justify-center transition-colors bg-emerald-700/70 dark:bg-emerald-900/50"
                 >
                   {cell && (
                     <div
-                      className={`w-[80%] h-[80%] rounded-full shadow-md ${
+                      className={`fit-center w-[80%] h-[80%] rounded-full shadow-md ${
                         cell === 'black'
                           ? 'bg-gradient-to-tr from-stone-800 to-stone-500'
                           : 'bg-gradient-to-tr from-white to-stone-200'

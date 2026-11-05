@@ -49,7 +49,7 @@ export const UnoCardView: React.FC<{
             : 'w-16 sm:w-20 md:w-24'
         }`}
       >
-        <div className="w-[82%] h-[68%] rounded-full bg-red-600 border border-amber-300 transform -rotate-25 flex items-center justify-center shadow-inner">
+        <div className="fit-center w-[82%] h-[68%] rounded-full bg-red-600 border border-amber-300 transform -rotate-25 flex items-center justify-center shadow-inner">
           <span className="font-black italic text-amber-300 tracking-tighter text-xs sm:text-base md:text-lg">
             UNO
           </span>
@@ -117,7 +117,7 @@ export const UnoCardView: React.FC<{
       </span>
 
       {/* Center White Oval Graphic */}
-      <div className="w-[85%] h-[64%] rounded-full bg-white/95 shadow-inner border border-black/10 transform -rotate-20 flex items-center justify-center my-auto">
+      <div className="fit-center w-[85%] h-[64%] rounded-full bg-white/95 shadow-inner border border-black/10 transform -rotate-20 flex items-center justify-center">
         {card.color === 'wild' ? (
           <div className="flex flex-col items-center justify-center">
             <span className="text-base sm:text-2xl md:text-3xl leading-none">🌈</span>
