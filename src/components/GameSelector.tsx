@@ -32,6 +32,10 @@ const GAME_EMOJIS: Record<GameId, string> = {
   uno: '🃏',
   tetris: '🧱',
   pacman: '🟡',
+  sudoku: '🔢',
+  puzzle15: '🧮',
+  mastermind: '🔐',
+  hanoi: '🗼',
 };
 
 const GAME_THEMES: Record<GameId, { bgGradient: string; borderDark: string; sub: string }> = {
@@ -59,12 +63,17 @@ const GAME_THEMES: Record<GameId, { bgGradient: string; borderDark: string; sub:
   uno: { bgGradient: 'from-[#ef4444] via-[#f59e0b] to-[#3b82f6]', borderDark: '#b91c1c', sub: 'UNO! Carte' },
   tetris: { bgGradient: 'from-[#06b6d4] to-[#0284c7]', borderDark: '#0891b2', sub: 'Tetris Classico' },
   pacman: { bgGradient: 'from-[#eab308] to-[#ca8a04]', borderDark: '#a16207', sub: 'Pac-Man Arcade' },
+  sudoku: { bgGradient: 'from-[#14b8a6] to-[#0d9488]', borderDark: '#0f766e', sub: 'Sudoku' },
+  puzzle15: { bgGradient: 'from-[#f472b6] to-[#db2777]', borderDark: '#be185d', sub: 'Gioco del 15' },
+  mastermind: { bgGradient: 'from-[#818cf8] to-[#4f46e5]', borderDark: '#4338ca', sub: 'Codice Segreto' },
+  hanoi: { bgGradient: 'from-[#fb923c] to-[#ea580c]', borderDark: '#c2410c', sub: 'Torre di Hanoi' },
 };
 
 const CATEGORIES: { id: string; label: string; ids?: GameId[] }[] = [
   { id: 'all', label: 'TUTTI' },
   { id: 'classic', label: 'CLASSICI', ids: ['ludo', 'checkers', 'chess', 'snakes', 'domino', 'guesswho', 'goose', 'uno', 'tetris'] },
   { id: 'strategy', label: 'STRATEGIA', ids: ['connect4', 'go', 'reversi', 'quarto', 'morris', 'abalone'] },
+  { id: 'logic', label: 'LOGICA', ids: ['sudoku', 'puzzle15', 'mastermind', 'hanoi', 'memory', 'simon'] },
   { id: 'quick', label: 'RAPIDI 1v1', ids: ['tictactoe', 'dotsboxes', 'memory', 'nim', 'battleship', 'gomoku', 'simon', 'pacman'] },
 ];
 

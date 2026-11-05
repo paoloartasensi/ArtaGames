@@ -36,6 +36,10 @@ import { SimonGame } from './games/simon/SimonGame';
 import { UnoGame } from './games/uno/UnoGame';
 import { TetrisGame } from './games/tetris/TetrisGame';
 import { PacmanGame } from './games/pacman/PacmanGame';
+import { SudokuGame } from './games/sudoku/SudokuGame';
+import { Puzzle15Game } from './games/puzzle15/Puzzle15Game';
+import { MastermindGame } from './games/mastermind/MastermindGame';
+import { HanoiGame } from './games/hanoi/HanoiGame';
 
 function AppContent() {
   const { theme } = useTheme();
@@ -76,7 +80,9 @@ function AppContent() {
     if (pendingGameId) {
       setActiveGameId(pendingGameId);
     }
-    setPlayMode(mode);
+    // Hidden-information and single-player games never run in 2-player mode
+    const modes = pendingGameId ? GAME_REGISTRY[pendingGameId].modes : undefined;
+    setPlayMode(modes ? 'bot' : mode);
     setDifficulty(diff);
     setViewMode('game');
     setIsLaunchModalOpen(false);
@@ -339,6 +345,50 @@ function AppContent() {
 
               {activeGameId === 'pacman' && (
                 <PacmanGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'sudoku' && (
+                <SudokuGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'puzzle15' && (
+                <Puzzle15Game
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'mastermind' && (
+                <MastermindGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'hanoi' && (
+                <HanoiGame
                   key={gameKey}
                   playMode={playMode}
                   difficulty={difficulty}

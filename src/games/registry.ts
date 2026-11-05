@@ -22,14 +22,25 @@ export type GameId =
   | 'simon'
   | 'uno'
   | 'tetris'
-  | 'pacman';
+  | 'pacman'
+  | 'sudoku'
+  | 'puzzle15'
+  | 'mastermind'
+  | 'hanoi';
 
 export interface GameMetadata {
   id: GameId;
   title: string;
   subtitle: string;
   minAge: string;
-  category: 'Classici' | 'Strategia' | 'Rapidi';
+  category: 'Classici' | 'Strategia' | 'Rapidi' | 'Logica';
+  /**
+   * Which launch options make sense:
+   * - undefined: vs bot or 2 players on the same screen
+   * - 'botOnly': hidden information (cards, secret character), so only vs the computer
+   * - 'solo': single-player game, no opponent at all
+   */
+  modes?: 'botOnly' | 'solo';
   summary: string;
   rulesKidFriendly: {
     title: string;
@@ -388,6 +399,7 @@ export const GAME_REGISTRY: Record<GameId, GameMetadata> = {
   },
   guesswho: {
     id: 'guesswho',
+    modes: 'botOnly',
     title: 'Indovina Chi',
     subtitle: 'Trova il personaggio segreto con le domande giuste',
     minAge: '5+ anni',
@@ -429,6 +441,7 @@ export const GAME_REGISTRY: Record<GameId, GameMetadata> = {
   },
   simon: {
     id: 'simon',
+    modes: 'solo',
     title: 'Simon Dice',
     subtitle: 'Ricorda e ripeti la sequenza musicale di colori',
     minAge: '4+ anni',
@@ -449,6 +462,7 @@ export const GAME_REGISTRY: Record<GameId, GameMetadata> = {
   },
   uno: {
     id: 'uno',
+    modes: 'botOnly',
     title: 'UNO! Carte Colorate',
     subtitle: 'Abbina colore o numero e grida UNO!',
     minAge: '5+ anni',
@@ -471,6 +485,7 @@ export const GAME_REGISTRY: Record<GameId, GameMetadata> = {
   },
   tetris: {
     id: 'tetris',
+    modes: 'solo',
     title: 'Tetris Classico',
     subtitle: 'Incastra i blocchi colorati e completa le righe',
     minAge: '5+ anni',
@@ -491,6 +506,7 @@ export const GAME_REGISTRY: Record<GameId, GameMetadata> = {
   },
   pacman: {
     id: 'pacman',
+    modes: 'solo',
     title: 'Pac-Man Arcade',
     subtitle: 'Mangia tutti i pallini ed evita i fantasmini',
     minAge: '5+ anni',
@@ -508,6 +524,89 @@ export const GAME_REGISTRY: Record<GameId, GameMetadata> = {
     },
     boardDescription: 'Labirinto classico con pareti al neon, pallini, ciliegie e fantasmi',
     iconName: 'Circle',
+  },
+  sudoku: {
+    id: 'sudoku',
+    modes: 'solo',
+    title: 'Sudoku',
+    subtitle: 'Riempi la griglia senza ripetere',
+    minAge: '5+ anni',
+    category: 'Logica',
+    summary: 'Completa la griglia: in ogni riga, colonna e riquadro ogni simbolo compare una volta sola. Facile con i frutti 4x4, poi 6x6 e il vero 9x9!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Sudoku',
+      steps: [
+        'Tocca una casella vuota, poi tocca il simbolo da metterci.',
+        'In ogni riga, in ogni colonna e in ogni riquadro ogni simbolo deve comparire una sola volta.',
+        'Se sbagli il simbolo diventa rosso: cancellalo con ⌫ e riprova.',
+        'Bloccato? La lampadina 💡 ti regala una casella giusta.',
+      ],
+      tip: 'Consiglio: cerca la riga o il riquadro a cui manca un solo simbolo: è facile capire quale!',
+    },
+    boardDescription: 'Griglia 4x4 (frutti), 6x6 o 9x9 con soluzione unica',
+    iconName: 'Grid3x3',
+  },
+  puzzle15: {
+    id: 'puzzle15',
+    modes: 'solo',
+    title: 'Gioco del 15',
+    subtitle: 'Fai scorrere i numeri e mettili in ordine',
+    minAge: '5+ anni',
+    category: 'Logica',
+    summary: 'Le tessere sono mescolate: falle scorrere nel buco vuoto per rimetterle in ordine. 3x3 per iniziare, 4x4 classico, 5x5 per i campioni!',
+    rulesKidFriendly: {
+      title: 'Come si gioca al Gioco del 15',
+      steps: [
+        'Tocca una tessera vicina al buco vuoto: scivola al suo posto.',
+        'Puoi toccare anche una tessera più lontana sulla stessa riga o colonna: scorre tutta la fila!',
+        "Metti i numeri in ordine, da sinistra a destra e dall'alto in basso. Il buco finisce in fondo a destra.",
+      ],
+      tip: 'Consiglio: sistema prima la riga in alto, poi la colonna a sinistra, e il puzzle diventa più piccolo!',
+    },
+    boardDescription: 'Puzzle scorrevole 3x3, 4x4 o 5x5',
+    iconName: 'LayoutGrid',
+  },
+  mastermind: {
+    id: 'mastermind',
+    modes: 'solo',
+    title: 'Mastermind',
+    subtitle: 'Scopri il codice segreto di colori',
+    minAge: '6+ anni',
+    category: 'Logica',
+    summary: 'Il computer nasconde una fila di colori. Fai i tuoi tentativi e usa gli indizi per scoprire il codice segreto!',
+    rulesKidFriendly: {
+      title: 'Come si gioca a Mastermind',
+      steps: [
+        'Tocca i colori in basso per riempire la tua fila, poi premi "Prova!".',
+        'Un pallino verde vuol dire: un colore è giusto ed è al posto giusto.',
+        "Un pallino giallo vuol dire: un colore c'è, ma è al posto sbagliato.",
+        'Scopri tutto il codice prima di finire i tentativi!',
+      ],
+      tip: 'Consiglio: cambia un colore alla volta e guarda come cambiano i pallini!',
+    },
+    boardDescription: 'Codice segreto di 3 o 4 colori con indizi',
+    iconName: 'Palette',
+  },
+  hanoi: {
+    id: 'hanoi',
+    modes: 'solo',
+    title: 'Torre di Hanoi',
+    subtitle: 'Sposta la torre un disco alla volta',
+    minAge: '5+ anni',
+    category: 'Logica',
+    summary: 'Sposta tutta la torre di dischi sul paletto verde, un disco alla volta e senza mai mettere un disco grande sopra uno piccolo.',
+    rulesKidFriendly: {
+      title: 'Come si gioca alla Torre di Hanoi',
+      steps: [
+        'Tocca una torre per prendere il disco in cima, poi tocca la torre dove vuoi metterlo.',
+        'Puoi spostare un solo disco alla volta.',
+        'Un disco grande non può mai stare sopra un disco più piccolo.',
+        'Vinci quando tutta la torre è sul paletto verde a destra!',
+      ],
+      tip: 'Consiglio: con 3 dischi bastano 7 mosse. Il disco più piccolo si muove una volta sì e una no!',
+    },
+    boardDescription: 'Tre paletti e da 3 a 6 dischi colorati',
+    iconName: 'Layers',
   },
 };
 

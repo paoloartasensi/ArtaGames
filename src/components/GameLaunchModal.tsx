@@ -29,9 +29,11 @@ export const GameLaunchModal: React.FC<GameLaunchModalProps> = ({
   if (!isOpen || !gameId) return null;
 
   const game = GAME_REGISTRY[gameId];
+  const modes = game.modes;
+  const effectiveMode: PlayMode = modes ? 'bot' : playMode;
 
   const handleStart = () => {
-    onLaunch(playMode, difficulty);
+    onLaunch(effectiveMode, difficulty);
   };
 
   return (
@@ -59,7 +61,15 @@ export const GameLaunchModal: React.FC<GameLaunchModalProps> = ({
           {game.category} · {game.minAge}
         </p>
 
+        {modes === 'botOnly' && (
+          <div className="w-full mt-5 p-3 rounded-2xl bg-sky-500/15 text-sky-700 dark:text-sky-300 text-xs font-bold text-center flex items-center justify-center">
+            <Bot className="w-5 h-5 mr-2 shrink-0" />
+            <span>Si gioca contro il computer: le carte segrete non si possono nascondere su uno schermo condiviso.</span>
+          </div>
+        )}
+
         {/* Mode Selector */}
+        {!modes && (
         <div className="w-full mt-6 space-y-3">
           <label className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
             Modalità di Gioco
@@ -94,6 +104,7 @@ export const GameLaunchModal: React.FC<GameLaunchModalProps> = ({
             </button>
           </div>
         </div>
+        )}
 
         {/* Rules variant (Dama only) */}
         {gameId === 'checkers' && (
@@ -128,10 +139,10 @@ export const GameLaunchModal: React.FC<GameLaunchModalProps> = ({
         )}
 
         {/* Difficulty Selector (only for vs Bot) */}
-        {playMode === 'bot' && (
+        {effectiveMode === 'bot' && (
           <div className="w-full mt-4 space-y-2">
             <label className="text-xs font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider">
-              Difficoltà Bot
+              {modes === 'solo' ? 'Livello' : 'Difficoltà Bot'}
             </label>
             <div className="grid grid-cols-3 gap-2">
               {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => {
