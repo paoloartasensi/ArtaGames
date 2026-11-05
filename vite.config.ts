@@ -4,16 +4,34 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 import {defineConfig} from 'vite';
 
+function fixLegacySafariSystemPlugin() {
+  return {
+    name: 'fix-legacy-safari-system',
+    enforce: 'post' as const,
+    transformIndexHtml(html: string) {
+      return html.replace(
+        /System\.import\(document\.getElementById\(['"]vite-legacy-entry['"]\)\.getAttribute\(['"]data-src['"]\)\)/g,
+        `(function runLegacy(){if(window.__legacy_loaded)return;if(typeof System!=='undefined'&&System&&System.import){window.__legacy_loaded=true;System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'));}else{setTimeout(runLegacy,25);}})()`
+      );
+    },
+  };
+}
+
 export default defineConfig(() => {
   return {
     base: '/ArtaGames/',
+    build: {
+      minify: 'terser' as const,
+      terserOptions: {
+        safari10: true,
+      },
+    },
     plugins: [
       react(),
       legacy({
-        targets: ['defaults', 'safari >= 12', 'iOS >= 12'],
-        modernTargets: ['defaults', 'safari >= 12', 'iOS >= 12'],
-        modernPolyfills: true,
+        targets: ['defaults', 'not IE 11', 'ios_saf >= 10', 'safari >= 10'],
       }),
+      fixLegacySafariSystemPlugin(),
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['icon.svg'],
@@ -78,7 +96,7 @@ export default defineConfig(() => {
     ],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve('.'),
       },
     },
     server: {

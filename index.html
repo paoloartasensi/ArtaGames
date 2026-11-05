@@ -19,6 +19,9 @@
     <div id="root"></div>
     <script>
       window.addEventListener('error', function(e) {
+        if (e && e.message && (e.message.indexOf('import.meta') !== -1 || e.message.indexOf('loading legacy chunks') !== -1)) {
+          return;
+        }
         var errDiv = document.getElementById('debug-err');
         if (!errDiv) {
           errDiv = document.createElement('div');
