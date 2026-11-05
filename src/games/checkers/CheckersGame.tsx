@@ -4,8 +4,9 @@ import {
   CheckersState,
   CheckersPiece,
   createInitialCheckersState,
-  getMovesForPiece,
-  getAllMovesForPlayer,
+  getLegalMoves,
+  isPlayableSquare,
+  CheckersVariant,
   applyCheckersMove,
   getBotCheckersMove,
   isPieceOfCurrentPlayer,
@@ -48,6 +49,7 @@ interface CheckersGameProps {
   onOpenRules: () => void;
   onSelectGame: () => void;
   isTabletFlipped?: boolean;
+  variant?: CheckersVariant;
 }
 
 export const CheckersGame: React.FC<CheckersGameProps> = ({
@@ -55,9 +57,10 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
   difficulty,
   onSelectGame,
   isTabletFlipped,
+  variant = 'american',
 }) => {
   const { theme, isDark } = useTheme();
-  const [gameState, setGameState] = useState<CheckersState>(createInitialCheckersState());
+  const [gameState, setGameState] = useState<CheckersState>(() => createInitialCheckersState(variant));
   const [isBotThinking, setIsBotThinking] = useState(false);
 
   // BOT AI turn
@@ -98,12 +101,8 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
 
     // Case 1: Clicked own piece -> select it and show legal moves
     if (clickedPiece && isPieceOfCurrentPlayer(clickedPiece, gameState.turn)) {
-      const pieceMoves = getMovesForPiece(gameState.board, r, c);
-      // Filter if there are mandatory captures
-      const allMoves = getAllMovesForPlayer(gameState.board, gameState.turn);
-      const hasCaptures = allMoves.some((m) => !!m.captures);
-
-      const filtered = hasCaptures ? pieceMoves.filter((m) => !!m.captures) : pieceMoves;
+      // Only legal moves (mandatory / priority captures already applied by the engine)
+      const filtered = getLegalMoves(gameState).filter((m) => m.fromR === r && m.fromC === c);
 
       sound.playTick();
       setGameState({
@@ -134,7 +133,7 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
   };
 
   const handleRestart = () => {
-    setGameState(createInitialCheckersState());
+    setGameState(createInitialCheckersState(variant));
   };
 
   const lastMove = gameState.moveHistory[gameState.moveHistory.length - 1];
@@ -165,7 +164,7 @@ export const CheckersGame: React.FC<CheckersGameProps> = ({
         <div className="relative grid grid-cols-8 grid-rows-8 w-full h-full rounded-xl overflow-hidden shadow-inner border border-black/20">
           {gameState.board.map((row, r) =>
             row.map((piece, c) => {
-              const isDarkSquare = (r + c) % 2 === 1;
+              const isDarkSquare = isPlayableSquare(r, c, gameState.variant);
               const isSelected = gameState.selectedPiece?.r === r && gameState.selectedPiece?.c === c;
               const isValidTarget = gameState.validMoves.find((m) => m.toR === r && m.toC === c);
               const isCaptureTarget = isValidTarget?.captures;

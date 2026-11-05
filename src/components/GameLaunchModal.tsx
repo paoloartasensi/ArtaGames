@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { GameId, GAME_REGISTRY } from '../games/registry';
 import { PlayMode, Difficulty } from '../types/game';
+import type { CheckersVariant } from '../games/checkers/checkersEngine';
 import { Bot, Users, Play, HelpCircle, X } from 'lucide-react';
 
 interface GameLaunchModalProps {
@@ -8,6 +9,8 @@ interface GameLaunchModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLaunch: (mode: PlayMode, difficulty: Difficulty) => void;
+  checkersVariant: CheckersVariant;
+  onChangeCheckersVariant: (v: CheckersVariant) => void;
   onOpenRules: () => void;
 }
 
@@ -17,6 +20,8 @@ export const GameLaunchModal: React.FC<GameLaunchModalProps> = ({
   onClose,
   onLaunch,
   onOpenRules,
+  checkersVariant,
+  onChangeCheckersVariant,
 }) => {
   const [playMode, setPlayMode] = useState<PlayMode>('bot');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
@@ -89,6 +94,38 @@ export const GameLaunchModal: React.FC<GameLaunchModalProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Rules variant (Dama only) */}
+        {gameId === 'checkers' && (
+          <div className="w-full mt-4 space-y-2">
+            <label className="text-xs font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+              Regole
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {([
+                ['italian', '🇮🇹 Italiana', 'La pedina non mangia la dama'],
+                ['american', '🇺🇸 Americana', 'Tutti mangiano tutti'],
+              ] as [CheckersVariant, string, string][]).map(([v, label, hint]) => {
+                const isSelected = checkersVariant === v;
+                return (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => onChangeCheckersVariant(v)}
+                    className={`py-2.5 px-1 rounded-2xl border-2 transition-all cursor-pointer flex flex-col items-center ${
+                      isSelected
+                        ? 'border-amber-500 bg-amber-500/20 text-amber-700 dark:text-amber-300 border-b-4 border-b-amber-600 shadow-sm'
+                        : 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400'
+                    }`}
+                  >
+                    <span className="text-xs font-black">{label}</span>
+                    <span className="text-[10px] font-bold opacity-75">{hint}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Difficulty Selector (only for vs Bot) */}
         {playMode === 'bot' && (

@@ -73,6 +73,8 @@ export const GAME_REGISTRY: Record<GameId, GameMetadata> = {
         'I tuoi pezzi avanzano sempre in diagonale di 1 passo sulle caselle scure.',
         'Se un pezzo avversario è vicino e dietro c\'è una casella vuota, saltalo e catturalo!',
         'Quando una tua pedina arriva all\'ultima riga in fondo, diventa una Dama con la corona e può muoversi anche all\'indietro!',
+        'Regole italiane: la pedina non può mangiare la Dama e devi sempre mangiare più pezzi possibile (meglio con la Dama).',
+        'Regole americane: tutti possono mangiare tutti e scegli tu quale presa fare.',
       ],
       tip: 'Consiglio: cerca di proteggere le tue pedine facendole viaggiare insieme in gruppo.',
     },

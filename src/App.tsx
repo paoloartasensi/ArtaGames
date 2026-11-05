@@ -13,6 +13,7 @@ import { PlayMode, Difficulty } from './types/game';
 // Game Views
 import { Connect4Game } from './games/connect4/Connect4Game';
 import { CheckersGame } from './games/checkers/CheckersGame';
+import type { CheckersVariant } from './games/checkers/checkersEngine';
 import { BattleshipGame } from './games/battleship/BattleshipGame';
 import { ChessGame } from './games/chess/ChessGame';
 import { GoGame } from './games/go/GoGame';
@@ -49,6 +50,20 @@ function AppContent() {
   const [gameKey, setGameKey] = useState(0);
   const [pendingGameId, setPendingGameId] = useState<GameId | null>(null);
   const [isLaunchModalOpen, setIsLaunchModalOpen] = useState(false);
+  const [checkersVariant, setCheckersVariantState] = useState<CheckersVariant>(() => {
+    try {
+      const v = localStorage.getItem('arta.checkersVariant');
+      return v === 'american' || v === 'italian' ? v : 'italian';
+    } catch {
+      return 'italian';
+    }
+  });
+  const setCheckersVariant = (v: CheckersVariant) => {
+    setCheckersVariantState(v);
+    try {
+      localStorage.setItem('arta.checkersVariant', v);
+    } catch {}
+  };
 
   const activeGame = GAME_REGISTRY[activeGameId];
 
@@ -84,6 +99,7 @@ function AppContent() {
               {activeGameId === 'checkers' && (
                 <CheckersGame
                   key={gameKey}
+                  variant={checkersVariant}
                   playMode={playMode}
                   difficulty={difficulty}
                   onOpenRules={() => setIsRulesModalOpen(true)}
@@ -388,6 +404,8 @@ function AppContent() {
         isOpen={isLaunchModalOpen}
         onClose={() => setIsLaunchModalOpen(false)}
         onLaunch={handleLaunchGame}
+        checkersVariant={checkersVariant}
+        onChangeCheckersVariant={setCheckersVariant}
         onOpenRules={() => setIsRulesModalOpen(true)}
       />
 
