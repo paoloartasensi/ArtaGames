@@ -14,6 +14,7 @@ import { PlayMode, Difficulty } from './types/game';
 import { Connect4Game } from './games/connect4/Connect4Game';
 import { CheckersGame } from './games/checkers/CheckersGame';
 import type { CheckersVariant } from './games/checkers/checkersEngine';
+import type { ChessVariant } from './games/chess/chessEngine';
 import { BattleshipGame } from './games/battleship/BattleshipGame';
 import { ChessGame } from './games/chess/ChessGame';
 import { GoGame } from './games/go/GoGame';
@@ -62,6 +63,19 @@ function AppContent() {
       return 'italian';
     }
   });
+  const [chessVariant, setChessVariantState] = useState<ChessVariant>(() => {
+    try {
+      return localStorage.getItem('arta.chessVariant') === 'kids' ? 'kids' : 'classic';
+    } catch {
+      return 'classic';
+    }
+  });
+  const setChessVariant = (v: ChessVariant) => {
+    setChessVariantState(v);
+    try {
+      localStorage.setItem('arta.chessVariant', v);
+    } catch {}
+  };
   const setCheckersVariant = (v: CheckersVariant) => {
     setCheckersVariantState(v);
     try {
@@ -126,6 +140,7 @@ function AppContent() {
 
               {activeGameId === 'chess' && (
                 <ChessGame
+                  variant={chessVariant}
                   key={gameKey}
                   playMode={playMode}
                   difficulty={difficulty}
@@ -456,6 +471,8 @@ function AppContent() {
         onLaunch={handleLaunchGame}
         checkersVariant={checkersVariant}
         onChangeCheckersVariant={setCheckersVariant}
+        chessVariant={chessVariant}
+        onChangeChessVariant={setChessVariant}
         onOpenRules={() => setIsRulesModalOpen(true)}
       />
 

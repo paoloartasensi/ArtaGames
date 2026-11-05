@@ -29,9 +29,14 @@ export interface ChessState {
   winner: ChessColor | 'draw' | null;
   moveHistory: ChessMove[];
   quietPlies?: number; // plies since the last capture or pawn move (50-move rule)
+  /** Easy kids' rules: no check/checkmate, you win by capturing the King. */
+  kingCapture?: boolean;
 }
 
-export function createInitialChessState(): ChessState {
+/** 'classic' = real rules (checkmate); 'kids' = win by capturing the King. */
+export type ChessVariant = 'classic' | 'kids';
+
+export function createInitialChessState(variant: ChessVariant = 'classic'): ChessState {
   const board: (ChessPiece | null)[][] = Array(8)
     .fill(null)
     .map(() => Array(8).fill(null));
@@ -61,6 +66,7 @@ export function createInitialChessState(): ChessState {
     winner: null,
     moveHistory: [],
     quietPlies: 0,
+    kingCapture: variant === 'kids',
   };
 }
 
@@ -258,6 +264,15 @@ export function getLegalMovesForColor(board: (ChessPiece | null)[][], color: Che
   return getAllMovesForColor(board, color).filter((m) => !isKingInCheck(boardAfter(board, m), color));
 }
 
+/** Moves of one piece under the state's rules (kids' rules let you leave the King in danger). */
+export function movesForPiece(state: ChessState, r: number, c: number): ChessMove[] {
+  return state.kingCapture ? getPieceMoves(state.board, r, c) : getLegalPieceMoves(state.board, r, c);
+}
+
+export function movesForColor(state: ChessState, color: ChessColor): ChessMove[] {
+  return state.kingCapture ? getAllMovesForColor(state.board, color) : getLegalMovesForColor(state.board, color);
+}
+
 export function applyChessMove(state: ChessState, move: ChessMove): ChessState {
   const newBoard = state.board.map((row) => [...row]);
   const piece = newBoard[move.fromR][move.fromC];
@@ -295,7 +310,13 @@ export function applyChessMove(state: ChessState, move: ChessMove): ChessState {
   const quietPlies = capturedPiece || piece.type === 'p' ? 0 : (state.quietPlies || 0) + 1;
 
   if (gameOver) {
-    // king captured (cannot happen with legal moves, kept as a safety net)
+    // King captured: kids' rules win (with real rules it can't happen)
+  } else if (state.kingCapture) {
+    // Kids' rules: no checkmate or stalemate, only a long draw if nobody makes progress
+    if (getAllMovesForColor(newBoard, nextTurn).length === 0 || quietPlies >= 100) {
+      gameOver = true;
+      winnerOrDraw = 'draw';
+    }
   } else if (getLegalMovesForColor(newBoard, nextTurn).length === 0) {
     // No legal move: checkmate if in check, otherwise stalemate (draw)
     gameOver = true;
@@ -319,6 +340,7 @@ export function applyChessMove(state: ChessState, move: ChessMove): ChessState {
     gameOver,
     winner: winnerOrDraw,
     quietPlies,
+    kingCapture: state.kingCapture,
     moveHistory: [...state.moveHistory, move],
   };
 }
@@ -333,8 +355,14 @@ const PIECE_VALUES: Record<ChessPieceType, number> = {
 };
 
 export function getBotChessMove(state: ChessState, difficulty: Difficulty): ChessMove | null {
-  const allMoves = getLegalMovesForColor(state.board, state.turn);
+  const allMoves = movesForColor(state, state.turn);
   if (allMoves.length === 0) return null;
+
+  // Kids' rules: always grab the King if you can, and never leave yours to be taken
+  if (state.kingCapture) {
+    const kingTake = allMoves.find((m) => m.captured?.type === 'k');
+    if (kingTake) return kingTake;
+  }
 
   if (difficulty === 'easy') {
     // 5-6 yo bot: random move, 30% chance to take free piece
@@ -371,7 +399,10 @@ export function getBotChessMove(state: ChessState, difficulty: Difficulty): Ches
     const after = boardAfter(state.board, m);
     const opp: ChessColor = state.turn === 'w' ? 'b' : 'w';
     if (isKingInCheck(after, opp)) {
-      score += getLegalMovesForColor(after, opp).length === 0 ? 10000 : 6; // mate / check
+      score += !state.kingCapture && getLegalMovesForColor(after, opp).length === 0 ? 10000 : 6; // mate / check
+    }
+    if (state.kingCapture && isKingInCheck(after, state.turn)) {
+      score -= 5000; // would leave our King to be captured
     }
     if (difficulty === 'hard' || difficulty === 'master') {
       // Don't leave the moved piece where it can be taken for free

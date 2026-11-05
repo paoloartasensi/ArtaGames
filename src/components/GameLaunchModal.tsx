@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { GameId, GAME_REGISTRY } from '../games/registry';
 import { PlayMode, Difficulty } from '../types/game';
 import type { CheckersVariant } from '../games/checkers/checkersEngine';
+import type { ChessVariant } from '../games/chess/chessEngine';
 import { Bot, Users, Play, HelpCircle, X } from 'lucide-react';
 
 interface GameLaunchModalProps {
@@ -11,6 +12,8 @@ interface GameLaunchModalProps {
   onLaunch: (mode: PlayMode, difficulty: Difficulty) => void;
   checkersVariant: CheckersVariant;
   onChangeCheckersVariant: (v: CheckersVariant) => void;
+  chessVariant: ChessVariant;
+  onChangeChessVariant: (v: ChessVariant) => void;
   onOpenRules: () => void;
 }
 
@@ -22,6 +25,8 @@ export const GameLaunchModal: React.FC<GameLaunchModalProps> = ({
   onOpenRules,
   checkersVariant,
   onChangeCheckersVariant,
+  chessVariant,
+  onChangeChessVariant,
 }) => {
   const [playMode, setPlayMode] = useState<PlayMode>('bot');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
@@ -123,6 +128,38 @@ export const GameLaunchModal: React.FC<GameLaunchModalProps> = ({
                     key={v}
                     type="button"
                     onClick={() => onChangeCheckersVariant(v)}
+                    className={`py-2.5 px-1 rounded-2xl border-2 transition-all cursor-pointer flex flex-col items-center ${
+                      isSelected
+                        ? 'border-amber-500 bg-amber-500/20 text-amber-700 dark:text-amber-300 border-b-4 border-b-amber-600 shadow-sm'
+                        : 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400'
+                    }`}
+                  >
+                    <span className="text-xs font-black">{label}</span>
+                    <span className="text-[10px] font-bold opacity-75">{hint}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Rules variant (Scacchi only) */}
+        {gameId === 'chess' && (
+          <div className="w-full mt-4 space-y-2">
+            <label className="text-xs font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+              Regole
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {([
+                ['classic', '♔ Vere', 'Vince lo scacco matto'],
+                ['kids', '🧸 Facili', 'Vince chi mangia il Re'],
+              ] as [ChessVariant, string, string][]).map(([v, label, hint]) => {
+                const isSelected = chessVariant === v;
+                return (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => onChangeChessVariant(v)}
                     className={`py-2.5 px-1 rounded-2xl border-2 transition-all cursor-pointer flex flex-col items-center ${
                       isSelected
                         ? 'border-amber-500 bg-amber-500/20 text-amber-700 dark:text-amber-300 border-b-4 border-b-amber-600 shadow-sm'

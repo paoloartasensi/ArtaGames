@@ -3,7 +3,8 @@ import { PlayMode, Difficulty } from '../../types/game';
 import {
   ChessState,
   createInitialChessState,
-  getLegalPieceMoves,
+  movesForPiece,
+  ChessVariant,
   applyChessMove,
   getBotChessMove,
   ChessPiece,
@@ -18,6 +19,7 @@ import { GridSlidePiece, FADE } from '../../utils/animations';
 import { AlertCircle } from 'lucide-react';
 
 interface ChessGameProps {
+  variant?: ChessVariant;
   playMode: PlayMode;
   difficulty: Difficulty;
   onOpenRules: () => void;
@@ -77,6 +79,7 @@ const PieceGlyph: React.FC<{ piece: ChessPiece; isSelected: boolean; upsideDown?
 );
 
 export const ChessGame: React.FC<ChessGameProps> = ({
+  variant = 'classic',
   playMode,
   difficulty,
   onSelectGame,
@@ -85,7 +88,7 @@ export const ChessGame: React.FC<ChessGameProps> = ({
   const { theme, isDark } = useTheme();
   // 2 giocatori uno di fronte all'altro: i pezzi neri sono girati verso il Nero
   const faceToFace = playMode === 'local_pvp';
-  const [gameState, setGameState] = useState<ChessState>(createInitialChessState());
+  const [gameState, setGameState] = useState<ChessState>(createInitialChessState(variant));
   const [isBotThinking, setIsBotThinking] = useState(false);
 
   // BOT Move
@@ -115,7 +118,7 @@ export const ChessGame: React.FC<ChessGameProps> = ({
     // Case 1: Clicked friendly piece -> select and show available moves
     if (clickedPiece && clickedPiece.color === gameState.turn) {
       sound.playTick();
-      const moves = getLegalPieceMoves(gameState.board, r, c);
+      const moves = movesForPiece(gameState, r, c);
       setGameState({
         ...gameState,
         selectedPos: { r, c },
@@ -144,7 +147,7 @@ export const ChessGame: React.FC<ChessGameProps> = ({
   };
 
   const handleRestart = () => {
-    setGameState(createInitialChessState());
+    setGameState(createInitialChessState(variant));
   };
 
   const selectedPieceName = gameState.selectedPos
@@ -171,7 +174,7 @@ export const ChessGame: React.FC<ChessGameProps> = ({
       {gameState.inCheck && !gameState.gameOver && (
         <div className="w-full bg-red-500/20 text-red-300 border border-red-500/30 px-3 py-1.5 rounded-xl mb-2 flex items-center justify-center gap-2 text-xs font-bold animate-pulse">
           <AlertCircle className="w-4 h-4" />
-          <span>Attenzione: Re sotto Scacco!</span>
+          <span>{gameState.kingCapture ? 'Attenzione: il tuo Re può essere mangiato!' : 'Attenzione: Re sotto Scacco!'}</span>
         </div>
       )}
 
@@ -287,20 +290,28 @@ export const ChessGame: React.FC<ChessGameProps> = ({
         isOpen={gameState.gameOver}
         winnerTitle={
           gameState.winner === 'draw'
-            ? 'Stallo: patta! 🤝'
+            ? 'Patta! 🤝'
+            : gameState.kingCapture
+            ? gameState.winner === 'w'
+              ? 'Re mangiato! Vince il Bianco 👑'
+              : 'Re mangiato! Vince il Nero 👑'
             : gameState.winner === 'w'
             ? 'Scacco matto! Vince il Bianco 👑'
             : 'Scacco matto! Vince il Nero 👑'
         }
         winnerSubtitle={
           gameState.winner === 'draw'
-            ? 'Il Re non è sotto scacco ma non può muoversi: nessuno vince.'
+            ? 'Nessuno può più vincere: la partita finisce in parità.'
             : gameState.winner === 'w'
             ? playMode === 'bot'
-              ? 'Complimenti grandissimo scacchista! Hai dato scacco matto al BOT!'
+              ? gameState.kingCapture
+                ? 'Complimenti! Hai mangiato il Re del BOT!'
+                : 'Complimenti grandissimo scacchista! Hai dato scacco matto al BOT!'
               : 'Grandissima partita per il Giocatore Bianco!'
             : playMode === 'bot'
-            ? 'Il BOT ti ha dato scacco matto. Vuoi la rivincita?'
+            ? gameState.kingCapture
+              ? 'Il BOT ha mangiato il tuo Re. Vuoi la rivincita?'
+              : 'Il BOT ti ha dato scacco matto. Vuoi la rivincita?'
             : 'Grandissima partita per il Giocatore Nero!'
         }
         onRematch={handleRestart}
