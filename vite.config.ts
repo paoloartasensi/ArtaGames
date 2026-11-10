@@ -46,6 +46,30 @@ function transpileLegacyPolyfillsPlugin() {
   };
 }
 
+function devServiceWorkerStubPlugin() {
+  return {
+    name: 'dev-sw-stub',
+    configureServer(server: any) {
+      server.middlewares.use((req: any, res: any, next: any) => {
+        const url = req.url?.split('?')[0];
+        if (
+          url === '/registerSW.js' ||
+          url === '/ArtaGames/registerSW.js' ||
+          url === '/dev-sw.js' ||
+          url === '/ArtaGames/dev-sw.js' ||
+          url === '/sw.js' ||
+          url === '/ArtaGames/sw.js'
+        ) {
+          res.setHeader('Content-Type', 'application/javascript');
+          res.end('// SW stub in dev\nif (typeof navigator !== "undefined" && "serviceWorker" in navigator) {}\n');
+          return;
+        }
+        next();
+      });
+    },
+  };
+}
+
 export default defineConfig(({ command }) => {
   const isDev = command === 'serve';
   const base = isDev ? '/' : '/ArtaGames/';
@@ -59,6 +83,7 @@ export default defineConfig(({ command }) => {
     },
     plugins: [
       react(),
+      devServiceWorkerStubPlugin(),
       legacy({
         targets: LEGACY_TARGETS,
       }),
@@ -122,8 +147,7 @@ export default defineConfig(({ command }) => {
           ],
         },
         devOptions: {
-          enabled: true,
-          type: 'module',
+          enabled: false,
         },
       }),
     ],
