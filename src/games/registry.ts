@@ -26,7 +26,8 @@ export type GameId =
   | 'sudoku'
   | 'puzzle15'
   | 'mastermind'
-  | 'hanoi';
+  | 'hanoi'
+  | 'soroban';
 
 export interface GameMetadata {
   id: GameId;
@@ -607,6 +608,28 @@ export const GAME_REGISTRY: Record<GameId, GameMetadata> = {
     },
     boardDescription: 'Tre paletti e da 3 a 6 dischi colorati',
     iconName: 'Layers',
+  },
+  soroban: {
+    id: 'soroban',
+    modes: 'solo',
+    title: 'Soroban Giapponese',
+    subtitle: 'Calcola le somme facendo scorrere le pedine',
+    minAge: '5+ anni',
+    category: 'Logica',
+    summary: 'Il tradizionale abaco giapponese: fai scorrere le pedine verso la barra centrale per comporre i numeri e risolvere le somme segrete!',
+    rulesKidFriendly: {
+      title: 'Come funziona il Soroban',
+      steps: [
+        'La barra orizzontale al centro è la barra dei calcoli: una pedina conta solo quando tocca la barra!',
+        'In alto c\'è 1 pedina del Cielo che vale 5: abbassala verso la barra per aggiungere 5.',
+        'In basso ci sono 4 pedine della Terra che valgono 1 ciascuna: alzale verso la barra per contare 1, 2, 3 o 4.',
+        'Ogni asta da destra a sinistra moltiplica per 10: Unità, Decine, Centinaia, Migliaia.',
+        'Premi "Nuova Somma 🎲" per una sfida: quando le pedine formano il totale esatto, il risultato segreto si rivela con i coriandoli!',
+      ],
+      tip: 'Consiglio: per fare 7, abbassa la pedina da 5 e alza 2 pedine da 1 (5 + 2 = 7)!',
+    },
+    boardDescription: 'Abaco in legno a 5 aste con pedine biconiche e sfide di somme',
+    iconName: 'Calculator',
   },
 };
 

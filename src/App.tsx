@@ -41,12 +41,19 @@ import { SudokuGame } from './games/sudoku/SudokuGame';
 import { Puzzle15Game } from './games/puzzle15/Puzzle15Game';
 import { MastermindGame } from './games/mastermind/MastermindGame';
 import { HanoiGame } from './games/hanoi/HanoiGame';
+import { SorobanGame } from './games/soroban/SorobanGame';
 
 function AppContent() {
   const { theme } = useTheme();
 
   const [activeGameId, setActiveGameId] = useState<GameId>('connect4');
   const [viewMode, setViewMode] = useState<'catalog' | 'game'>('catalog');
+
+  React.useEffect(() => {
+    // Automatically clear any harmless early-load warnings once React is booted
+    const errDiv = document.getElementById('debug-err');
+    if (errDiv) errDiv.remove();
+  }, []);
   const [playMode, setPlayMode] = useState<PlayMode>('bot');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
@@ -404,6 +411,17 @@ function AppContent() {
 
               {activeGameId === 'hanoi' && (
                 <HanoiGame
+                  key={gameKey}
+                  playMode={playMode}
+                  difficulty={difficulty}
+                  onOpenRules={() => setIsRulesModalOpen(true)}
+                  onSelectGame={() => setViewMode('catalog')}
+                  isTabletFlipped={isTabletFlipped}
+                />
+              )}
+
+              {activeGameId === 'soroban' && (
+                <SorobanGame
                   key={gameKey}
                   playMode={playMode}
                   difficulty={difficulty}

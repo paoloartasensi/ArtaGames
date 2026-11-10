@@ -33,9 +33,10 @@ const GAME_EMOJIS: Record<GameId, string> = {
   tetris: '🧱',
   pacman: '🟡',
   sudoku: '🔢',
-  puzzle15: '🧮',
+  puzzle15: '🧩',
   mastermind: '🔐',
   hanoi: '🗼',
+  soroban: '🧮',
 };
 
 const GAME_THEMES: Record<GameId, { bgGradient: string; borderDark: string; sub: string }> = {
@@ -67,13 +68,14 @@ const GAME_THEMES: Record<GameId, { bgGradient: string; borderDark: string; sub:
   puzzle15: { bgGradient: 'from-[#f472b6] to-[#db2777]', borderDark: '#be185d', sub: 'Gioco del 15' },
   mastermind: { bgGradient: 'from-[#818cf8] to-[#4f46e5]', borderDark: '#4338ca', sub: 'Codice Segreto' },
   hanoi: { bgGradient: 'from-[#fb923c] to-[#ea580c]', borderDark: '#c2410c', sub: 'Torre di Hanoi' },
+  soroban: { bgGradient: 'from-[#b45309] to-[#78350f]', borderDark: '#451a03', sub: 'Abaco Soroban' },
 };
 
 const CATEGORIES: { id: string; label: string; ids?: GameId[] }[] = [
   { id: 'all', label: 'TUTTI' },
   { id: 'classic', label: 'CLASSICI', ids: ['ludo', 'checkers', 'chess', 'snakes', 'domino', 'guesswho', 'goose', 'uno', 'tetris'] },
   { id: 'strategy', label: 'STRATEGIA', ids: ['connect4', 'go', 'reversi', 'quarto', 'morris', 'abalone'] },
-  { id: 'logic', label: 'LOGICA', ids: ['sudoku', 'puzzle15', 'mastermind', 'hanoi', 'memory', 'simon'] },
+  { id: 'logic', label: 'LOGICA', ids: ['sudoku', 'puzzle15', 'mastermind', 'hanoi', 'soroban', 'memory', 'simon'] },
   { id: 'quick', label: 'RAPIDI 1v1', ids: ['tictactoe', 'dotsboxes', 'memory', 'nim', 'battleship', 'gomoku', 'simon', 'pacman'] },
 ];
 

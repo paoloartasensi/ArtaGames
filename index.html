@@ -19,7 +19,13 @@
     <div id="root"></div>
     <script>
       window.addEventListener('error', function(e) {
-        if (e && e.message && (e.message.indexOf('import.meta') !== -1 || e.message.indexOf('loading legacy chunks') !== -1)) {
+        var msg = (e && e.message) || '';
+        if (
+          msg.indexOf('import.meta') !== -1 ||
+          msg.indexOf('loading legacy chunks') !== -1 ||
+          msg.indexOf('SendBeforeConnectError') !== -1 ||
+          msg.indexOf('WebSocket') !== -1
+        ) {
           return;
         }
         var errDiv = document.getElementById('debug-err');

@@ -99,6 +99,37 @@ class SoundSystem {
     } catch {}
   }
 
+  public playBead(pitch = 1) {
+    if (!this.enabled) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const filter = this.ctx.createBiquadFilter();
+
+      const baseFreq = 520 * pitch;
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(baseFreq, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.45, this.ctx.currentTime + 0.045);
+
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(baseFreq * 1.5, this.ctx.currentTime);
+      filter.Q.setValueAtTime(3, this.ctx.currentTime);
+
+      gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.045);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.045);
+    } catch {}
+  }
+
   public playCapture() {
     if (!this.enabled) return;
     this.initContext();
@@ -180,6 +211,10 @@ class SoundSystem {
       osc.start();
       osc.stop(this.ctx.currentTime + 0.18);
     } catch {}
+  }
+
+  public playVictory() {
+    this.playWin();
   }
 
   public playWin() {
