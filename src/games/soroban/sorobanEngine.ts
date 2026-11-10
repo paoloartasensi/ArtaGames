@@ -3,13 +3,30 @@ export interface SorobanRod {
   lower: number; // 0..4 = count of beads active (moved UP against the beam = 1 each)
 }
 
-export interface SorobanSumChallenge {
+export type SorobanOpType = '+' | '-' | '×';
+
+export interface SorobanChallenge {
   num1: number;
   num2: number;
+  op: SorobanOpType;
+  target: number;
+}
+
+// Backwards-compatible alias
+export type SorobanSumChallenge = SorobanChallenge;
+
+export interface AnzanSequenceStep {
+  value: number; // e.g. 3, 5, -2, 1
+  display: string; // e.g. "+3", "+5", "-2", "+1"
+}
+
+export interface AnzanChallenge {
+  steps: AnzanSequenceStep[];
   target: number;
 }
 
 export type SorobanDifficulty = 'easy' | 'medium' | 'hard';
+export type SorobanMode = 'challenge' | 'anzan' | 'free' | 'school';
 
 export const ROD_COUNT = 9;
 
@@ -67,37 +84,124 @@ export function numberToSorobanRods(num: number, rodCount = ROD_COUNT): SorobanR
 }
 
 /**
- * Generates a random addition challenge based on difficulty
+ * Generates an arithmetic challenge (+, -, ×, or mixed) based on difficulty
  */
-export function generateSumChallenge(difficulty: SorobanDifficulty, prevTarget?: number): SorobanSumChallenge {
+export function generateSorobanChallenge(
+  op: '+' | '-' | '×' | 'mixed',
+  difficulty: SorobanDifficulty,
+  prevTarget?: number
+): SorobanChallenge {
+  const actualOp: SorobanOpType = op === 'mixed'
+    ? (['+', '-', '×'][Math.floor(Math.random() * 3)] as SorobanOpType)
+    : op;
+
   let num1 = 0;
   let num2 = 0;
+  let target = 0;
   let attempts = 0;
 
   do {
     attempts++;
-    if (difficulty === 'easy') {
-      // 5-6 year olds: sums up to 20 (single digits and friendly tens)
-      const maxEasy = Math.random() > 0.4 ? 10 : 20;
-      num1 = Math.floor(Math.random() * (maxEasy - 2)) + 1;
-      const remaining = maxEasy - num1;
-      num2 = Math.floor(Math.random() * Math.max(1, remaining)) + 1;
-    } else if (difficulty === 'medium') {
-      // 2-digit sums: e.g. 15 + 23 = 38, up to 99
-      num1 = Math.floor(Math.random() * 50) + 10;
-      num2 = Math.floor(Math.random() * 45) + 5;
+
+    if (actualOp === '+') {
+      if (difficulty === 'easy') {
+        const maxEasy = Math.random() > 0.4 ? 10 : 20;
+        num1 = Math.floor(Math.random() * (maxEasy - 2)) + 1;
+        const remaining = maxEasy - num1;
+        num2 = Math.floor(Math.random() * Math.max(1, remaining)) + 1;
+      } else if (difficulty === 'medium') {
+        num1 = Math.floor(Math.random() * 50) + 10;
+        num2 = Math.floor(Math.random() * 45) + 5;
+      } else {
+        num1 = Math.floor(Math.random() * 500) + 100;
+        num2 = Math.floor(Math.random() * 400) + 50;
+      }
+      target = num1 + num2;
+    } else if (actualOp === '-') {
+      // Subtractions always positive for children & soroban learning
+      if (difficulty === 'easy') {
+        num1 = Math.floor(Math.random() * 15) + 4; // 4..18
+        num2 = Math.floor(Math.random() * (num1 - 1)) + 1;
+      } else if (difficulty === 'medium') {
+        num1 = Math.floor(Math.random() * 70) + 25; // 25..94
+        num2 = Math.floor(Math.random() * (num1 - 10)) + 5;
+      } else {
+        num1 = Math.floor(Math.random() * 700) + 200;
+        num2 = Math.floor(Math.random() * (num1 - 50)) + 20;
+      }
+      target = num1 - num2;
     } else {
-      // 3-digit sums: e.g. 135 + 242 = 377, up to 999
-      num1 = Math.floor(Math.random() * 500) + 100;
-      num2 = Math.floor(Math.random() * 400) + 50;
+      // Multiplication
+      if (difficulty === 'easy') {
+        num1 = Math.floor(Math.random() * 8) + 2; // 2..9
+        num2 = Math.floor(Math.random() * 8) + 2; // 2..9
+      } else if (difficulty === 'medium') {
+        num1 = Math.floor(Math.random() * 18) + 11; // 11..28
+        num2 = Math.floor(Math.random() * 7) + 2; // 2..8
+      } else {
+        num1 = Math.floor(Math.random() * 40) + 20; // 20..59
+        num2 = Math.floor(Math.random() * 15) + 6; // 6..20
+      }
+      target = num1 * num2;
     }
-  } while (num1 + num2 === prevTarget && attempts < 10);
+  } while (target === prevTarget && attempts < 10);
 
   return {
     num1,
     num2,
-    target: num1 + num2,
+    op: actualOp,
+    target,
   };
+}
+
+/**
+ * Generates an Anzan flash sequence of operations
+ * e.g. 3 to 6 numbers flashing one by one: "+4", "+5", "-2", "+1" -> target = 8
+ */
+export function generateAnzanSequence(difficulty: SorobanDifficulty): AnzanChallenge {
+  const count = difficulty === 'easy' ? 3 : difficulty === 'medium' ? 4 : 5;
+  const steps: AnzanSequenceStep[] = [];
+  let currentTotal = 0;
+
+  for (let i = 0; i < count; i++) {
+    let val = 0;
+    if (i === 0) {
+      // First number is always positive
+      val = difficulty === 'easy'
+        ? Math.floor(Math.random() * 8) + 1 // 1..8
+        : difficulty === 'medium'
+        ? Math.floor(Math.random() * 20) + 5
+        : Math.floor(Math.random() * 50) + 15;
+    } else {
+      // Subsequent numbers can be positive or negative, but total must stay > 0 and reasonable
+      const canSubtract = currentTotal > (difficulty === 'easy' ? 4 : 10);
+      const isSub = canSubtract && Math.random() > 0.45;
+
+      if (isSub) {
+        const maxSub = Math.min(currentTotal - 1, difficulty === 'easy' ? 5 : 20);
+        val = -(Math.floor(Math.random() * Math.max(1, maxSub)) + 1);
+      } else {
+        const maxAdd = difficulty === 'easy' ? 6 : difficulty === 'medium' ? 18 : 35;
+        val = Math.floor(Math.random() * maxAdd) + 1;
+      }
+    }
+
+    currentTotal += val;
+    steps.push({
+      value: val,
+      display: val > 0 && i > 0 ? `+${val}` : `${val}`,
+    });
+  }
+
+  return {
+    steps,
+    target: currentTotal,
+  };
+}
+
+// Backwards-compatible alias
+export function generateSumChallenge(difficulty: SorobanDifficulty, prevTarget?: number): SorobanChallenge {
+  return generateSorobanChallenge('+', difficulty, prevTarget);
 }
 
 /**
