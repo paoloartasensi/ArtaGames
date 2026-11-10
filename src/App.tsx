@@ -440,7 +440,7 @@ function AppContent() {
         <ExitButton onExit={() => setViewMode('catalog')} />
 
         {/* Board Container */}
-        <div className="w-full h-full flex flex-col items-center justify-center overflow-y-auto py-2 sm:py-3 px-1 sm:px-3">
+        <div className="w-full h-full flex flex-col items-center justify-start overflow-y-auto py-1 sm:py-2 px-1 sm:px-2">
           {renderActiveGameBoard()}
         </div>
 
